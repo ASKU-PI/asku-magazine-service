@@ -7,9 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.time.Duration;
@@ -32,5 +34,12 @@ public class AskuMagazineServiceApplication {
                                 .timeoutDuration(Duration.ofSeconds(4)).build())
                         .circuitBreakerConfig(CircuitBreakerConfig.custom().minimumNumberOfCalls(5).build())
                         .build());
+    }
+
+    @LoadBalanced
+    @Bean("accountRestTemplate")
+    public RestTemplate accountService(){
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate;
     }
 }
