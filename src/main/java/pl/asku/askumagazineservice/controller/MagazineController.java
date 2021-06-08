@@ -31,6 +31,7 @@ public class MagazineController {
     public ResponseEntity addMagazine(
             @RequestBody MagazineDto magazineDto,
             @RequestHeader("Username") Optional<String> username){
+        System.out.println("dd");
         if(username.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
