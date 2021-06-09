@@ -76,7 +76,8 @@ public class MagazineService {
     @Transactional
     public Reservation addReservation(ReservationDto reservationDto, String username){
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getId());
-        if(magazine.isEmpty() || !checkIfMagazineAvailable(
+        if(magazine.isEmpty() || reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
+                !checkIfMagazineAvailable(
                 magazine.get(),
                 reservationDto.getStartDate(),
                 reservationDto.getEndDate(),
