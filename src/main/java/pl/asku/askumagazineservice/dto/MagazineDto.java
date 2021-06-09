@@ -6,7 +6,8 @@ import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.MagazineType;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -21,13 +22,13 @@ public class MagazineDto {
     private String owner;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Date createdDate;
+    private LocalDate createdDate;
 
     private String location;
 
-    private Date startDate;
+    private LocalDate startDate;
 
-    private Date endDate;
+    private LocalDate endDate;
 
     private Float areaInMeters;
 

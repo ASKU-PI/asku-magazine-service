@@ -3,7 +3,9 @@ package pl.asku.askumagazineservice.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "magazine")
@@ -16,20 +18,29 @@ public class Magazine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(unique = true, updatable = false)
     private Long id;
 
-    private Date createdDate;
+    private LocalDate createdDate;
 
+    @NotNull
+    @NotBlank
     private String owner;
 
+    @NotNull
+    @NotBlank
     private String location;
 
-    private Date startDate;
+    @NotNull
+    private LocalDate startDate;
 
-    private Date endDate;
+    @NotNull
+    private LocalDate endDate;
 
+    @NotNull
     private Float areaInMeters;
 
+    @NotNull
     private Float pricePerMeter;
 
     @Enumerated(EnumType.STRING)

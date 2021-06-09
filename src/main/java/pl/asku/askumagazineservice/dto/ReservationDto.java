@@ -2,7 +2,6 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import pl.asku.askumagazineservice.model.MagazineType;
 
 import java.time.LocalDate;
 
@@ -11,17 +10,15 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MagazinePreviewDto {
+public class ReservationDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String owner;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate createdDate;
 
-    private String location;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String user;
 
     private LocalDate startDate;
 
@@ -29,7 +26,5 @@ public class MagazinePreviewDto {
 
     private Float areaInMeters;
 
-    private Float pricePerMeter;
-
-    private MagazineType type;
+    private Long magazineId;
 }

@@ -3,6 +3,7 @@ package pl.asku.askumagazineservice.controller;
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,16 +24,10 @@ public class MagazineController {
 
     private final MagazineService magazineService;
 
-    @GetMapping("/hello")
-    public String hello(){
-        return "hello";
-    }
-
     @PostMapping("/add")
     public ResponseEntity addMagazine(
             @RequestBody MagazineDto magazineDto,
             @RequestHeader("Username") Optional<String> username){
-        System.out.println("dd");
         if(username.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
@@ -87,11 +83,17 @@ public class MagazineController {
     @GetMapping("/search")
     public ResponseEntity<List<MagazinePreviewDto>> searchMagazines(
             @RequestParam Optional<Integer> page,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam Float minArea,
             @QuerydslPredicate(root = Magazine.class) Predicate predicate
     ){
         List<Magazine> magazines = magazineService.searchMagazines(
                 predicate,
-                page.map(integer -> integer - 1).orElse(0)
+                page.map(integer -> integer - 1).orElse(0),
+                start,
+                end,
+                minArea
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
