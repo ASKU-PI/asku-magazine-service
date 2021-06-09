@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
-import pl.asku.askumagazineservice.model.*;
+import pl.asku.askumagazineservice.model.Heating;
+import pl.asku.askumagazineservice.model.Light;
+import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.time.LocalDate;
