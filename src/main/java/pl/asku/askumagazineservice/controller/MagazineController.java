@@ -1,8 +1,6 @@
 package pl.asku.askumagazineservice.controller;
 
-import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
-import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
