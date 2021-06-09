@@ -3,6 +3,7 @@ package pl.asku.askumagazineservice.service;
 import lombok.AllArgsConstructor;
 import org.hibernate.query.criteria.internal.predicate.BooleanExpressionPredicate;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class MagazineService {
                 .minAreaToRent(magazineDto.getMinAreaToRent())
                 .ownerTransport(magazineDto.getOwnerTransport())
                 .description(magazineDto.getDescription())
+                .freeSpace(magazineDto.getAreaInMeters())
                 .build();
 
         return magazineRepository.save(magazine);
@@ -100,6 +102,7 @@ public class MagazineService {
                             predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("location"), location)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("freeSpace"), area)));
                             pricePerMeter.ifPresent(aFloat -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aFloat))));
                             type.ifPresent(magazineType -> predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), magazineType))));
                             heating.ifPresent(aHeating -> predicates.add(criteriaBuilder.and((criteriaBuilder.equal(root.get("heating"), aHeating)))));
@@ -122,16 +125,22 @@ public class MagazineService {
                         },
                         PageRequest.of(page, 20))
                 .stream()
-                .filter(magazine -> checkIfMagazineAvailable(magazine, start, end, area))
                 .collect(Collectors.toList());
     }
 
+    public Reservation addReservationAndUpdateMagazineFreeSpace(ReservationDto reservationDto, String username){
+        Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
+        if(magazine.isEmpty()) return null;
+        Reservation reservation = addReservation(magazine.get(), reservationDto, username);
+        updateMagazineFreeSpace(magazine.get(), magazine.get().getFreeSpace() - reservation.getAreaInMeters());
+        return reservation;
+    }
+
     @Transactional
-    public Reservation addReservation(ReservationDto reservationDto, String username){
-        Optional<Magazine> magazine = getMagazineDetails(reservationDto.getId());
-        if(magazine.isEmpty() || reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
+    public Reservation addReservation(Magazine magazine, ReservationDto reservationDto, String username){
+        if(reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
                 !checkIfMagazineAvailable(
-                magazine.get(),
+                magazine,
                 reservationDto.getStartDate(),
                 reservationDto.getEndDate(),
                 reservationDto.getAreaInMeters())){
@@ -143,37 +152,49 @@ public class MagazineService {
                 .startDate(reservationDto.getStartDate())
                 .endDate(reservationDto.getEndDate())
                 .areaInMeters(reservationDto.getAreaInMeters())
+                .magazine(magazine)
                 .build();
         return reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public void updateMagazineFreeSpace(Magazine magazine, Float space){
+        magazine.setFreeSpace(space);
+        magazineRepository.save(magazine);
     }
 
     @Transactional(readOnly = true)
     public boolean checkIfMagazineAvailable(Magazine magazine,
                                      LocalDate start, LocalDate end, Float area){
-        if(magazine.getAreaInMeters() < area || magazine.getStartDate().compareTo(start) > 0 ||
+        if(magazine.getAreaInMeters() < area || magazine.getMinAreaToRent() > area
+                || magazine.getStartDate().compareTo(start) > 0 ||
             magazine.getEndDate().compareTo(end) < 0){
             return false;
         }
+        Float takenArea = getTakenArea(magazine.getId(), start, end);
+        return magazine.getAreaInMeters() - takenArea >= area;
+    }
+
+    private Float getTakenArea(Long magazineId, LocalDate start, LocalDate end){
         List<Reservation> reservations = reservationRepository
-                .findByMagazine_Id(magazine.getId())
+                .findByMagazine_Id(magazineId)
                 .stream()
                 .filter(reservation -> (start.compareTo(reservation.getStartDate()) >= 0
-                                        && start.compareTo(reservation.getEndDate()) <= 0) ||
-                                        (end.compareTo(reservation.getStartDate()) >= 0
-                                        && end.compareTo(reservation.getEndDate()) <= 0) ||
-                                        (start.compareTo(reservation.getStartDate()) <= 0
-                                        && end.compareTo(reservation.getEndDate()) >= 0) ||
-                                        (start.compareTo(reservation.getStartDate()) >= 0
-                                        && end.compareTo(reservation.getEndDate()) <= 0))
+                        && start.compareTo(reservation.getEndDate()) <= 0) ||
+                        (end.compareTo(reservation.getStartDate()) >= 0
+                                && end.compareTo(reservation.getEndDate()) <= 0) ||
+                        (start.compareTo(reservation.getStartDate()) <= 0
+                                && end.compareTo(reservation.getEndDate()) >= 0) ||
+                        (start.compareTo(reservation.getStartDate()) >= 0
+                                && end.compareTo(reservation.getEndDate()) <= 0))
                 .collect(Collectors.toList());
         if(reservations.isEmpty()){
-            return true;
+            return 0.0f;
         }
-        Float takenArea = reservations
+        return reservations
                 .stream()
                 .map(Reservation::getAreaInMeters)
                 .reduce(0.0f, Float::sum);
-        return magazine.getAreaInMeters() - takenArea >= area;
     }
 
 }

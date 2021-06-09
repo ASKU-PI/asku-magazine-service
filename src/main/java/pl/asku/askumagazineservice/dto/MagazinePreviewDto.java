@@ -32,4 +32,7 @@ public class MagazinePreviewDto {
     private Float pricePerMeter;
 
     private MagazineType type;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Float freeSpace;
 }

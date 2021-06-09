@@ -6,13 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.model.Heating;
-import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.Magazine;
-import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.model.*;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import javax.validation.constraints.AssertTrue;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +53,8 @@ class AskuMagazineServiceApplicationTests {
             false,
             10.0f,
             false,
-            "Lorem ipsum"
+            "Lorem ipsum",
+            null
     );
 
     @Autowired
@@ -240,6 +240,33 @@ class AskuMagazineServiceApplicationTests {
                 () -> assertEquals(monitoring, magazine.getMonitoring()),
                 () -> assertEquals(electricity, magazine.getElectricity())
         ));
+    }
+
+    @Test
+    public void addReservationUpdatesMagazineFreeSpace(){
+        //given
+        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
+        String username = "test";
+
+        //when
+        Float area = magazineDto.getMinAreaToRent() + 2.0f;
+        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+        magazineService.addReservationAndUpdateMagazineFreeSpace(
+                new ReservationDto(
+                        null,
+                        null,
+                        null,
+                        magazine.getStartDate().plusDays(1),
+                        magazine.getEndDate().minusDays(1),
+                        area,
+                        magazine.getId()),
+                username
+        );
+
+        //then
+        Optional<Magazine> updatedMagazine = magazineService.getMagazineDetails(magazine.getId());
+        Assertions.assertTrue(updatedMagazine.isPresent());
+        Assertions.assertEquals(magazineDto.getAreaInMeters() - area, updatedMagazine.get().getFreeSpace(), 0.005f);
     }
 
 }

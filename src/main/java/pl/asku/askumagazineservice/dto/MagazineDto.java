@@ -71,4 +71,7 @@ public class MagazineDto {
     private Boolean ownerTransport;
 
     private String description;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Float freeSpace;
 }

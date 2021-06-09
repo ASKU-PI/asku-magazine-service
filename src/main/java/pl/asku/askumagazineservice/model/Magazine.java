@@ -85,4 +85,7 @@ public class Magazine {
 
     private String description;
 
+    @NotNull
+    private Float freeSpace;
+
 }

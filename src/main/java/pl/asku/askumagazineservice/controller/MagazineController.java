@@ -79,7 +79,8 @@ public class MagazineController {
                         magazine.get().getVehicleManoeuvreArea(),
                         magazine.get().getMinAreaToRent(),
                         magazine.get().getOwnerTransport(),
-                        magazine.get().getDescription()
+                        magazine.get().getDescription(),
+                        magazine.get().getFreeSpace()
                 ));
     }
 
@@ -145,7 +146,8 @@ public class MagazineController {
                         magazine.getEndDate(),
                         magazine.getAreaInMeters(),
                         magazine.getPricePerMeter(),
-                        magazine.getType()
+                        magazine.getType(),
+                        magazine.getFreeSpace()
                 )).collect(Collectors.toList()));
     }
 }

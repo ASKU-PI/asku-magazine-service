@@ -26,7 +26,7 @@ public class ReservationController {
                     .status(HttpStatus.FORBIDDEN)
                     .body("You must pass Username in the header!");
         }
-        Reservation reservation = magazineService.addReservation(reservationDto, username.get());
+        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(reservationDto, username.get());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Reservation created: " + reservation.getId());
