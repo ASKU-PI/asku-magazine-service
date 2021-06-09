@@ -1,8 +1,5 @@
 package pl.asku.askumagazineservice;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.dsl.Expressions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +132,114 @@ class AskuMagazineServiceApplicationTests {
         //then
         assertTrue(magazineDetails.isPresent());
         Assertions.assertEquals(magazine, magazineDetails.get());
+    }
+
+    @Test
+    public void searchMagazinesShouldReturnMagazines(){
+        //given
+        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
+        String username = "test";
+
+        int magazinesToAdd = 5;
+        int page = 0;
+        LocalDate startDate = magazineDto.getStartDate().plusDays(1);
+        LocalDate endDate = magazineDto.getEndDate().minusDays(1);
+        String location = magazineDto.getLocation();
+        Float area = 15.0f;
+
+        //when
+        IntStream.range(0, magazinesToAdd).forEach($ -> magazineService.addMagazine(magazineDto, username));
+        List<Magazine> searchResult = magazineService.searchMagazines(
+                page,
+                location,
+                startDate,
+                endDate,
+                area,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+
+        //then
+        Assertions.assertTrue(searchResult.size() >= magazinesToAdd);
+
+    }
+
+    @Test
+    public void searchMagazinesBooleanFiltersWork(){
+        //given
+        String username = "test";
+
+        Boolean antiTheftDoors = true;
+        Boolean electricity = false;
+        Boolean monitoring = true;
+
+        MagazineDto matchingMagazine = testMagazineDtoTemplate.toBuilder().build();
+        matchingMagazine.setAntiTheftDoors(antiTheftDoors);
+        matchingMagazine.setElectricity(electricity);
+        matchingMagazine.setMonitoring(monitoring);
+
+        MagazineDto notMatchingMagazine = testMagazineDtoTemplate.toBuilder().build();
+        notMatchingMagazine.setAntiTheftDoors(!antiTheftDoors);
+        notMatchingMagazine.setElectricity(!electricity);
+        notMatchingMagazine.setMonitoring(!monitoring);
+
+        int page = 0;
+        LocalDate startDate = matchingMagazine.getStartDate().plusDays(1);
+        LocalDate endDate = matchingMagazine.getEndDate().minusDays(1);
+        String location = matchingMagazine.getLocation();
+        Float area = 15.0f;
+
+        //when
+        magazineService.addMagazine(matchingMagazine, username);
+        magazineService.addMagazine(notMatchingMagazine, username);
+        List<Magazine> searchResult = magazineService.searchMagazines(
+                page,
+                location,
+                startDate,
+                endDate,
+                area,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(antiTheftDoors),
+                Optional.of(monitoring),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(electricity),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+
+        //then
+        searchResult.forEach(magazine -> Assertions.assertAll(
+                () -> assertEquals(antiTheftDoors, magazine.getAntiTheftDoors()),
+                () -> assertEquals(monitoring, magazine.getMonitoring()),
+                () -> assertEquals(electricity, magazine.getElectricity())
+        ));
     }
 
 }

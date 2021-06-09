@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
+import pl.asku.askumagazineservice.model.Heating;
+import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.time.LocalDate;
@@ -83,17 +86,53 @@ public class MagazineController {
     @GetMapping("/search")
     public ResponseEntity<List<MagazinePreviewDto>> searchMagazines(
             @RequestParam Optional<Integer> page,
+            @RequestParam String location,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam Float minArea,
-            @QuerydslPredicate(root = Magazine.class) Predicate predicate
-    ){
+            @RequestParam(required = false) Optional<Float> pricePerMeter,
+            @RequestParam(required = false) Optional<MagazineType> type,
+            @RequestParam(required = false) Optional<Heating> heating,
+            @RequestParam(required = false) Optional<Light> light,
+            @RequestParam(required = false) Optional<Boolean> whole,
+            @RequestParam(required = false) Optional<Boolean> monitoring,
+            @RequestParam(required = false) Optional<Boolean> antiTheftDoors,
+            @RequestParam(required = false) Optional<Boolean> ventilation,
+            @RequestParam(required = false) Optional<Boolean> smokeDetectors,
+            @RequestParam(required = false) Optional<Boolean> selfService,
+            @RequestParam(required = false) Optional<Boolean> floor,
+            @RequestParam(required = false) Optional<Float> height,
+            @RequestParam(required = false) Optional<Float> doorHeight,
+            @RequestParam(required = false) Optional<Float> doorWidth,
+            @RequestParam(required = false) Optional<Boolean> electricity,
+            @RequestParam(required = false) Optional<Boolean> parking,
+            @RequestParam(required = false) Optional<Boolean> vehicleManoeuvreArea,
+            @RequestParam(required = false) Optional<Boolean> ownerTransport
+            ){
         List<Magazine> magazines = magazineService.searchMagazines(
-                predicate,
                 page.map(integer -> integer - 1).orElse(0),
+                location,
                 start,
                 end,
-                minArea
+                minArea,
+                pricePerMeter,
+                type,
+                heating,
+                light,
+                whole,
+                monitoring,
+                antiTheftDoors,
+                ventilation,
+                smokeDetectors,
+                selfService,
+                floor,
+                height,
+                doorHeight,
+                doorWidth,
+                electricity,
+                parking,
+                vehicleManoeuvreArea,
+                ownerTransport
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
