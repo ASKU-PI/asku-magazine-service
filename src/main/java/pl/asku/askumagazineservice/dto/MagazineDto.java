@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder=true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class MagazineDto {

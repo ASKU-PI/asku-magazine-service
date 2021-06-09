@@ -67,7 +67,9 @@ public class MagazineService {
     public List<Magazine> searchMagazines(
             Predicate predicate, Integer page, LocalDate start, LocalDate end, Float area){
         return magazineRepository
-                .findAll(predicate, PageRequest.of(page, 20))
+                .findAll(
+                        predicate,
+                        PageRequest.of(page, 20))
                 .stream()
                 .filter(magazine -> checkIfMagazineAvailable(magazine, start, end, area))
                 .collect(Collectors.toList());
@@ -107,6 +109,10 @@ public class MagazineService {
                 .filter(reservation -> (start.compareTo(reservation.getStartDate()) >= 0
                                         && start.compareTo(reservation.getEndDate()) <= 0) ||
                                         (end.compareTo(reservation.getStartDate()) >= 0
+                                        && end.compareTo(reservation.getEndDate()) <= 0) ||
+                                        (start.compareTo(reservation.getStartDate()) <= 0
+                                        && end.compareTo(reservation.getEndDate()) >= 0) ||
+                                        (start.compareTo(reservation.getStartDate()) >= 0
                                         && end.compareTo(reservation.getEndDate()) <= 0))
                 .collect(Collectors.toList());
         if(reservations.isEmpty()){

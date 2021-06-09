@@ -31,7 +31,7 @@ public class MagazineController {
         if(username.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body("You must pass Username in the header!");
+                    .body("No Username header");
         }
         Magazine magazine = magazineService.addMagazine(magazineDto, username.get());
         return ResponseEntity
