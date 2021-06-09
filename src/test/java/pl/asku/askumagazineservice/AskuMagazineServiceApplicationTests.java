@@ -56,6 +56,7 @@ class AskuMagazineServiceApplicationTests {
             10.0f,
             false,
             "Lorem ipsum",
+            null,
             null
     );
 
@@ -77,7 +78,7 @@ class AskuMagazineServiceApplicationTests {
 
         //then
         assertTrue(magazineFromDb.isPresent());
-        Assertions.assertEquals(magazine, magazineFromDb.get());
+        Assertions.assertEquals(magazine.getId(), magazineFromDb.get().getId());
     }
 
     @Test
@@ -132,8 +133,8 @@ class AskuMagazineServiceApplicationTests {
         Optional<Magazine> magazineDetails = magazineService.getMagazineDetails(magazine.getId());
 
         //then
-        assertTrue(magazineDetails.isPresent());
-        Assertions.assertEquals(magazine, magazineDetails.get());
+        assertTrue(magazineDetails.isPresent());;
+        Assertions.assertEquals(magazine.getId(), magazineDetails.get().getId());
     }
 
     @Test

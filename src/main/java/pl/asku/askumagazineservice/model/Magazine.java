@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "magazine")
@@ -87,5 +88,8 @@ public class Magazine {
 
     @NotNull
     private Float freeSpace;
+
+    @OneToMany(mappedBy = "magazine")
+    private List<Image> images;
 
 }

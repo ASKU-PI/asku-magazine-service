@@ -7,6 +7,7 @@ import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.MagazineType;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Getter
@@ -74,4 +75,6 @@ public class MagazineDto {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Float freeSpace;
+
+    private List<String> imageIds;
 }

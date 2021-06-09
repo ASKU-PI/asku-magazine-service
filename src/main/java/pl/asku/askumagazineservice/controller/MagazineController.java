@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
-import pl.asku.askumagazineservice.model.Heating;
-import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.Magazine;
-import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.model.*;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.time.LocalDate;
@@ -78,7 +75,11 @@ public class MagazineController {
                         magazine.get().getMinAreaToRent(),
                         magazine.get().getOwnerTransport(),
                         magazine.get().getDescription(),
-                        magazine.get().getFreeSpace()
+                        magazine.get().getFreeSpace(),
+                        magazine.get().getImages()
+                                .stream()
+                                .map(i -> i.getId().toString() + "." + i.getFormat())
+                                .collect(Collectors.toList())
                 ));
     }
 
@@ -145,7 +146,11 @@ public class MagazineController {
                         magazine.getAreaInMeters(),
                         magazine.getPricePerMeter(),
                         magazine.getType(),
-                        magazine.getFreeSpace()
+                        magazine.getFreeSpace(),
+                        magazine.getImages()
+                                .stream()
+                                .map(i -> i.getId().toString() + "." + i.getFormat())
+                                .collect(Collectors.toList())
                 )).collect(Collectors.toList()));
     }
 }

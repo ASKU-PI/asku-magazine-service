@@ -55,6 +55,7 @@ public class MagazineService {
                 .ownerTransport(magazineDto.getOwnerTransport())
                 .description(magazineDto.getDescription())
                 .freeSpace(magazineDto.getAreaInMeters())
+                .images(new ArrayList<>())
                 .build();
 
         return magazineRepository.save(magazine);
