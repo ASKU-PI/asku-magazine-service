@@ -3,6 +3,7 @@ package pl.asku.askumagazineservice.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.model.Reservation;
@@ -20,13 +21,14 @@ public class ReservationController {
     @PostMapping("/add")
     public ResponseEntity addReservation(
             @RequestBody ReservationDto reservationDto,
-            @RequestHeader("Username") Optional<String> username){
+            Authentication authentication){
+        String username = authentication.getName();
         if(username.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body("You must pass Username in the header!");
         }
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(reservationDto, username.get());
+        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(reservationDto, username);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Reservation created: " + reservation.getId());

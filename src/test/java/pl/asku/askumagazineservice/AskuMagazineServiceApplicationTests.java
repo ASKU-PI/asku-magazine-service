@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.model.Heating;
@@ -12,6 +14,7 @@ import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
+import pl.asku.askumagazineservice.security.SecurityConfig;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.time.LocalDate;

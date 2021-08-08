@@ -5,6 +5,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.model.Image;
@@ -28,13 +29,14 @@ public class ImageController {
     public ResponseEntity uploadImages(
             @RequestParam("files") MultipartFile[] files,
             @RequestParam("magazineId") Long magazineId,
-            @RequestHeader("Username") Optional<String> username
+            Authentication authentication
     ) {
         try {
+            String username = authentication.getName();
             Arrays.asList(files).forEach(file -> {
                 try {
                     String extension = file.getOriginalFilename().split("\\.")[1];
-                    imageService.addImage(file, magazineId, username.get(), extension);
+                    imageService.addImage(file, magazineId, username, extension);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

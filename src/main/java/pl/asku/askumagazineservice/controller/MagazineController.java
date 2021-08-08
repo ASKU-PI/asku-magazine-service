@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
@@ -28,13 +29,14 @@ public class MagazineController {
     @PostMapping("/add")
     public ResponseEntity addMagazine(
             @RequestBody MagazineDto magazineDto,
-            @RequestHeader("Username") Optional<String> username){
-        if(username.isEmpty()){
+            Authentication authentication){
+        String username = authentication.getName();
+        if(username == null){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body("No Username header");
         }
-        Magazine magazine = magazineService.addMagazine(magazineDto, username.get());
+        Magazine magazine = magazineService.addMagazine(magazineDto, username);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Magazine created: " + magazine.getId());

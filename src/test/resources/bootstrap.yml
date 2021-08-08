@@ -10,4 +10,7 @@ spring:
     listener:
       direct:
         auto-startup: false
+
+jwt:
+  secret: verySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKey
   # TODO: find a way to prevent the tests from trying to connect to rabbitmq
