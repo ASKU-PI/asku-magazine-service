@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.model.Image;
+import pl.asku.askumagazineservice.security.policy.ImagePolicy;
 import pl.asku.askumagazineservice.service.ImageService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class ImageController {
 
     ImageService imageService;
+    ImagePolicy imagePolicy;
 
     @PostMapping("/upload")
     public ResponseEntity uploadImages(
@@ -31,6 +33,8 @@ public class ImageController {
             @RequestParam("magazineId") Long magazineId,
             Authentication authentication
     ) {
+        if(!imagePolicy.uploadImage(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
         try {
             String username = authentication.getName();
             Arrays.asList(files).forEach(file -> {

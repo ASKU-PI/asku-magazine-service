@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.model.Reservation;
+import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.util.Optional;
@@ -17,20 +18,18 @@ import java.util.Optional;
 public class ReservationController {
 
     private final MagazineService magazineService;
+    private final ReservationPolicy reservationPolicy;
 
     @PostMapping("/add")
-    public ResponseEntity addReservation(
+    public ResponseEntity<ReservationDto> addReservation(
             @RequestBody ReservationDto reservationDto,
             Authentication authentication){
+        if(!reservationPolicy.addReservation(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
+
         String username = authentication.getName();
-        if(username.isEmpty()){
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("You must pass Username in the header!");
-        }
+
         Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(reservationDto, username);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Reservation created: " + reservation.getId());
+        reservationDto.setId(reservation.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
     }
 }

@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.time.LocalDate;
@@ -25,21 +26,19 @@ import java.util.stream.Collectors;
 public class MagazineController {
 
     private final MagazineService magazineService;
+    private final MagazinePolicy magazinePolicy;
 
     @PostMapping("/add")
-    public ResponseEntity addMagazine(
+    public ResponseEntity<MagazineDto> addMagazine(
             @RequestBody MagazineDto magazineDto,
             Authentication authentication){
+        if(!magazinePolicy.addMagazine(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazineDto);
+
         String username = authentication.getName();
-        if(username == null){
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("No Username header");
-        }
+
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Magazine created: " + magazine.getId());
+        magazineDto.setId(magazine.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
     }
 
     @GetMapping("/details/{id}")
