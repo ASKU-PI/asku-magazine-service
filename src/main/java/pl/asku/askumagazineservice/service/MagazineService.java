@@ -130,7 +130,7 @@ public class MagazineService {
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
         if(magazine.isEmpty()) return null;
         Reservation reservation = addReservation(magazine.get(), reservationDto, username);
-        updateMagazineFreeSpace(magazine.get(), magazine.get().getFreeSpace() - reservation.getAreaInMeters());
+        if(!(reservation == null)) updateMagazineFreeSpace(magazine.get(), magazine.get().getFreeSpace() - reservation.getAreaInMeters());
         return reservation;
     }
 
