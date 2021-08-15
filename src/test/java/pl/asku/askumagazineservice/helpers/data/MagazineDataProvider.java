@@ -44,4 +44,15 @@ public class MagazineDataProvider {
                 null
         );
     }
+
+    public MagazineDto mandatoryOnlyMagazineDto() {
+        return MagazineDto.builder()
+                .location("London")
+                .startDate(LocalDate.now().plusDays(2))
+                .endDate(LocalDate.now().plusDays(10))
+                .areaInMeters(60.0f)
+                .pricePerMeter(100.0f)
+                .minAreaToRent(10.0f)
+                .build();
+    }
 }

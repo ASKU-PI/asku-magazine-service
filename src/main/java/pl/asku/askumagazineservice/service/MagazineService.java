@@ -12,10 +12,15 @@ import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
 
 import javax.persistence.criteria.Predicate;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +32,15 @@ public class MagazineService {
 
     @Transactional
     public Magazine addMagazine(MagazineDto magazineDto, String username){
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Set<ConstraintViolation<MagazineDto>> violations = validator.validate(magazineDto);
+
+        if (violations.size() > 0) {
+            throw new RuntimeException(violations.toString());
+        }
+
         Magazine magazine = Magazine.builder()
                 .owner(username)
                 .createdDate(LocalDate.now())

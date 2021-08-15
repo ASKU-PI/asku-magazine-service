@@ -22,16 +22,18 @@ public class AddTests {
     private final MagazineRepository magazineRepository;
 
     private final MagazineDto testMagazineDtoTemplate;
+    private final MagazineDto testMagazineDtoMandatoryOnlyTemplate;
 
     @Autowired
     AddTests(MagazineService magazineService, MagazineRepository magazineRepository, MagazineDataProvider magazineDataProvider) {
         this.magazineService = magazineService;
         this.magazineRepository = magazineRepository;
         this.testMagazineDtoTemplate = magazineDataProvider.validMagazineDto();
+        this.testMagazineDtoMandatoryOnlyTemplate = magazineDataProvider.mandatoryOnlyMagazineDto();
     }
 
     @Test
-    public void addMagazineShouldAddToDatabase(){
+    public void shouldAddToDatabase(){
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -46,7 +48,7 @@ public class AddTests {
     }
 
     @Test
-    public void addMagazineShouldReturnCorrectMagazine(){
+    public void shouldReturnCorrectMagazine(){
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -84,5 +86,58 @@ public class AddTests {
                 () -> assertEquals(magazineDto.getOwnerTransport(), magazine.getOwnerTransport()),
                 () -> assertEquals(magazineDto.getDescription(), magazine.getDescription())
         );
+    }
+
+    @Test
+    public void succeedsForOnlyMandatoryFields() {
+        //given
+        MagazineDto magazineDto = testMagazineDtoMandatoryOnlyTemplate.toBuilder().build();
+        String username = "test";
+
+        //when
+        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+
+        //then
+        Assertions.assertAll(
+                () -> assertNotNull(magazine.getId()),
+                () -> assertEquals(username, magazine.getOwner()),
+                () -> assertNotNull(magazine.getCreatedDate()),
+                () -> assertEquals(magazineDto.getLocation(), magazine.getLocation()),
+                () -> assertEquals(magazineDto.getStartDate(), magazine.getStartDate()),
+                () -> assertEquals(magazineDto.getEndDate(), magazine.getEndDate()),
+                () -> assertEquals(magazineDto.getAreaInMeters(), magazine.getAreaInMeters()),
+                () -> assertEquals(magazineDto.getPricePerMeter(), magazine.getPricePerMeter()),
+                () -> assertEquals(magazineDto.getType(), magazine.getType()),
+                () -> assertEquals(magazineDto.getHeating(), magazine.getHeating()),
+                () -> assertEquals(magazineDto.getLight(), magazine.getLight()),
+                () -> assertEquals(magazineDto.getWhole(), magazine.getWhole()),
+                () -> assertEquals(magazineDto.getMonitoring(), magazine.getMonitoring()),
+                () -> assertEquals(magazineDto.getAntiTheftDoors(), magazine.getAntiTheftDoors()),
+                () -> assertEquals(magazineDto.getVentilation(), magazine.getVentilation()),
+                () -> assertEquals(magazineDto.getSmokeDetectors(), magazine.getSmokeDetectors()),
+                () -> assertEquals(magazineDto.getSelfService(), magazine.getSelfService()),
+                () -> assertEquals(magazineDto.getFloor(), magazine.getFloor()),
+                () -> assertEquals(magazineDto.getHeight(), magazine.getHeight()),
+                () -> assertEquals(magazineDto.getDoorHeight(), magazine.getDoorHeight()),
+                () -> assertEquals(magazineDto.getDoorWidth(), magazine.getDoorWidth()),
+                () -> assertEquals(magazineDto.getElectricity(), magazine.getElectricity()),
+                () -> assertEquals(magazineDto.getParking(), magazine.getParking()),
+                () -> assertEquals(magazineDto.getVehicleManoeuvreArea(), magazine.getVehicleManoeuvreArea()),
+                () -> assertEquals(magazineDto.getMinAreaToRent(), magazine.getMinAreaToRent()),
+                () -> assertEquals(magazineDto.getOwnerTransport(), magazine.getOwnerTransport()),
+                () -> assertEquals(magazineDto.getDescription(), magazine.getDescription())
+        );
+    }
+
+    @Test
+    public void failsForEmptyMandatoryFields() {
+        //given
+        MagazineDto magazineDto = testMagazineDtoMandatoryOnlyTemplate.toBuilder()
+                .location("")
+                .build();
+        String username = "test";
+
+        //when
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
     }
 }
