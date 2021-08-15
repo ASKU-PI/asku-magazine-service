@@ -29,7 +29,7 @@ public class ReservationController {
 
         String username = authentication.getName();
 
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(reservationDto, username);
+        Reservation reservation = magazineService.addReservation(reservationDto, username);
         reservationDto.setId(reservation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
     }

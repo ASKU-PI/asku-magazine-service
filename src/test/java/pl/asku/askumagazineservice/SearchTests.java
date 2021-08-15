@@ -140,31 +140,4 @@ class SearchTests {
         ));
     }
 
-    @Test
-    public void addReservationUpdatesMagazineFreeSpace(){
-        //given
-        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
-        String username = "test";
-
-        //when
-        Float area = magazineDto.getMinAreaToRent() + 2.0f;
-        Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        magazineService.addReservationAndUpdateMagazineFreeSpace(
-                new ReservationDto(
-                        null,
-                        null,
-                        null,
-                        magazine.getStartDate().plusDays(1),
-                        magazine.getEndDate().minusDays(1),
-                        area,
-                        magazine.getId()),
-                username
-        );
-
-        //then
-        Optional<Magazine> updatedMagazine = magazineService.getMagazineDetails(magazine.getId());
-        Assertions.assertTrue(updatedMagazine.isPresent());
-        Assertions.assertEquals(magazineDto.getAreaInMeters() - area, updatedMagazine.get().getFreeSpace(), 0.005f);
-    }
-
 }

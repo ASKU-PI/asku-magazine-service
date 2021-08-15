@@ -79,7 +79,6 @@ public class MagazineController {
                         magazine.get().getMinAreaToRent(),
                         magazine.get().getOwnerTransport(),
                         magazine.get().getDescription(),
-                        magazine.get().getFreeSpace(),
                         magazine.get().getImages()
                                 .stream()
                                 .map(i -> i.getId().toString() + "." + i.getFormat())
@@ -150,7 +149,6 @@ public class MagazineController {
                         magazine.getAreaInMeters(),
                         magazine.getPricePerMeter(),
                         magazine.getType(),
-                        magazine.getFreeSpace(),
                         magazine.getImages()
                                 .stream()
                                 .map(i -> i.getId().toString() + "." + i.getFormat())

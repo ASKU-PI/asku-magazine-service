@@ -34,8 +34,5 @@ public class MagazinePreviewDto {
 
     private MagazineType type;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Float freeSpace;
-
     private List<String> imageIds;
 }

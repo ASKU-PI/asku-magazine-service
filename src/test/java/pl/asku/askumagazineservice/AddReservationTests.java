@@ -31,7 +31,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void updatesMagazineFreeSpaceAndReturnsCorrectReservation(){
+    public void returnsCorrectMagazine(){
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -47,7 +47,7 @@ class AddReservationTests {
                 magazine.getEndDate().minusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
@@ -60,9 +60,6 @@ class AddReservationTests {
                 () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
                 () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
-        Optional<Magazine> updatedMagazine = magazineService.getMagazineDetails(magazine.getId());
-        Assertions.assertTrue(updatedMagazine.isPresent());
-        Assertions.assertEquals(magazineDto.getAreaInMeters() - area, updatedMagazine.get().getFreeSpace(), 0.005f);
     }
 
     @Test
@@ -82,7 +79,7 @@ class AddReservationTests {
                 magazine.getEndDate(),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
@@ -95,9 +92,6 @@ class AddReservationTests {
                 () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
                 () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
-        Optional<Magazine> updatedMagazine = magazineService.getMagazineDetails(magazine.getId());
-        Assertions.assertTrue(updatedMagazine.isPresent());
-        Assertions.assertEquals(magazineDto.getAreaInMeters() - area, updatedMagazine.get().getFreeSpace(), 0.005f);
     }
 
     @Test
@@ -109,7 +103,7 @@ class AddReservationTests {
         //when
         Float area = magazineDto.getAreaInMeters() + 2.0f;
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -142,7 +136,7 @@ class AddReservationTests {
                 magazine.getStartDate().plusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
@@ -168,7 +162,7 @@ class AddReservationTests {
                 magazine.getEndDate().plusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
@@ -186,7 +180,7 @@ class AddReservationTests {
         //when
         Float area = magazineDto.getAreaInMeters();
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        magazineService.addReservationAndUpdateMagazineFreeSpace(
+        magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -197,7 +191,7 @@ class AddReservationTests {
                         magazine.getId()),
                 username
         );
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -222,7 +216,7 @@ class AddReservationTests {
         //when
         Float area = magazineDto.getMinAreaToRent();
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        magazineService.addReservationAndUpdateMagazineFreeSpace(
+        magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -242,7 +236,7 @@ class AddReservationTests {
                 magazine.getEndDate().minusDays(2),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservationAndUpdateMagazineFreeSpace(
+        Reservation reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
@@ -255,8 +249,5 @@ class AddReservationTests {
                 () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
                 () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
-        Optional<Magazine> updatedMagazine = magazineService.getMagazineDetails(magazine.getId());
-        Assertions.assertTrue(updatedMagazine.isPresent());
-        Assertions.assertEquals(0.0f, updatedMagazine.get().getFreeSpace(), 0.005f);
     }
 }

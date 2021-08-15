@@ -68,7 +68,6 @@ public class MagazineService {
                 .minAreaToRent(magazineDto.getMinAreaToRent())
                 .ownerTransport(magazineDto.getOwnerTransport())
                 .description(magazineDto.getDescription())
-                .freeSpace(magazineDto.getAreaInMeters())
                 .images(new ArrayList<>())
                 .build();
 
@@ -114,7 +113,6 @@ public class MagazineService {
                             predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("location"), location)));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("freeSpace"), area)));
                             pricePerMeter.ifPresent(aFloat -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aFloat))));
                             type.ifPresent(magazineType -> predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), magazineType))));
                             heating.ifPresent(aHeating -> predicates.add(criteriaBuilder.and((criteriaBuilder.equal(root.get("heating"), aHeating)))));
@@ -140,12 +138,10 @@ public class MagazineService {
                 .collect(Collectors.toList());
     }
 
-    public Reservation addReservationAndUpdateMagazineFreeSpace(ReservationDto reservationDto, String username){
+    public Reservation addReservation(ReservationDto reservationDto, String username){
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
         if(magazine.isEmpty()) return null;
-        Reservation reservation = addReservation(magazine.get(), reservationDto, username);
-        if(!(reservation == null)) updateMagazineFreeSpace(magazine.get(), magazine.get().getFreeSpace() - reservation.getAreaInMeters());
-        return reservation;
+        return addReservation(magazine.get(), reservationDto, username);
     }
 
     @Transactional
@@ -167,12 +163,6 @@ public class MagazineService {
                 .magazine(magazine)
                 .build();
         return reservationRepository.save(reservation);
-    }
-
-    @Transactional
-    public void updateMagazineFreeSpace(Magazine magazine, Float space){
-        magazine.setFreeSpace(space);
-        magazineRepository.save(magazine);
     }
 
     @Transactional(readOnly = true)

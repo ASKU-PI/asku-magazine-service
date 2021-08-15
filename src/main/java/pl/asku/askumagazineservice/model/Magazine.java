@@ -86,9 +86,6 @@ public class Magazine {
 
     private String description;
 
-    @NotNull
-    private Float freeSpace;
-
     @OneToMany(mappedBy = "magazine")
     private List<Image> images;
 

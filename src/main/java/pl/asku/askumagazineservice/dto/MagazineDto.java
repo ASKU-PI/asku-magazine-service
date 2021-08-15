@@ -89,8 +89,5 @@ public class MagazineDto {
     @Size(min = 3, max = 500)
     private String description;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Float freeSpace;
-
     private List<String> imageIds;
 }

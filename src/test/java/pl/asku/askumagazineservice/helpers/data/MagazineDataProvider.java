@@ -40,7 +40,6 @@ public class MagazineDataProvider {
                 10.0f,
                 false,
                 "Lorem ipsum",
-                null,
                 null
         );
     }
