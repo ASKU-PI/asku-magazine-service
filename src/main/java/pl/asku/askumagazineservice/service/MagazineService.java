@@ -12,15 +12,11 @@ import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
 
 import javax.persistence.criteria.Predicate;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import javax.validation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,44 +28,12 @@ public class MagazineService {
 
     @Transactional
     public Magazine addMagazine(MagazineDto magazineDto, String username){
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-
-        Set<ConstraintViolation<MagazineDto>> violations = validator.validate(magazineDto);
-
-        if (violations.size() > 0) {
-            throw new RuntimeException(violations.toString());
+        List<String> violationMessages = magazineDto.getViolationMessages();
+        if (violationMessages.size() > 0) {
+            throw new ValidationException(violationMessages.toString());
         }
 
-        Magazine magazine = Magazine.builder()
-                .owner(username)
-                .createdDate(LocalDate.now())
-                .location(magazineDto.getLocation())
-                .startDate(magazineDto.getStartDate())
-                .endDate(magazineDto.getEndDate())
-                .areaInMeters(magazineDto.getAreaInMeters())
-                .pricePerMeter(magazineDto.getPricePerMeter())
-                .type(magazineDto.getType())
-                .heating(magazineDto.getHeating())
-                .light(magazineDto.getLight())
-                .whole(magazineDto.getWhole())
-                .monitoring(magazineDto.getMonitoring())
-                .antiTheftDoors(magazineDto.getAntiTheftDoors())
-                .ventilation(magazineDto.getVentilation())
-                .smokeDetectors(magazineDto.getSmokeDetectors())
-                .selfService(magazineDto.getSelfService())
-                .floor(magazineDto.getFloor())
-                .height(magazineDto.getHeight())
-                .doorHeight(magazineDto.getDoorHeight())
-                .doorWidth(magazineDto.getDoorWidth())
-                .electricity(magazineDto.getElectricity())
-                .parking(magazineDto.getParking())
-                .vehicleManoeuvreArea(magazineDto.getVehicleManoeuvreArea())
-                .minAreaToRent(magazineDto.getMinAreaToRent())
-                .ownerTransport(magazineDto.getOwnerTransport())
-                .description(magazineDto.getDescription())
-                .images(new ArrayList<>())
-                .build();
+        Magazine magazine = magazineDto.toMagazine(username);
 
         return magazineRepository.save(magazine);
     }
@@ -104,6 +68,7 @@ public class MagazineService {
             Optional<Boolean> parking,
             Optional<Boolean> vehicleManoeuvreArea,
             Optional<Boolean> ownerTransport){
+        //TODO: make this take reservations into account
         return magazineRepository
                 .findAll(
                         (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
@@ -138,21 +103,21 @@ public class MagazineService {
                 .collect(Collectors.toList());
     }
 
-    public Reservation addReservation(ReservationDto reservationDto, String username){
+    public Optional<Reservation> addReservation(ReservationDto reservationDto, String username){
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
-        if(magazine.isEmpty()) return null;
+        if(magazine.isEmpty()) return Optional.empty();
         return addReservation(magazine.get(), reservationDto, username);
     }
 
     @Transactional
-    public Reservation addReservation(Magazine magazine, ReservationDto reservationDto, String username){
+    public Optional<Reservation> addReservation(Magazine magazine, ReservationDto reservationDto, String username){
         if(reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
                 !checkIfMagazineAvailable(
                 magazine,
                 reservationDto.getStartDate(),
                 reservationDto.getEndDate(),
                 reservationDto.getAreaInMeters())){
-            return null;
+            return Optional.empty();
         }
         Reservation reservation = Reservation.builder()
                 .createdDate(LocalDate.now())
@@ -162,7 +127,7 @@ public class MagazineService {
                 .areaInMeters(reservationDto.getAreaInMeters())
                 .magazine(magazine)
                 .build();
-        return reservationRepository.save(reservation);
+        return Optional.of(reservationRepository.save(reservation));
     }
 
     @Transactional(readOnly = true)

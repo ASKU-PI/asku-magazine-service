@@ -13,6 +13,8 @@ import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/reservation")
 @AllArgsConstructor
@@ -29,8 +31,12 @@ public class ReservationController {
 
         String username = authentication.getName();
 
-        Reservation reservation = magazineService.addReservation(reservationDto, username);
-        reservationDto.setId(reservation.getId());
+        Optional<Reservation> reservation = magazineService.addReservation(reservationDto, username);
+
+        if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        reservationDto.setId(reservation.get().getId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
     }
 }

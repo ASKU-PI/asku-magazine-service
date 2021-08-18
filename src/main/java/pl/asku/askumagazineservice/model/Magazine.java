@@ -1,12 +1,15 @@
 package pl.asku.askumagazineservice.model;
 
 import lombok.*;
+import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "magazine")
@@ -89,4 +92,55 @@ public class Magazine {
     @OneToMany(mappedBy = "magazine")
     private List<Image> images;
 
+    public MagazineDto toMagazineDto() {
+        return new MagazineDto(
+                id,
+                owner,
+                createdDate,
+                location,
+                startDate,
+                endDate,
+                areaInMeters,
+                pricePerMeter,
+                type,
+                heating,
+                light,
+                whole,
+                monitoring,
+                antiTheftDoors,
+                ventilation,
+                smokeDetectors,
+                selfService,
+                floor,
+                height,
+                doorHeight,
+                doorWidth,
+                electricity,
+                parking,
+                vehicleManoeuvreArea,
+                minAreaToRent,
+                ownerTransport,
+                description,
+                images.stream()
+                        .map(i -> i.getId().toString() + "." + i.getFormat())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public MagazinePreviewDto toMagazinePreviewDto() {
+        return new MagazinePreviewDto(
+                id,
+                owner,
+                createdDate,
+                location,
+                startDate,
+                endDate,
+                areaInMeters,
+                pricePerMeter,
+                type,
+                images.stream()
+                        .map(i -> i.getId().toString() + "." + i.getFormat())
+                        .collect(Collectors.toList())
+        );
+    }
 }

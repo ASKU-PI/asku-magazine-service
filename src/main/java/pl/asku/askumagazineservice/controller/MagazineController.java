@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,9 @@ import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import javax.validation.ValidationException;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +36,19 @@ public class MagazineController {
     public ResponseEntity<MagazineDto> addMagazine(
             @RequestBody MagazineDto magazineDto,
             Authentication authentication){
-        if(!magazinePolicy.addMagazine(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazineDto);
+        if(!magazinePolicy.addMagazine(authentication))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazineDto);
 
         String username = authentication.getName();
 
-        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+        Magazine magazine;
+
+        try {
+            magazine = magazineService.addMagazine(magazineDto, username);
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         magazineDto.setId(magazine.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
     }
@@ -51,39 +63,7 @@ public class MagazineController {
                 .body(null) :
                 ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new MagazineDto(
-                        magazine.get().getId(),
-                        magazine.get().getOwner(),
-                        magazine.get().getCreatedDate(),
-                        magazine.get().getLocation(),
-                        magazine.get().getStartDate(),
-                        magazine.get().getEndDate(),
-                        magazine.get().getAreaInMeters(),
-                        magazine.get().getPricePerMeter(),
-                        magazine.get().getType(),
-                        magazine.get().getHeating(),
-                        magazine.get().getLight(),
-                        magazine.get().getWhole(),
-                        magazine.get().getMonitoring(),
-                        magazine.get().getAntiTheftDoors(),
-                        magazine.get().getVentilation(),
-                        magazine.get().getSmokeDetectors(),
-                        magazine.get().getSelfService(),
-                        magazine.get().getFloor(),
-                        magazine.get().getHeight(),
-                        magazine.get().getDoorHeight(),
-                        magazine.get().getDoorWidth(),
-                        magazine.get().getElectricity(),
-                        magazine.get().getParking(),
-                        magazine.get().getVehicleManoeuvreArea(),
-                        magazine.get().getMinAreaToRent(),
-                        magazine.get().getOwnerTransport(),
-                        magazine.get().getDescription(),
-                        magazine.get().getImages()
-                                .stream()
-                                .map(i -> i.getId().toString() + "." + i.getFormat())
-                                .collect(Collectors.toList())
-                ));
+                .body(magazine.get().toMagazineDto());
     }
 
     @GetMapping("/search")
@@ -111,7 +91,7 @@ public class MagazineController {
             @RequestParam(required = false) Optional<Boolean> parking,
             @RequestParam(required = false) Optional<Boolean> vehicleManoeuvreArea,
             @RequestParam(required = false) Optional<Boolean> ownerTransport
-            ){
+            ) {
         List<Magazine> magazines = magazineService.searchMagazines(
                 page.map(integer -> integer - 1).orElse(0),
                 location,
@@ -139,20 +119,24 @@ public class MagazineController {
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(magazines.stream().map(magazine -> new MagazinePreviewDto(
-                        magazine.getId(),
-                        magazine.getOwner(),
-                        magazine.getCreatedDate(),
-                        magazine.getLocation(),
-                        magazine.getStartDate(),
-                        magazine.getEndDate(),
-                        magazine.getAreaInMeters(),
-                        magazine.getPricePerMeter(),
-                        magazine.getType(),
-                        magazine.getImages()
-                                .stream()
-                                .map(i -> i.getId().toString() + "." + i.getFormat())
-                                .collect(Collectors.toList())
-                )).collect(Collectors.toList()));
+                .body(magazines.stream().map(Magazine::toMagazinePreviewDto).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/availability/{id}")
+    public ResponseEntity<Boolean> magazineAvailable(
+            @PathVariable Long id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
+            @RequestParam @Min(0) Float minArea
+        ) {
+        Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
+        return magazine.isEmpty() ?
+                ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(null) :
+                ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(magazineService.checkIfMagazineAvailable(magazine.get(), start, end, minArea));
+
     }
 }

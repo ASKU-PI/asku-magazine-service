@@ -1,3 +1,5 @@
+//This is temporary and will be replaced with dedicated media service
+
 package pl.asku.askumagazineservice.controller;
 
 import lombok.AllArgsConstructor;
@@ -62,13 +64,9 @@ public class ImageController {
             HttpServletResponse response) throws IOException {
         Image image = imageService.getImageById(id, extension);
         InputStream in = new ByteArrayInputStream(image.getPicByte());
-        switch (image.getFormat()){
-            case "png":
-                response.setContentType(MediaType.IMAGE_PNG_VALUE);
-                break;
-            case "jpg":
-                response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-                break;
+        switch (image.getFormat()) {
+            case "png" -> response.setContentType(MediaType.IMAGE_PNG_VALUE);
+            case "jpg" -> response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         }
         IOUtils.copy(in, response.getOutputStream());
     }

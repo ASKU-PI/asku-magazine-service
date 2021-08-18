@@ -4,12 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
+import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -90,4 +98,51 @@ public class MagazineDto {
     private String description;
 
     private List<String> imageIds;
+
+    public List<String> getViolationMessages() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        List<String> violations = validator
+                .validate(this)
+                .stream().map(Object::toString)
+                .collect(Collectors.toList());
+
+        if(startDate.compareTo(endDate) >= 0) violations.add("Start date is not earlier than end date");
+        if(minAreaToRent > areaInMeters) violations.add("Min area to rent must be lower or equal total area");
+
+        return violations;
+    }
+
+    public Magazine toMagazine(String username) {
+        return Magazine.builder()
+                .owner(username)
+                .createdDate(LocalDate.now())
+                .location(location)
+                .startDate(startDate)
+                .endDate(endDate)
+                .areaInMeters(areaInMeters)
+                .pricePerMeter(pricePerMeter)
+                .type(type)
+                .heating(heating)
+                .light(light)
+                .whole(whole)
+                .monitoring(monitoring)
+                .antiTheftDoors(antiTheftDoors)
+                .ventilation(ventilation)
+                .smokeDetectors(smokeDetectors)
+                .selfService(selfService)
+                .floor(floor)
+                .height(height)
+                .doorHeight(doorHeight)
+                .doorWidth(doorWidth)
+                .electricity(electricity)
+                .parking(parking)
+                .vehicleManoeuvreArea(vehicleManoeuvreArea)
+                .minAreaToRent(minAreaToRent)
+                .ownerTransport(ownerTransport)
+                .description(description)
+                .images(new ArrayList<>())
+                .build();
+    }
 }

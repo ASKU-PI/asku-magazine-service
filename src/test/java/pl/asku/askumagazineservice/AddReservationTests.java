@@ -1,6 +1,5 @@
 package pl.asku.askumagazineservice;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,18 +46,18 @@ class AddReservationTests {
                 magazine.getEndDate().minusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertNotNull(reservation),
-                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertTrue(reservation.isPresent()),
+                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 
@@ -79,18 +78,18 @@ class AddReservationTests {
                 magazine.getEndDate(),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertNotNull(reservation),
-                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertTrue(reservation.isPresent()),
+                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 
@@ -103,7 +102,7 @@ class AddReservationTests {
         //when
         Float area = magazineDto.getAreaInMeters() + 2.0f;
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -116,7 +115,7 @@ class AddReservationTests {
         );
 
         //then
-        assertNull(reservation);
+        assertTrue(reservation.isEmpty());
     }
 
     @Test
@@ -136,13 +135,13 @@ class AddReservationTests {
                 magazine.getStartDate().plusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
-        assertNull(reservation);
+        assertTrue(reservation.isEmpty());
     }
 
     @Test
@@ -162,13 +161,13 @@ class AddReservationTests {
                 magazine.getEndDate().plusDays(1),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
-        assertNull(reservation);
+        assertTrue(reservation.isEmpty());
     }
 
     @Test
@@ -191,7 +190,7 @@ class AddReservationTests {
                         magazine.getId()),
                 username
         );
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 new ReservationDto(
                         null,
                         null,
@@ -204,7 +203,7 @@ class AddReservationTests {
         );
 
         //then
-        assertNull(reservation);
+        assertTrue(reservation.isEmpty());
     }
 
     @Test
@@ -236,18 +235,18 @@ class AddReservationTests {
                 magazine.getEndDate().minusDays(2),
                 area,
                 magazine.getId());
-        Reservation reservation = magazineService.addReservation(
+        Optional<Reservation> reservation = magazineService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertNotNull(reservation),
-                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertTrue(reservation.isPresent()),
+                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 }
