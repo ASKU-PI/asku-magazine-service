@@ -13,6 +13,7 @@ import pl.asku.askumagazineservice.repository.ReservationRepository;
 
 import javax.persistence.criteria.Predicate;
 import javax.validation.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,19 +39,21 @@ public class MagazineService {
         return magazineRepository.save(magazine);
     }
 
-    @Transactional(readOnly = true)
-    public Optional<Magazine> getMagazineDetails(Long id){
+    public Optional<Magazine> getMagazineDetails(Long id) {
         return magazineRepository.findById(id);
     }
 
-    @Transactional(readOnly = true)
+    public List<Magazine> getUserMagazines(String username, Integer page) {
+        return magazineRepository.findAllByOwner(username, PageRequest.of(page, 20));
+    }
+
     public List<Magazine> searchMagazines(
             Integer page,
             String location,
             LocalDate start,
             LocalDate end,
-            Float area,
-            Optional<Float> pricePerMeter,
+            BigDecimal area,
+            Optional<BigDecimal> pricePerMeter,
             Optional<MagazineType> type,
             Optional<Heating> heating,
             Optional<Light> light,
@@ -61,9 +64,9 @@ public class MagazineService {
             Optional<Boolean> smokeDetectors,
             Optional<Boolean> selfService,
             Optional<Boolean> floor,
-            Optional<Float> height,
-            Optional<Float> doorHeight,
-            Optional<Float> doorWidth,
+            Optional<BigDecimal> height,
+            Optional<BigDecimal> doorHeight,
+            Optional<BigDecimal> doorWidth,
             Optional<Boolean> electricity,
             Optional<Boolean> parking,
             Optional<Boolean> vehicleManoeuvreArea,
@@ -78,7 +81,7 @@ public class MagazineService {
                             predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), area)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("location"), location)));
-                            pricePerMeter.ifPresent(aFloat -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aFloat))));
+                            pricePerMeter.ifPresent(aBigDecimal -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aBigDecimal))));
                             type.ifPresent(magazineType -> predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), magazineType))));
                             heating.ifPresent(aHeating -> predicates.add(criteriaBuilder.and((criteriaBuilder.equal(root.get("heating"), aHeating)))));
                             light.ifPresent(aLight -> predicates.add(criteriaBuilder.and((criteriaBuilder.equal(root.get("light"), aLight)))));
@@ -130,19 +133,18 @@ public class MagazineService {
         return Optional.of(reservationRepository.save(reservation));
     }
 
-    @Transactional(readOnly = true)
     public boolean checkIfMagazineAvailable(Magazine magazine,
-                                     LocalDate start, LocalDate end, Float area){
-        if(magazine.getAreaInMeters() < area || magazine.getMinAreaToRent() > area
+                                     LocalDate start, LocalDate end, BigDecimal area){
+        if(magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
                 || magazine.getStartDate().compareTo(start) > 0 ||
             magazine.getEndDate().compareTo(end) < 0){
             return false;
         }
-        Float takenArea = getTakenArea(magazine.getId(), start, end);
-        return magazine.getAreaInMeters() - takenArea >= area;
+        BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
+        return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
     }
 
-    private Float getTakenArea(Long magazineId, LocalDate start, LocalDate end){
+    private BigDecimal getTakenArea(Long magazineId, LocalDate start, LocalDate end){
         List<Reservation> reservations = reservationRepository
                 .findByMagazine_Id(magazineId)
                 .stream()
@@ -156,12 +158,17 @@ public class MagazineService {
                                 && end.compareTo(reservation.getEndDate()) <= 0))
                 .collect(Collectors.toList());
         if(reservations.isEmpty()){
-            return 0.0f;
+            return BigDecimal.ZERO;
         }
         return reservations
                 .stream()
                 .map(Reservation::getAreaInMeters)
-                .reduce(0.0f, Float::sum);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getTotalPrice(Magazine magazine, LocalDate start, LocalDate end, BigDecimal area) {
+        int dateDifference = start.until(end).getDays();
+        return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
     }
 
 }

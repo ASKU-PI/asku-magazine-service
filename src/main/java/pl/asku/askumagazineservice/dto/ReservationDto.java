@@ -3,6 +3,7 @@ package pl.asku.askumagazineservice.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -24,7 +25,7 @@ public class ReservationDto {
 
     private LocalDate endDate;
 
-    private Float areaInMeters;
+    private BigDecimal areaInMeters;
 
     private Long magazineId;
 }

@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ class SearchTests {
         LocalDate startDate = magazineDto.getStartDate().plusDays(1);
         LocalDate endDate = magazineDto.getEndDate().minusDays(1);
         String location = magazineDto.getLocation();
-        Float area = 15.0f;
+        BigDecimal area = BigDecimal.valueOf(15.0f);
 
         //when
         IntStream.range(0, magazinesToAdd).forEach($ -> magazineService.addMagazine(magazineDto, username));
@@ -101,7 +101,7 @@ class SearchTests {
         LocalDate startDate = matchingMagazine.getStartDate().plusDays(1);
         LocalDate endDate = matchingMagazine.getEndDate().minusDays(1);
         String location = matchingMagazine.getLocation();
-        Float area = 15.0f;
+        BigDecimal area = BigDecimal.valueOf(15.0f);
 
         //when
         magazineService.addMagazine(matchingMagazine, username);

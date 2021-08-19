@@ -6,6 +6,7 @@ import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.MagazineType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
@@ -19,8 +20,8 @@ public class MagazineDataProvider {
                 "London",
                 LocalDate.now().plusDays(2),
                 LocalDate.now().plusDays(10),
-                60.0f,
-                100.0f,
+                BigDecimal.valueOf(60.0f),
+                BigDecimal.valueOf(100.0f),
                 MagazineType.GARAGE,
                 Heating.ELECTRIC,
                 Light.NATURAL,
@@ -31,13 +32,13 @@ public class MagazineDataProvider {
                 false,
                 false,
                 2,
-                2.5f,
-                2.1f,
-                1.5f,
+                BigDecimal.valueOf(2.5f),
+                BigDecimal.valueOf(2.1f),
+                BigDecimal.valueOf(1.5f),
                 true,
                 true,
                 false,
-                10.0f,
+                BigDecimal.valueOf(10.0f),
                 false,
                 "Lorem ipsum",
                 null
@@ -49,9 +50,9 @@ public class MagazineDataProvider {
                 .location("London")
                 .startDate(LocalDate.now().plusDays(2))
                 .endDate(LocalDate.now().plusDays(10))
-                .areaInMeters(60.0f)
-                .pricePerMeter(100.0f)
-                .minAreaToRent(10.0f)
+                .areaInMeters(BigDecimal.valueOf(60.0f))
+                .pricePerMeter(BigDecimal.valueOf(100.0f))
+                .minAreaToRent(BigDecimal.valueOf(10.0f))
                 .build();
     }
 }

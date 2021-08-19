@@ -7,6 +7,7 @@ import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,10 +44,10 @@ public class Magazine {
     private LocalDate endDate;
 
     @NotNull
-    private Float areaInMeters;
+    private BigDecimal areaInMeters;
 
     @NotNull
-    private Float pricePerMeter;
+    private BigDecimal pricePerMeter;
 
     @Enumerated(EnumType.STRING)
     private MagazineType type;
@@ -71,11 +72,11 @@ public class Magazine {
 
     private Integer floor;
 
-    private Float height;
+    private BigDecimal height;
 
-    private Float doorHeight;
+    private BigDecimal doorHeight;
 
-    private Float doorWidth;
+    private BigDecimal doorWidth;
 
     private Boolean electricity;
 
@@ -83,7 +84,7 @@ public class Magazine {
 
     private Boolean vehicleManoeuvreArea;
 
-    private Float minAreaToRent;
+    private BigDecimal minAreaToRent;
 
     private Boolean ownerTransport;
 

@@ -7,16 +7,15 @@ import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -47,11 +46,11 @@ public class MagazineDto {
 
     @NonNull
     @Min(0)
-    private Float areaInMeters;
+    private BigDecimal areaInMeters;
 
     @NonNull
     @Min(0)
-    private Float pricePerMeter;
+    private BigDecimal pricePerMeter;
 
     private MagazineType type;
 
@@ -74,13 +73,13 @@ public class MagazineDto {
     private Integer floor;
 
     @Min(0)
-    private Float height;
+    private BigDecimal height;
 
     @Min(0)
-    private Float doorHeight;
+    private BigDecimal doorHeight;
 
     @Min(0)
-    private Float doorWidth;
+    private BigDecimal doorWidth;
 
     private Boolean electricity;
 
@@ -90,7 +89,7 @@ public class MagazineDto {
 
     @NonNull
     @Min(1)
-    private Float minAreaToRent;
+    private BigDecimal minAreaToRent;
 
     private Boolean ownerTransport;
 
@@ -109,7 +108,7 @@ public class MagazineDto {
                 .collect(Collectors.toList());
 
         if(startDate.compareTo(endDate) >= 0) violations.add("Start date is not earlier than end date");
-        if(minAreaToRent > areaInMeters) violations.add("Min area to rent must be lower or equal total area");
+        if(minAreaToRent.compareTo(areaInMeters) > 0) violations.add("Min area to rent must be lower or equal total area");
 
         return violations;
     }

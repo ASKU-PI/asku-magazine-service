@@ -9,6 +9,8 @@ import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -32,7 +34,7 @@ public class CheckAvailableTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getMinAreaToRent() + 2.0f;
+        BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0f));
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         boolean available = magazineService.checkIfMagazineAvailable(
                 magazine,

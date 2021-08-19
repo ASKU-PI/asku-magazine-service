@@ -27,7 +27,8 @@ public class ReservationController {
     public ResponseEntity<ReservationDto> addReservation(
             @RequestBody ReservationDto reservationDto,
             Authentication authentication){
-        if(!reservationPolicy.addReservation(authentication)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
+        if(!reservationPolicy.addReservation(authentication))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
 
         String username = authentication.getName();
 

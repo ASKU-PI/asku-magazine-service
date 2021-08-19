@@ -11,6 +11,7 @@ import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.service.MagazineService;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +37,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getMinAreaToRent() + 2.0f;
+        BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         ReservationDto reservationDto = new ReservationDto(
                 null,
@@ -68,7 +69,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getAreaInMeters();
+        BigDecimal area = magazineDto.getAreaInMeters();
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         ReservationDto reservationDto = new ReservationDto(
                 null,
@@ -100,7 +101,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getAreaInMeters() + 2.0f;
+        BigDecimal area = magazineDto.getAreaInMeters().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         Optional<Reservation> reservation = magazineService.addReservation(
                 new ReservationDto(
@@ -125,7 +126,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getMinAreaToRent() + 2.0f;
+        BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         ReservationDto reservationDto = new ReservationDto(
                 null,
@@ -151,7 +152,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getMinAreaToRent() + 2.0f;
+        BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         ReservationDto reservationDto = new ReservationDto(
                 null,
@@ -177,7 +178,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getAreaInMeters();
+        BigDecimal area = magazineDto.getAreaInMeters();
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         magazineService.addReservation(
                 new ReservationDto(
@@ -213,7 +214,7 @@ class AddReservationTests {
         String username = "test";
 
         //when
-        Float area = magazineDto.getMinAreaToRent();
+        BigDecimal area = magazineDto.getMinAreaToRent();
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
         magazineService.addReservation(
                 new ReservationDto(
@@ -226,7 +227,7 @@ class AddReservationTests {
                         magazine.getId()),
                 username
         );
-        area = magazineDto.getAreaInMeters() - magazineDto.getMinAreaToRent();
+        area = magazineDto.getAreaInMeters().subtract(magazineDto.getMinAreaToRent());
         ReservationDto reservationDto = new ReservationDto(
                 null,
                 null,

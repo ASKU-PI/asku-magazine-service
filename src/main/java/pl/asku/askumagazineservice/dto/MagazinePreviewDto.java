@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import pl.asku.askumagazineservice.model.MagazineType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,9 +29,9 @@ public class MagazinePreviewDto {
 
     private LocalDate endDate;
 
-    private Float areaInMeters;
+    private BigDecimal areaInMeters;
 
-    private Float pricePerMeter;
+    private BigDecimal pricePerMeter;
 
     private MagazineType type;
 
