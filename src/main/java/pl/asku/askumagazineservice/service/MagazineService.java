@@ -12,7 +12,7 @@ import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
 
 import javax.persistence.criteria.Predicate;
-import javax.validation.*;
+import javax.validation.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
