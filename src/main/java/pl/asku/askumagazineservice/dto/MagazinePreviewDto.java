@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import pl.asku.askumagazineservice.dto.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.MagazineType;
 
 import java.math.BigDecimal;
@@ -23,6 +24,9 @@ public class MagazinePreviewDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate createdDate;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<PictureData> photos;
+
     private String location;
 
     private LocalDate startDate;
@@ -34,6 +38,4 @@ public class MagazinePreviewDto {
     private BigDecimal pricePerMeter;
 
     private MagazineType type;
-
-    private List<String> imageIds;
 }

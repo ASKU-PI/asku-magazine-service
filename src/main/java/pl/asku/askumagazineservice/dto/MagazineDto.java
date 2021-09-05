@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import pl.asku.askumagazineservice.dto.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -14,7 +15,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +33,9 @@ public class MagazineDto {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate createdDate;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<PictureData> photos;
 
     @NonNull
     @Size(min = 2, max = 50)
@@ -96,7 +99,6 @@ public class MagazineDto {
     @Size(min = 3, max = 500)
     private String description;
 
-    private List<String> imageIds;
 
     public List<String> getViolationMessages() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -141,7 +143,6 @@ public class MagazineDto {
                 .minAreaToRent(minAreaToRent)
                 .ownerTransport(ownerTransport)
                 .description(description)
-                .images(new ArrayList<>())
                 .build();
     }
 }

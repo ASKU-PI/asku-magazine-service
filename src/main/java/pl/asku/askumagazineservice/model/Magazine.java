@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.model;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 
@@ -38,9 +39,11 @@ public class Magazine {
     private String location;
 
     @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate startDate;
 
     @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
 
     @NotNull
@@ -90,14 +93,12 @@ public class Magazine {
 
     private String description;
 
-    @OneToMany(mappedBy = "magazine")
-    private List<Image> images;
-
     public MagazineDto toMagazineDto() {
         return new MagazineDto(
                 id,
                 owner,
                 createdDate,
+                null,
                 location,
                 startDate,
                 endDate,
@@ -121,10 +122,7 @@ public class Magazine {
                 vehicleManoeuvreArea,
                 minAreaToRent,
                 ownerTransport,
-                description,
-                images.stream()
-                        .map(i -> i.getId().toString() + "." + i.getFormat())
-                        .collect(Collectors.toList())
+                description
         );
     }
 
@@ -133,15 +131,13 @@ public class Magazine {
                 id,
                 owner,
                 createdDate,
+                null,
                 location,
                 startDate,
                 endDate,
                 areaInMeters,
                 pricePerMeter,
-                type,
-                images.stream()
-                        .map(i -> i.getId().toString() + "." + i.getFormat())
-                        .collect(Collectors.toList())
+                type
         );
     }
 }

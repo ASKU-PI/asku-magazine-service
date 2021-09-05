@@ -36,9 +36,8 @@ public class AskuMagazineServiceApplication {
                         .build());
     }
 
-    @LoadBalanced
-    @Bean("accountRestTemplate")
-    public RestTemplate accountService(){
+    @Bean
+    public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 }

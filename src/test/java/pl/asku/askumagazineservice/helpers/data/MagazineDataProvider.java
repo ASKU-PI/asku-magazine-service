@@ -17,6 +17,7 @@ public class MagazineDataProvider {
                 null,
                 null,
                 null,
+                null,
                 "London",
                 LocalDate.now().plusDays(2),
                 LocalDate.now().plusDays(10),
@@ -40,8 +41,7 @@ public class MagazineDataProvider {
                 false,
                 BigDecimal.valueOf(10.0f),
                 false,
-                "Lorem ipsum",
-                null
+                "Lorem ipsum"
         );
     }
 

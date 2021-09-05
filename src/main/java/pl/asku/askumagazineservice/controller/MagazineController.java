@@ -7,18 +7,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
-import pl.asku.askumagazineservice.model.Heating;
-import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.Magazine;
-import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
+import pl.asku.askumagazineservice.model.*;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,50 +33,63 @@ public class MagazineController {
 
     private final MagazineService magazineService;
     private final MagazinePolicy magazinePolicy;
+    private final ImageServiceClient imageServiceClient;
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<MagazineDto> addMagazine(
-            @RequestBody MagazineDto magazineDto,
+            @ModelAttribute Magazine magazine,
+            @RequestPart("files") MultipartFile[] photos,
             Authentication authentication){
         if(!magazinePolicy.addMagazine(authentication))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazineDto);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazine.toMagazineDto());
 
-        String username = authentication.getName();
+        String identifier = authentication.getName();
 
-        Magazine magazine;
+        MagazinePictureDto magazinePictureDto;
 
         try {
-            magazine = magazineService.addMagazine(magazineDto, username);
-        } catch (ValidationException e) {
+            magazine = magazineService.addMagazine(magazine.toMagazineDto(), identifier);
+            magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
+        } catch (ValidationException | IOException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+        MagazineDto magazineDto = magazine.toMagazineDto();
         magazineDto.setId(magazine.getId());
+        magazineDto.setPhotos(magazinePictureDto.getPhotos());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
     }
 
     @GetMapping("/details/{id}")
     public ResponseEntity<MagazineDto> getMagazineDetails(@PathVariable Long id){
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-        return magazine.isEmpty() ?
-                ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(null) :
-                ResponseEntity
-                .status(HttpStatus.OK)
-                .body(magazine.get().toMagazineDto());
+        if(magazine.isPresent()){
+            MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.get().getId());
+            MagazineDto magazineDto = magazine.get().toMagazineDto();
+            magazineDto.setPhotos(magazinePictureDto.getPhotos());
+            return ResponseEntity.status(HttpStatus.OK).body(magazineDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
-    @GetMapping("/user/{username}")
+    @GetMapping("/user/{identifier}")
     public ResponseEntity<List<MagazinePreviewDto>> getUserMagazines(
-            @PathVariable String username,
+            @PathVariable String identifier,
             @RequestParam Optional<Integer> page
     ) {
         List<Magazine> magazines =
-                magazineService.getUserMagazines(username, page.map(integer -> integer - 1).orElse(0));
+                magazineService.getUserMagazines(identifier, page.map(integer -> integer - 1).orElse(0));
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(magazines.stream().map(Magazine::toMagazinePreviewDto).collect(Collectors.toList()));
+                .body(magazines.stream().map(magazine -> {
+                    MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
+                    MagazinePreviewDto magazinePreviewDto = magazine.toMagazinePreviewDto();
+                    magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
+                    return magazinePreviewDto;
+
+                }).collect(Collectors.toList()));
     }
 
     @GetMapping("/search")
@@ -131,7 +145,13 @@ public class MagazineController {
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(magazines.stream().map(Magazine::toMagazinePreviewDto).collect(Collectors.toList()));
+                .body(magazines.stream().map(magazine -> {
+                    MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
+                    MagazinePreviewDto magazinePreviewDto = magazine.toMagazinePreviewDto();
+                    magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
+                    return magazinePreviewDto;
+
+                }).collect(Collectors.toList()));
     }
 
     @GetMapping("/availability/{id}")
