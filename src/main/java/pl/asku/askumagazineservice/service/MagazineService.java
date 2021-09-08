@@ -52,7 +52,8 @@ public class MagazineService {
             String location,
             LocalDate start,
             LocalDate end,
-            BigDecimal area,
+            BigDecimal minArea,
+            BigDecimal maxArea,
             Optional<BigDecimal> pricePerMeter,
             Optional<MagazineType> type,
             Optional<Heating> heating,
@@ -78,8 +79,9 @@ public class MagazineService {
                             List<Predicate> predicates = new ArrayList<>();
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), start)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), end)));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), area)));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), area)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), minArea)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("areaInMeters"), maxArea)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), minArea)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("location"), location)));
                             pricePerMeter.ifPresent(aBigDecimal -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aBigDecimal))));
                             type.ifPresent(magazineType -> predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), magazineType))));

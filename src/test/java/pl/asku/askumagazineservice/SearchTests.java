@@ -43,7 +43,8 @@ class SearchTests {
         LocalDate startDate = magazineDto.getStartDate().plusDays(1);
         LocalDate endDate = magazineDto.getEndDate().minusDays(1);
         String location = magazineDto.getLocation();
-        BigDecimal area = BigDecimal.valueOf(15.0f);
+        BigDecimal minArea = BigDecimal.valueOf(15.0f);
+        BigDecimal maxArea = BigDecimal.valueOf(200.0f);
 
         //when
         IntStream.range(0, magazinesToAdd).forEach($ -> magazineService.addMagazine(magazineDto, username));
@@ -52,7 +53,8 @@ class SearchTests {
                 location,
                 startDate,
                 endDate,
-                area,
+                minArea,
+                maxArea,
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
@@ -101,7 +103,8 @@ class SearchTests {
         LocalDate startDate = matchingMagazine.getStartDate().plusDays(1);
         LocalDate endDate = matchingMagazine.getEndDate().minusDays(1);
         String location = matchingMagazine.getLocation();
-        BigDecimal area = BigDecimal.valueOf(15.0f);
+        BigDecimal minArea = BigDecimal.valueOf(15.0f);
+        BigDecimal maxArea = BigDecimal.valueOf(200.0f);
 
         //when
         magazineService.addMagazine(matchingMagazine, username);
@@ -111,7 +114,8 @@ class SearchTests {
                 location,
                 startDate,
                 endDate,
-                area,
+                minArea,
+                maxArea,
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
