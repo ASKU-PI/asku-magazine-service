@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.model.*;
@@ -14,6 +15,7 @@ import pl.asku.askumagazineservice.repository.ReservationRepository;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +28,28 @@ public class MagazineService {
 
     private final MagazineRepository magazineRepository;
     private final ReservationRepository reservationRepository;
+    private final GeocodingClient geocodingClient;
 
     @Transactional
-    public Magazine addMagazine(MagazineDto magazineDto, String username){
+    public Magazine addMagazine(MagazineDto magazineDto, String username) {
         List<String> violationMessages = magazineDto.getViolationMessages();
         if (violationMessages.size() > 0) {
             throw new ValidationException(violationMessages.toString());
         }
 
         Magazine magazine = magazineDto.toMagazine(username);
+
+        Optional<Geolocation> geolocation = geocodingClient.getGeolocation(
+                magazine.getCountry(),
+                magazine.getCity(),
+                magazine.getStreet(),
+                magazine.getBuilding()
+        );
+
+        if (geolocation.isEmpty()) throw new ValidationException("Invalid address");
+
+        magazine.setLongitude(geolocation.get().getLongitude());
+        magazine.setLatitude(geolocation.get().getLatitude());
 
         return magazineRepository.save(magazine);
     }
@@ -49,7 +64,12 @@ public class MagazineService {
 
     public List<Magazine> searchMagazines(
             Integer page,
+            BigDecimal minLongitude,
+            BigDecimal maxLongitude,
+            BigDecimal minLatitude,
+            BigDecimal maxLatitude,
             String location,
+            BigDecimal radiusInKilometers,
             LocalDate start,
             LocalDate end,
             BigDecimal minArea,
@@ -71,8 +91,35 @@ public class MagazineService {
             Optional<Boolean> electricity,
             Optional<Boolean> parking,
             Optional<Boolean> vehicleManoeuvreArea,
-            Optional<Boolean> ownerTransport){
+            Optional<Boolean> ownerTransport) {
         //TODO: make this take reservations into account
+        boolean boundariesProvided =
+                minLatitude != null && maxLatitude != null && minLongitude != null && maxLongitude != null;
+
+        if (location == null && !boundariesProvided) {
+            return new ArrayList<>();
+        }
+
+        if (location != null && !boundariesProvided) {
+            if (radiusInKilometers == null) radiusInKilometers = BigDecimal.valueOf(5.0f);
+
+            BigDecimal radiusInDegrees = radiusInKilometers.divide(BigDecimal.valueOf(111.0f), RoundingMode.HALF_EVEN);
+
+            Optional<Geolocation> center = geocodingClient.getGeolocation(location);
+
+            if (center.isEmpty()) return new ArrayList<>();
+
+            minLongitude = center.get().getLongitude().subtract(radiusInDegrees);
+            maxLongitude = center.get().getLongitude().add(radiusInDegrees);
+
+            minLatitude = center.get().getLatitude().subtract(radiusInDegrees);
+            maxLatitude = center.get().getLatitude().add(radiusInDegrees);
+        }
+
+        BigDecimal finalMinLongitude = minLongitude;
+        BigDecimal finalMaxLongitude = maxLongitude;
+        BigDecimal finalMinLatitude = minLatitude;
+        BigDecimal finalMaxLatitude = maxLatitude;
         return magazineRepository
                 .findAll(
                         (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
@@ -82,7 +129,10 @@ public class MagazineService {
                             predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), minArea)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("areaInMeters"), maxArea)));
                             predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), minArea)));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("location"), location)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), finalMinLongitude)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), finalMaxLongitude)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), finalMinLatitude)));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), finalMaxLatitude)));
                             pricePerMeter.ifPresent(aBigDecimal -> predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), aBigDecimal))));
                             type.ifPresent(magazineType -> predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), magazineType))));
                             heating.ifPresent(aHeating -> predicates.add(criteriaBuilder.and((criteriaBuilder.equal(root.get("heating"), aHeating)))));
@@ -108,20 +158,20 @@ public class MagazineService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Reservation> addReservation(ReservationDto reservationDto, String username){
+    public Optional<Reservation> addReservation(ReservationDto reservationDto, String username) {
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
-        if(magazine.isEmpty()) return Optional.empty();
+        if (magazine.isEmpty()) return Optional.empty();
         return addReservation(magazine.get(), reservationDto, username);
     }
 
     @Transactional
-    public Optional<Reservation> addReservation(Magazine magazine, ReservationDto reservationDto, String username){
-        if(reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
+    public Optional<Reservation> addReservation(Magazine magazine, ReservationDto reservationDto, String username) {
+        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
                 !checkIfMagazineAvailable(
-                magazine,
-                reservationDto.getStartDate(),
-                reservationDto.getEndDate(),
-                reservationDto.getAreaInMeters())){
+                        magazine,
+                        reservationDto.getStartDate(),
+                        reservationDto.getEndDate(),
+                        reservationDto.getAreaInMeters())) {
             return Optional.empty();
         }
         Reservation reservation = Reservation.builder()
@@ -136,17 +186,17 @@ public class MagazineService {
     }
 
     public boolean checkIfMagazineAvailable(Magazine magazine,
-                                     LocalDate start, LocalDate end, BigDecimal area){
-        if(magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
+                                            LocalDate start, LocalDate end, BigDecimal area) {
+        if (magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
                 || magazine.getStartDate().compareTo(start) > 0 ||
-            magazine.getEndDate().compareTo(end) < 0){
+                magazine.getEndDate().compareTo(end) < 0) {
             return false;
         }
         BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
         return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
     }
 
-    private BigDecimal getTakenArea(Long magazineId, LocalDate start, LocalDate end){
+    private BigDecimal getTakenArea(Long magazineId, LocalDate start, LocalDate end) {
         List<Reservation> reservations = reservationRepository
                 .findByMagazine_Id(magazineId)
                 .stream()
@@ -159,7 +209,7 @@ public class MagazineService {
                         (start.compareTo(reservation.getStartDate()) >= 0
                                 && end.compareTo(reservation.getEndDate()) <= 0))
                 .collect(Collectors.toList());
-        if(reservations.isEmpty()){
+        if (reservations.isEmpty()) {
             return BigDecimal.ZERO;
         }
         return reservations

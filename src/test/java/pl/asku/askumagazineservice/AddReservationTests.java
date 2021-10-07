@@ -1,17 +1,24 @@
 package pl.asku.askumagazineservice;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,9 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 class AddReservationTests {
 
+    @InjectMocks
     private final MagazineService magazineService;
-
     private final MagazineDto testMagazineDtoTemplate;
+    @MockBean
+    GeocodingClient geocodingClient;
 
     @Autowired
     AddReservationTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
@@ -30,8 +39,24 @@ class AddReservationTests {
         this.testMagazineDtoTemplate = magazineDataProvider.validMagazineDto();
     }
 
+    @BeforeEach
+    public void setUp() {
+        Mockito.when(geocodingClient.getGeolocation(
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> {
+                            if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
+                                return Optional.empty();
+                            }
+                            return Optional.of(new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f)));
+                        }
+                );
+    }
+
     @Test
-    public void returnsCorrectMagazine(){
+    public void returnsCorrectMagazine() {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -172,7 +197,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough(){
+    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";

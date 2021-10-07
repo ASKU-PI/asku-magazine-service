@@ -10,8 +10,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "magazine")
@@ -36,7 +34,25 @@ public class Magazine {
 
     @NotNull
     @NotBlank
-    private String location;
+    private String country;
+
+    @NotNull
+    @NotBlank
+    private String city;
+
+    @NotNull
+    @NotBlank
+    private String street;
+
+    @NotNull
+    @NotBlank
+    private String building;
+
+    @NotNull
+    private BigDecimal longitude;
+
+    @NotNull
+    private BigDecimal latitude;
 
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -99,7 +115,12 @@ public class Magazine {
                 owner,
                 createdDate,
                 null,
-                location,
+                country,
+                city,
+                street,
+                building,
+                longitude,
+                latitude,
                 startDate,
                 endDate,
                 areaInMeters,
@@ -132,7 +153,12 @@ public class Magazine {
                 owner,
                 createdDate,
                 null,
-                location,
+                country,
+                city,
+                street,
+                building,
+                longitude,
+                latitude,
                 startDate,
                 endDate,
                 areaInMeters,

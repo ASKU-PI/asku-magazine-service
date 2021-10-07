@@ -2,11 +2,9 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import pl.asku.askumagazineservice.client.LocationIqClient;
 import pl.asku.askumagazineservice.dto.imageservice.PictureData;
-import pl.asku.askumagazineservice.model.Heating;
-import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.Magazine;
-import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.model.*;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class MagazineDto {
@@ -39,7 +37,25 @@ public class MagazineDto {
 
     @NonNull
     @Size(min = 2, max = 50)
-    private String location;
+    private String country;
+
+    @NonNull
+    @Size(min = 2, max = 50)
+    private String city;
+
+    @NonNull
+    @Size(min = 2, max = 50)
+    private String street;
+
+    @NonNull
+    @Size(min = 2, max = 50)
+    private String building;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BigDecimal longitude;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BigDecimal latitude;
 
     @NonNull
     private LocalDate startDate;
@@ -109,8 +125,9 @@ public class MagazineDto {
                 .stream().map(Object::toString)
                 .collect(Collectors.toList());
 
-        if(startDate.compareTo(endDate) >= 0) violations.add("Start date is not earlier than end date");
-        if(minAreaToRent.compareTo(areaInMeters) > 0) violations.add("Min area to rent must be lower or equal total area");
+        if (startDate.compareTo(endDate) >= 0) violations.add("Start date is not earlier than end date");
+        if (minAreaToRent.compareTo(areaInMeters) > 0)
+            violations.add("Min area to rent must be lower or equal total area");
 
         return violations;
     }
@@ -119,7 +136,10 @@ public class MagazineDto {
         return Magazine.builder()
                 .owner(username)
                 .createdDate(LocalDate.now())
-                .location(location)
+                .country(country)
+                .city(city)
+                .street(street)
+                .building(building)
                 .startDate(startDate)
                 .endDate(endDate)
                 .areaInMeters(areaInMeters)

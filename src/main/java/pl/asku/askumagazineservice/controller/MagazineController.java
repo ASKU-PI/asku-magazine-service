@@ -21,6 +21,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +40,8 @@ public class MagazineController {
     public ResponseEntity<MagazineDto> addMagazine(
             @ModelAttribute Magazine magazine,
             @RequestPart("files") MultipartFile[] photos,
-            Authentication authentication){
-        if(!magazinePolicy.addMagazine(authentication))
+            Authentication authentication) {
+        if (!magazinePolicy.addMagazine(authentication))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazine.toMagazineDto());
 
         String identifier = authentication.getName();
@@ -62,9 +63,9 @@ public class MagazineController {
     }
 
     @GetMapping("/details/{id}")
-    public ResponseEntity<MagazineDto> getMagazineDetails(@PathVariable Long id){
+    public ResponseEntity<MagazineDto> getMagazineDetails(@PathVariable Long id) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-        if(magazine.isPresent()){
+        if (magazine.isPresent()) {
             MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.get().getId());
             MagazineDto magazineDto = magazine.get().toMagazineDto();
             magazineDto.setPhotos(magazinePictureDto.getPhotos());
@@ -95,7 +96,12 @@ public class MagazineController {
     @GetMapping("/search")
     public ResponseEntity<List<MagazinePreviewDto>> searchMagazines(
             @RequestParam Optional<Integer> page,
-            @RequestParam String location,
+            @RequestParam(required = false) BigDecimal minLongitude,
+            @RequestParam(required = false) BigDecimal maxLongitude,
+            @RequestParam(required = false) BigDecimal minLatitude,
+            @RequestParam(required = false) BigDecimal maxLatitude,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) BigDecimal radiusInKilometers,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam BigDecimal minArea,
@@ -118,10 +124,15 @@ public class MagazineController {
             @RequestParam(required = false) Optional<Boolean> parking,
             @RequestParam(required = false) Optional<Boolean> vehicleManoeuvreArea,
             @RequestParam(required = false) Optional<Boolean> ownerTransport
-            ) {
+    ) {
         List<Magazine> magazines = magazineService.searchMagazines(
                 page.map(integer -> integer - 1).orElse(0),
+                minLongitude,
+                maxLongitude,
+                minLatitude,
+                maxLatitude,
                 location,
+                radiusInKilometers,
                 start,
                 end,
                 minArea,
@@ -162,7 +173,7 @@ public class MagazineController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
             @RequestParam @Min(0) BigDecimal minArea
-        ) {
+    ) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
         return magazine.isEmpty() ?
                 ResponseEntity
@@ -186,6 +197,6 @@ public class MagazineController {
                         .status(HttpStatus.NOT_FOUND).build() :
                 ResponseEntity
                         .status(HttpStatus.OK)
-                        .body(magazineService.getTotalPrice(magazine.get(), start, end,  area));
+                        .body(magazineService.getTotalPrice(magazine.get(), start, end, area));
     }
 }
