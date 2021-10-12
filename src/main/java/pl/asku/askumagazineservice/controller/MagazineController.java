@@ -145,7 +145,7 @@ public class MagazineController {
                         .body(null);
             }
         } else {
-            locationFilter = new LocationFilter(minLongitude, maxLongitude, minLatitude, minLongitude);
+            locationFilter = new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude);
         }
 
         MagazineFilters filters = new MagazineFilters(
