@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -47,7 +47,7 @@ public class AddTests {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
         Mockito.when(geocodingClient.getGeolocation(
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -55,15 +55,15 @@ public class AddTests {
                         Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                             if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                return Optional.empty();
+                                throw new LocationNotFoundException();
                             }
-                            return Optional.of(new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f)));
+                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
                         }
                 );
     }
 
     @Test
-    public void shouldAddToDatabase() {
+    public void shouldAddToDatabase() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -78,7 +78,7 @@ public class AddTests {
     }
 
     @Test
-    public void shouldReturnCorrectMagazine() {
+    public void shouldReturnCorrectMagazine() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -122,7 +122,7 @@ public class AddTests {
     }
 
     @Test
-    public void succeedsForOnlyMandatoryFields() {
+    public void succeedsForOnlyMandatoryFields() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoMandatoryOnlyTemplate.toBuilder().build();
         String username = "test";

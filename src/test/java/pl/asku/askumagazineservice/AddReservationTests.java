@@ -11,6 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -40,7 +42,7 @@ class AddReservationTests {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
         Mockito.when(geocodingClient.getGeolocation(
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -48,15 +50,15 @@ class AddReservationTests {
                         Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                             if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                return Optional.empty();
+                                throw new LocationNotFoundException();
                             }
-                            return Optional.of(new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f)));
+                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
                         }
                 );
     }
 
     @Test
-    public void returnsCorrectMagazine() {
+    public void returnsCorrectMagazine() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -88,7 +90,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void reserveFullDateIntervalAndArea() {
+    public void reserveFullDateIntervalAndArea() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -120,7 +122,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void failsForMagazineWithNotEnoughSpace() {
+    public void failsForMagazineWithNotEnoughSpace() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -145,7 +147,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void failsWhenStartDateGreaterThanEndDate() {
+    public void failsWhenStartDateGreaterThanEndDate() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -171,7 +173,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void failsWhenDatesIntervalNotCorrect() {
+    public void failsWhenDatesIntervalNotCorrect() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -197,7 +199,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() {
+    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";
@@ -233,7 +235,7 @@ class AddReservationTests {
     }
 
     @Test
-    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() {
+    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";

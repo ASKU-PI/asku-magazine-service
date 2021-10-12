@@ -11,16 +11,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.search.LocationFilter;
+import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,17 +47,17 @@ class SearchTests {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
         Mockito.when(geocodingClient.getGeolocation(
-                        testMagazineDtoTemplate.getCountry(),
-                        testMagazineDtoTemplate.getCity(),
-                        testMagazineDtoTemplate.getStreet(),
-                        testMagazineDtoTemplate.getBuilding()))
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                             if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                return Optional.empty();
+                                throw new LocationNotFoundException();
                             }
-                            return Optional.of(new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f)));
+                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
                         }
                 );
     }
@@ -77,37 +80,22 @@ class SearchTests {
         BigDecimal maxArea = BigDecimal.valueOf(200.0f);
 
         //when
-        IntStream.range(0, magazinesToAdd).forEach($ -> magazineService.addMagazine(magazineDto, username));
+        IntStream.range(0, magazinesToAdd).forEach($ -> {
+            try {
+                magazineService.addMagazine(magazineDto, username);
+            } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
+                e.printStackTrace();
+            }
+        });
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                minLongitude,
-                maxLongitude,
-                minLatitude,
-                maxLatitude,
-                null,
-                null,
-                startDate,
-                endDate,
-                minArea,
-                maxArea,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                MagazineFilters.builder()
+                        .locationFilter(new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude))
+                        .startDateGreaterOrEqual(startDate)
+                        .endDateLessOrEqual(endDate)
+                        .minFreeArea(minArea)
+                        .maxFreeArea(maxArea)
+                        .build()
         );
 
         //then
@@ -116,7 +104,7 @@ class SearchTests {
     }
 
     @Test
-    public void searchMagazinesBooleanFiltersWork() {
+    public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         String username = "test";
 
@@ -149,34 +137,16 @@ class SearchTests {
         magazineService.addMagazine(notMatchingMagazine, username);
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                minLongitude,
-                maxLongitude,
-                minLatitude,
-                maxLatitude,
-                null,
-                null,
-                startDate,
-                endDate,
-                minArea,
-                maxArea,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(antiTheftDoors),
-                Optional.of(monitoring),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(electricity),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                MagazineFilters.builder()
+                        .locationFilter(new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude))
+                        .startDateGreaterOrEqual(startDate)
+                        .endDateLessOrEqual(endDate)
+                        .minFreeArea(minArea)
+                        .maxFreeArea(maxArea)
+                        .hasAntiTheftDoors(true)
+                        .hasMonitoring(true)
+                        .hasElectricity(true)
+                        .build()
         );
 
         //then

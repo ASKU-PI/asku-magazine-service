@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -17,7 +19,6 @@ import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,23 +41,23 @@ public class CheckAvailableTests {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
         Mockito.when(geocodingClient.getGeolocation(
-                        testMagazineDtoTemplate.getCountry(),
-                        testMagazineDtoTemplate.getCity(),
-                        testMagazineDtoTemplate.getStreet(),
-                        testMagazineDtoTemplate.getBuilding()))
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                             if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                return Optional.empty();
+                                throw new LocationNotFoundException();
                             }
-                            return Optional.of(new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f)));
+                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
                         }
                 );
     }
 
     @Test
-    public void returnsTrueWhenNoOtherReservations(){
+    public void returnsTrueWhenNoOtherReservations() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
         String username = "test";

@@ -12,7 +12,14 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
-import pl.asku.askumagazineservice.model.*;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.model.Heating;
+import pl.asku.askumagazineservice.model.Light;
+import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.model.search.LocationFilter;
+import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 
@@ -21,8 +28,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,7 +58,7 @@ public class MagazineController {
         try {
             magazine = magazineService.addMagazine(magazine.toMagazineDto(), identifier);
             magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
-        } catch (ValidationException | IOException e) {
+        } catch (ValidationException | IOException | LocationNotFoundException | LocationIqRequestFailedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
@@ -116,8 +123,8 @@ public class MagazineController {
             @RequestParam(required = false) Optional<Boolean> ventilation,
             @RequestParam(required = false) Optional<Boolean> smokeDetectors,
             @RequestParam(required = false) Optional<Boolean> selfService,
-            @RequestParam(required = false) Optional<Boolean> floor,
-            @RequestParam(required = false) Optional<BigDecimal> height,
+            @RequestParam(required = false) Optional<Integer> minFloor,
+            @RequestParam(required = false) Optional<Integer> maxFloor,
             @RequestParam(required = false) Optional<BigDecimal> doorHeight,
             @RequestParam(required = false) Optional<BigDecimal> doorWidth,
             @RequestParam(required = false) Optional<Boolean> electricity,
@@ -125,36 +132,51 @@ public class MagazineController {
             @RequestParam(required = false) Optional<Boolean> vehicleManoeuvreArea,
             @RequestParam(required = false) Optional<Boolean> ownerTransport
     ) {
-        List<Magazine> magazines = magazineService.searchMagazines(
-                page.map(integer -> integer - 1).orElse(0),
-                minLongitude,
-                maxLongitude,
-                minLatitude,
-                maxLatitude,
-                location,
-                radiusInKilometers,
+        LocationFilter locationFilter;
+
+        if (location != null) {
+            try {
+                if (radiusInKilometers == null) locationFilter = new LocationFilter(location);
+                else locationFilter = new LocationFilter(location, radiusInKilometers);
+            } catch (LocationNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ArrayList<>());
+            } catch (LocationIqRequestFailedException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(null);
+            }
+        } else {
+            locationFilter = new LocationFilter(minLongitude, maxLongitude, minLatitude, minLongitude);
+        }
+
+        MagazineFilters filters = new MagazineFilters(
+                locationFilter,
                 start,
                 end,
                 minArea,
                 maxArea,
-                pricePerMeter,
-                type,
-                heating,
-                light,
-                whole,
-                monitoring,
-                antiTheftDoors,
-                ventilation,
-                smokeDetectors,
-                selfService,
-                floor,
-                height,
-                doorHeight,
-                doorWidth,
-                electricity,
-                parking,
-                vehicleManoeuvreArea,
-                ownerTransport
+                pricePerMeter.orElse(null),
+                type.orElse(null),
+                heating.orElse(null),
+                light.orElse(null),
+                whole.orElse(null),
+                monitoring.orElse(null),
+                antiTheftDoors.orElse(null),
+                ventilation.orElse(null),
+                smokeDetectors.orElse(null),
+                selfService.orElse(null),
+                minFloor.orElse(null),
+                maxFloor.orElse(null),
+                doorHeight.orElse(null),
+                doorWidth.orElse(null),
+                electricity.orElse(null),
+                parking.orElse(null),
+                vehicleManoeuvreArea.orElse(null),
+                ownerTransport.orElse(null)
+        );
+
+        List<Magazine> magazines = magazineService.searchMagazines(
+                page.map(integer -> integer - 1).orElse(0),
+                filters
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
