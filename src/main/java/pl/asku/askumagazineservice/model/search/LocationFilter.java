@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.model.search;
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -18,8 +19,6 @@ public class LocationFilter {
     private BigDecimal minLatitude;
     private BigDecimal maxLatitude;
 
-    private GeocodingClient geocodingClient;
-
     public LocationFilter(
             BigDecimal minLongitude,
             BigDecimal maxLongitude,
@@ -31,13 +30,13 @@ public class LocationFilter {
         this.maxLatitude = maxLatitude;
     }
 
-    public LocationFilter(String location) throws LocationNotFoundException, LocationIqRequestFailedException {
+    public LocationFilter(String location, GeocodingClient geocodingClient) throws LocationNotFoundException, LocationIqRequestFailedException {
         Geolocation center = geocodingClient.getGeolocation(location);
 
         setBoundariesInRadius(center, kilometersToDegrees(defaultRadiusInKilometers));
     }
 
-    public LocationFilter(String location, BigDecimal radiusInKilometers) throws LocationNotFoundException, LocationIqRequestFailedException {
+    public LocationFilter(String location, BigDecimal radiusInKilometers, GeocodingClient geocodingClient) throws LocationNotFoundException, LocationIqRequestFailedException {
         Geolocation center = geocodingClient.getGeolocation(location);
 
         setBoundariesInRadius(center, kilometersToDegrees(radiusInKilometers));

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
@@ -42,6 +43,7 @@ public class MagazineController {
     private final MagazineService magazineService;
     private final MagazinePolicy magazinePolicy;
     private final ImageServiceClient imageServiceClient;
+    private final GeocodingClient geocodingClient;
 
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<MagazineDto> addMagazine(
@@ -136,8 +138,8 @@ public class MagazineController {
 
         if (location != null) {
             try {
-                if (radiusInKilometers == null) locationFilter = new LocationFilter(location);
-                else locationFilter = new LocationFilter(location, radiusInKilometers);
+                if (radiusInKilometers == null) locationFilter = new LocationFilter(location, geocodingClient);
+                else locationFilter = new LocationFilter(location, radiusInKilometers, geocodingClient);
             } catch (LocationNotFoundException e) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ArrayList<>());
             } catch (LocationIqRequestFailedException e) {
