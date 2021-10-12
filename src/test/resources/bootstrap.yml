@@ -4,16 +4,9 @@ spring:
       enabled: false
     discovery:
       enabled: false
-    bus:
-      enabled: false
-  rabbitmq:
-    listener:
-      direct:
-        auto-startup: false
 
 location-iq:
   api-key: extremelySecretExtrrremelySecret
 
 jwt:
   secret: verySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKey
-  # TODO: find a way to prevent the tests from trying to connect to rabbitmq
