@@ -18,7 +18,12 @@ public class MagazineDataProvider {
                 null,
                 null,
                 null,
-                "London",
+                "Poland",
+                "Kraków",
+                "Kawiory",
+                "21",
+                BigDecimal.valueOf(5.0f),
+                BigDecimal.valueOf(5.0f),
                 LocalDate.now().plusDays(2),
                 LocalDate.now().plusDays(10),
                 BigDecimal.valueOf(60.0f),
@@ -47,7 +52,12 @@ public class MagazineDataProvider {
 
     public MagazineDto mandatoryOnlyMagazineDto() {
         return MagazineDto.builder()
-                .location("London")
+                .country("Poland")
+                .city("Kraków")
+                .street("Kawiory")
+                .building("21")
+                .longitude(BigDecimal.valueOf(5.0f))
+                .latitude(BigDecimal.valueOf(5.0f))
                 .startDate(LocalDate.now().plusDays(2))
                 .endDate(LocalDate.now().plusDays(10))
                 .areaInMeters(BigDecimal.valueOf(60.0f))
