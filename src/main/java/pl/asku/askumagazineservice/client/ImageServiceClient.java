@@ -21,7 +21,9 @@ public class ImageServiceClient {
 
     private final String baseUrl = "http://asku-image-service:8892";
 
-    public ImageServiceClient(@Autowired RestTemplate restTemplate) { this.restTemplate = restTemplate; }
+    public ImageServiceClient(@Autowired RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public MagazinePictureDto uploadMagazinePictures(Long magazineId, MultipartFile[] files) throws IOException {
         var path = "/magazine";
@@ -30,7 +32,7 @@ public class ImageServiceClient {
                 .queryParam("id", magazineId);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        for(MultipartFile file : files) {
+        for (MultipartFile file : files) {
             body.add("picture", file.getResource());
         }
         HttpHeaders headers = new HttpHeaders();

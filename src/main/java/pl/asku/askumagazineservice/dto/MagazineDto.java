@@ -2,9 +2,11 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import pl.asku.askumagazineservice.client.LocationIqClient;
 import pl.asku.askumagazineservice.dto.imageservice.PictureData;
-import pl.asku.askumagazineservice.model.*;
+import pl.asku.askumagazineservice.model.Heating;
+import pl.asku.askumagazineservice.model.Light;
+import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.MagazineType;
 
 import javax.validation.Validation;
 import javax.validation.Validator;

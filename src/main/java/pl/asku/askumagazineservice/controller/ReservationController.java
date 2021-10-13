@@ -26,15 +26,15 @@ public class ReservationController {
     @PostMapping("/add")
     public ResponseEntity<ReservationDto> addReservation(
             @RequestBody ReservationDto reservationDto,
-            Authentication authentication){
-        if(!reservationPolicy.addReservation(authentication))
+            Authentication authentication) {
+        if (!reservationPolicy.addReservation(authentication))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
 
         String username = authentication.getName();
 
         Optional<Reservation> reservation = magazineService.addReservation(reservationDto, username);
 
-        if(reservation.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (reservation.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         reservationDto.setId(reservation.get().getId());
 

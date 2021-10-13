@@ -5,7 +5,6 @@ import lombok.*;
 import pl.asku.askumagazineservice.dto.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.MagazineType;
 
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

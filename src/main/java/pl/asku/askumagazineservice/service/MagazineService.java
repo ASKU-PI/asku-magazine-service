@@ -10,7 +10,9 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.model.*;
+import pl.asku.askumagazineservice.model.Geolocation;
+import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
@@ -66,60 +68,7 @@ public class MagazineService {
             Integer page,
             MagazineFilters filters) {
         //TODO: make this take reservations into account
-        return magazineRepository
-                .findAll(
-                        (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
-                            List<Predicate> predicates = new ArrayList<>();
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), filters.getStartDateGreaterOrEqual())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), filters.getEndDateLessOrEqual())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), filters.getMinFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("areaInMeters"), filters.getMaxFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), filters.getMinFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), filters.getLocationFilter().getMinLongitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), filters.getLocationFilter().getMaxLongitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), filters.getLocationFilter().getMinLatitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), filters.getLocationFilter().getMaxLatitude())));
-                            if(filters.getMaxPricePerMeter() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), filters.getMaxPricePerMeter())));
-                            if(filters.getType() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), filters.getType())));
-                            if(filters.getHeating() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("heating"), filters.getHeating())));
-                            if(filters.getLight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("light"), filters.getLight())));
-                            if(filters.getIsWhole() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("whole"), filters.getIsWhole())));
-                            if(filters.getHasMonitoring() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("monitoring"), filters.getHasMonitoring())));
-                            if(filters.getHasAntiTheftDoors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("antiTheftDoors"), filters.getHasAntiTheftDoors())));
-                            if(filters.getHasVentilation() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("ventilation"), filters.getHasVentilation())));
-                            if(filters.getHasSmokeDetectors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("smokeDetectors"), filters.getHasSmokeDetectors())));
-                            if(filters.getIsSelfService() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("selfService"), filters.getIsSelfService())));
-                            if(filters.getMinFloor() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("floor"), filters.getMinFloor())));
-                            if(filters.getMaxFloor() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("floor"), filters.getMaxFloor())));
-                            if(filters.getMinDoorHeight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorHeight"), filters.getMinDoorHeight())));
-                            if(filters.getMinDoorWidth() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorWidth"), filters.getMinDoorWidth())));
-                            if(filters.getHasElectricity() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("electricity"), filters.getHasElectricity())));
-                            if(filters.getHasParking() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("parking"), filters.getHasParking())));
-                            if(filters.getHasVehicleManoeuvreArea() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getHasVehicleManoeuvreArea())));
-                            if(filters.getCanOwnerTransport() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getCanOwnerTransport())));
-                            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-                        },
-                        PageRequest.of(page, 20))
-                .stream()
-                .collect(Collectors.toList());
+        return findMagazinesWithSingleQuery(page, filters);
     }
 
     public Optional<Reservation> addReservation(ReservationDto reservationDto, String username) {
@@ -130,7 +79,7 @@ public class MagazineService {
 
     @Transactional
     public Optional<Reservation> addReservation(Magazine magazine, ReservationDto reservationDto, String username) {
-        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
+        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0 ||
                 !checkIfMagazineAvailable(
                         magazine,
                         reservationDto.getStartDate(),
@@ -153,7 +102,7 @@ public class MagazineService {
                                             LocalDate start, LocalDate end, BigDecimal area) {
         if (magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
                 || magazine.getStartDate().compareTo(start) > 0 ||
-                magazine.getEndDate().compareTo(end) < 0) {
+                magazine.getEndDate().compareTo(end) < 0 || start.compareTo(end) >= 0) {
             return false;
         }
         BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
@@ -185,6 +134,64 @@ public class MagazineService {
     public BigDecimal getTotalPrice(Magazine magazine, LocalDate start, LocalDate end, BigDecimal area) {
         int dateDifference = start.until(end).getDays();
         return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
+    }
+
+    private List<Magazine> findMagazinesWithSingleQuery(Integer page, MagazineFilters filters) {
+        //TODO: make this take reservations into account, allow multiple enum selections
+        return magazineRepository
+                .findAll(
+                        (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
+                            List<Predicate> predicates = new ArrayList<>();
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), filters.getStartDateGreaterOrEqual())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), filters.getEndDateLessOrEqual())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), filters.getMinFreeArea())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("areaInMeters"), filters.getMaxFreeArea())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), filters.getMinFreeArea())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), filters.getLocationFilter().getMinLongitude())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), filters.getLocationFilter().getMaxLongitude())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), filters.getLocationFilter().getMinLatitude())));
+                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), filters.getLocationFilter().getMaxLatitude())));
+                            if (filters.getMaxPricePerMeter() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), filters.getMaxPricePerMeter())));
+                            if (filters.getType() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), filters.getType())));
+                            if (filters.getHeating() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("heating"), filters.getHeating())));
+                            if (filters.getLight() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("light"), filters.getLight())));
+                            if (filters.getIsWhole() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("whole"), filters.getIsWhole())));
+                            if (filters.getHasMonitoring() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("monitoring"), filters.getHasMonitoring())));
+                            if (filters.getHasAntiTheftDoors() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("antiTheftDoors"), filters.getHasAntiTheftDoors())));
+                            if (filters.getHasVentilation() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("ventilation"), filters.getHasVentilation())));
+                            if (filters.getHasSmokeDetectors() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("smokeDetectors"), filters.getHasSmokeDetectors())));
+                            if (filters.getIsSelfService() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("selfService"), filters.getIsSelfService())));
+                            if (filters.getMinFloor() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("floor"), filters.getMinFloor())));
+                            if (filters.getMaxFloor() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("floor"), filters.getMaxFloor())));
+                            if (filters.getMinDoorHeight() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorHeight"), filters.getMinDoorHeight())));
+                            if (filters.getMinDoorWidth() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorWidth"), filters.getMinDoorWidth())));
+                            if (filters.getHasElectricity() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("electricity"), filters.getHasElectricity())));
+                            if (filters.getHasParking() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("parking"), filters.getHasParking())));
+                            if (filters.getHasVehicleManoeuvreArea() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getHasVehicleManoeuvreArea())));
+                            if (filters.getCanOwnerTransport() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getCanOwnerTransport())));
+                            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+                        },
+                        PageRequest.of(page - 1, 20))
+                .stream()
+                .collect(Collectors.toList());
     }
 
 }

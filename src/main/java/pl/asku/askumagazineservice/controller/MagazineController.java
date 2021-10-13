@@ -48,25 +48,25 @@ public class MagazineController {
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<MagazineDto> addMagazine(
             @ModelAttribute Magazine magazine,
-            @RequestPart("files") MultipartFile[] photos,
+            @RequestPart(value = "files", required = false) MultipartFile[] photos,
             Authentication authentication) {
         if (!magazinePolicy.addMagazine(authentication))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazine.toMagazineDto());
 
         String identifier = authentication.getName();
 
-        MagazinePictureDto magazinePictureDto;
+        MagazinePictureDto magazinePictureDto = null;
 
         try {
             magazine = magazineService.addMagazine(magazine.toMagazineDto(), identifier);
-            magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
+            if (photos != null) magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
         } catch (ValidationException | IOException | LocationNotFoundException | LocationIqRequestFailedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         MagazineDto magazineDto = magazine.toMagazineDto();
         magazineDto.setId(magazine.getId());
-        magazineDto.setPhotos(magazinePictureDto.getPhotos());
+        if (photos != null) magazineDto.setPhotos(magazinePictureDto.getPhotos());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
     }
@@ -177,7 +177,7 @@ public class MagazineController {
         );
 
         List<Magazine> magazines = magazineService.searchMagazines(
-                page.map(integer -> integer - 1).orElse(0),
+                page.isPresent() && page.get() > 0 ? page.get() : 1,
                 filters
         );
         return ResponseEntity

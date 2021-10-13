@@ -1,7 +1,6 @@
 package pl.asku.askumagazineservice.model.search;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -51,6 +50,6 @@ public class LocationFilter {
     }
 
     private BigDecimal kilometersToDegrees(BigDecimal kilometers) {
-        return kilometers.divide(kilometerToDegreeRatio, RoundingMode.HALF_EVEN);
+        return kilometers.divide(kilometerToDegreeRatio, 10, RoundingMode.HALF_EVEN);
     }
 }
