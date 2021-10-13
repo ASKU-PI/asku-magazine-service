@@ -59,7 +59,8 @@ public class MagazineController {
 
         try {
             magazine = magazineService.addMagazine(magazine.toMagazineDto(), identifier);
-            if (photos != null) magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
+            if (photos != null)
+                magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
         } catch (ValidationException | IOException | LocationNotFoundException | LocationIqRequestFailedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
