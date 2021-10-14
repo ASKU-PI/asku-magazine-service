@@ -76,47 +76,36 @@ public class MagazineController {
     public ResponseEntity<MagazineDto> getMagazineDetails(@PathVariable Long id) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
         if (magazine.isPresent()) {
-            MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.get().getId());
             MagazineDto magazineDto = magazine.get().toMagazineDto();
-            magazineDto.setPhotos(magazinePictureDto.getPhotos());
+            try {
+                MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.get().getId());
+                magazineDto.setPhotos(magazinePictureDto.getPhotos());
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
             return ResponseEntity.status(HttpStatus.OK).body(magazineDto);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    @GetMapping("/user/{identifier}")
-    public ResponseEntity<List<MagazinePreviewDto>> getUserMagazines(
-            @PathVariable String identifier,
-            @RequestParam Optional<Integer> page
-    ) {
-        List<Magazine> magazines =
-                magazineService.getUserMagazines(identifier, page.map(integer -> integer - 1).orElse(0));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(magazines.stream().map(magazine -> {
-                    MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
-                    MagazinePreviewDto magazinePreviewDto = magazine.toMagazinePreviewDto();
-                    magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
-                    return magazinePreviewDto;
-
-                }).collect(Collectors.toList()));
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<MagazinePreviewDto>> searchMagazines(
-            @RequestParam Optional<Integer> page,
-            @RequestParam(required = false) BigDecimal minLongitude,
-            @RequestParam(required = false) BigDecimal maxLongitude,
-            @RequestParam(required = false) BigDecimal minLatitude,
-            @RequestParam(required = false) BigDecimal maxLatitude,
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) BigDecimal radiusInKilometers,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
-            @RequestParam BigDecimal minArea,
-            @RequestParam BigDecimal maxArea,
+            @RequestParam(required = false) Optional<Integer> page,
+            @RequestParam(required = false) Optional<BigDecimal> minLongitude,
+            @RequestParam(required = false) Optional<BigDecimal> maxLongitude,
+            @RequestParam(required = false) Optional<BigDecimal> minLatitude,
+            @RequestParam(required = false) Optional<BigDecimal> maxLatitude,
+            @RequestParam(required = false) Optional<String> location,
+            @RequestParam(required = false) Optional<BigDecimal> radiusInKilometers,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> end,
+            @RequestParam(required = false) Optional<BigDecimal> minArea,
             @RequestParam(required = false) Optional<BigDecimal> pricePerMeter,
+            @RequestParam(required = false) Optional<String> ownerIdentifier,
+            @RequestParam(required = false) Optional<Boolean> availableOnly, //TODO
+            @RequestParam(required = false) Optional<String> currentlyReservedBy, //TODO
+            @RequestParam(required = false) Optional<String> historicallyReservedBy, //TODO
             @RequestParam(required = false) Optional<MagazineType> type,
             @RequestParam(required = false) Optional<Heating> heating,
             @RequestParam(required = false) Optional<Light> light,
@@ -137,10 +126,10 @@ public class MagazineController {
     ) {
         LocationFilter locationFilter;
 
-        if (location != null) {
+        if (location.isPresent()) {
             try {
-                if (radiusInKilometers == null) locationFilter = new LocationFilter(location, geocodingClient);
-                else locationFilter = new LocationFilter(location, radiusInKilometers, geocodingClient);
+                if (radiusInKilometers.isEmpty()) locationFilter = new LocationFilter(location.get(), geocodingClient);
+                else locationFilter = new LocationFilter(location.get(), radiusInKilometers.get(), geocodingClient);
             } catch (LocationNotFoundException e) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ArrayList<>());
             } catch (LocationIqRequestFailedException e) {
@@ -148,16 +137,16 @@ public class MagazineController {
                         .body(null);
             }
         } else {
-            locationFilter = new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude);
+            locationFilter = new LocationFilter(minLongitude.orElse(null), maxLongitude.orElse(null), minLatitude.orElse(null), maxLatitude.orElse(null));
         }
 
         MagazineFilters filters = new MagazineFilters(
                 locationFilter,
-                start,
-                end,
-                minArea,
-                maxArea,
+                start.orElse(null),
+                end.orElse(null),
+                minArea.orElse(null),
                 pricePerMeter.orElse(null),
+                ownerIdentifier.orElse(null),
                 type.orElse(null),
                 heating.orElse(null),
                 light.orElse(null),
@@ -184,9 +173,13 @@ public class MagazineController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(magazines.stream().map(magazine -> {
-                    MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
                     MagazinePreviewDto magazinePreviewDto = magazine.toMagazinePreviewDto();
-                    magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
+                    try {
+                        MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
+                        magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
                     return magazinePreviewDto;
 
                 }).collect(Collectors.toList()));

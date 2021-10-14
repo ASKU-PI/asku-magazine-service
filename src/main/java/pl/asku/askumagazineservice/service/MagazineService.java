@@ -60,14 +60,9 @@ public class MagazineService {
         return magazineRepository.findById(id);
     }
 
-    public List<Magazine> getUserMagazines(String username, Integer page) {
-        return magazineRepository.findAllByOwner(username, PageRequest.of(page, 20));
-    }
-
     public List<Magazine> searchMagazines(
             Integer page,
             MagazineFilters filters) {
-        //TODO: make this take reservations into account
         return findMagazinesWithSingleQuery(page, filters);
     }
 
@@ -142,17 +137,26 @@ public class MagazineService {
                 .findAll(
                         (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
                             List<Predicate> predicates = new ArrayList<>();
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), filters.getStartDateGreaterOrEqual())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), filters.getEndDateLessOrEqual())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), filters.getMinFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("areaInMeters"), filters.getMaxFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), filters.getMinFreeArea())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), filters.getLocationFilter().getMinLongitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), filters.getLocationFilter().getMaxLongitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), filters.getLocationFilter().getMinLatitude())));
-                            predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), filters.getLocationFilter().getMaxLatitude())));
+                            if (filters.getStartDateGreaterOrEqual() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), filters.getStartDateGreaterOrEqual())));
+                            if (filters.getEndDateLessOrEqual() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), filters.getEndDateLessOrEqual())));
+                            if (filters.getMinFreeArea() != null) {
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), filters.getMinFreeArea())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), filters.getMinFreeArea())));
+                            }
+                            if (filters.getLocationFilter().getMinLongitude() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), filters.getLocationFilter().getMinLongitude())));
+                            if (filters.getLocationFilter().getMaxLongitude() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), filters.getLocationFilter().getMaxLongitude())));
+                            if (filters.getLocationFilter().getMinLatitude() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), filters.getLocationFilter().getMinLatitude())));
+                            if (filters.getLocationFilter().getMaxLatitude() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), filters.getLocationFilter().getMaxLatitude())));
                             if (filters.getMaxPricePerMeter() != null)
                                 predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), filters.getMaxPricePerMeter())));
+                            if (filters.getOwnerIdentifier() != null)
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("owner"), filters.getOwnerIdentifier())));
                             if (filters.getType() != null)
                                 predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), filters.getType())));
                             if (filters.getHeating() != null)

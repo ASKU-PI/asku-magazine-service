@@ -15,10 +15,12 @@ import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -56,7 +58,6 @@ class SearchTests extends TestBase {
                 .startDateGreaterOrEqual(magazineDto.getStartDate().plusDays(1))
                 .endDateLessOrEqual(magazineDto.getEndDate().minusDays(1))
                 .minFreeArea(BigDecimal.valueOf(15.0f))
-                .maxFreeArea(BigDecimal.valueOf(200.0f))
                 .build();
 
         int page = 1;
@@ -69,6 +70,77 @@ class SearchTests extends TestBase {
 
         //then
         Assertions.assertTrue(searchResult.size() >= magazinesToAdd);
+    }
+
+    @Test
+    public void searchMagazinesShouldReturnMeetingRequirements()
+            throws LocationNotFoundException, LocationIqRequestFailedException {
+        //given
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
+
+        LocalDate searchStartDate = magazineDto.getStartDate().plusDays(1);
+        LocalDate searchEndDate = magazineDto.getEndDate().minusDays(1);
+        BigDecimal searchArea = magazineDto.getAreaInMeters().subtract(BigDecimal.valueOf(10.0f));
+
+        int validMagazinesToAdd = 5;
+        IntStream.range(0, validMagazinesToAdd).forEach($ -> {
+            try {
+                magazineService.addMagazine(magazineDto, username);
+            } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().startDate(searchStartDate.plusDays(1)).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().endDate(searchEndDate.minusDays(1)).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().areaInMeters(searchArea.subtract(BigDecimal.valueOf(10.0f))).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().minAreaToRent(searchArea.add(BigDecimal.valueOf(10.0f))).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto,
+                magazineDataProvider.otherUserIdentifier()
+        );
+
+        MagazineFilters filters = MagazineFilters.builder()
+                .locationFilter(commonLocationFilter)
+                .startDateGreaterOrEqual(searchStartDate)
+                .endDateLessOrEqual(searchEndDate)
+                .minFreeArea(searchArea)
+                .ownerIdentifier(username)
+                .build();
+
+        int page = 1;
+
+        //when
+        List<Magazine> searchResult = magazineService.searchMagazines(
+                page,
+                filters
+        );
+
+        //then
+        searchResult.forEach(magazine -> Assertions.assertAll(
+                () -> assertTrue(searchStartDate.compareTo(magazine.getStartDate()) >= 0),
+                () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
+                () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
+                () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
+                () -> assertEquals(username, magazine.getOwner())
+        ));
     }
 
     @Test
@@ -97,7 +169,6 @@ class SearchTests extends TestBase {
                 .startDateGreaterOrEqual(matchingMagazine.getStartDate().plusDays(1))
                 .endDateLessOrEqual(matchingMagazine.getEndDate().minusDays(1))
                 .minFreeArea(BigDecimal.valueOf(15.0f))
-                .maxFreeArea(BigDecimal.valueOf(200.0f))
                 .hasAntiTheftDoors(true)
                 .hasMonitoring(true)
                 .hasElectricity(true)
