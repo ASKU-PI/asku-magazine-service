@@ -8,23 +8,23 @@ import java.util.Optional;
 
 public class SecurityUtil {
 
-   private SecurityUtil() {
-   }
+    private SecurityUtil() {
+    }
 
-   public static Optional<String> getCurrentUsername() {
-      final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public static Optional<String> getCurrentUsername() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      if (authentication == null) {
-         return Optional.empty();
-      }
+        if (authentication == null) {
+            return Optional.empty();
+        }
 
-      String username = null;
-      if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
-         username = springSecurityUser.getUsername();
-      } else if (authentication.getPrincipal() instanceof String) {
-         username = (String) authentication.getPrincipal();
-      }
+        String username = null;
+        if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+            username = springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof String) {
+            username = (String) authentication.getPrincipal();
+        }
 
-      return Optional.ofNullable(username);
-   }
+        return Optional.ofNullable(username);
+    }
 }

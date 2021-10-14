@@ -18,8 +18,8 @@ public class MagazineFilters {
     private LocalDate startDateGreaterOrEqual;
     private LocalDate endDateLessOrEqual;
     private BigDecimal minFreeArea;
-    private BigDecimal maxFreeArea;
     private BigDecimal maxPricePerMeter;
+    private String ownerIdentifier;
     private MagazineType type;
     private Heating heating;
     private Light light;

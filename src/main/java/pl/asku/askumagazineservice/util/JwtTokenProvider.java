@@ -21,46 +21,46 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider implements InitializingBean {
 
-   private final String secretKey;
+    private final String secretKey;
 
-   private Key key;
+    private Key key;
 
-   public JwtTokenProvider(
-      @Value("${jwt.secret}") String secretKey) {
-      this.secretKey = secretKey;
-   }
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secretKey) {
+        this.secretKey = secretKey;
+    }
 
-   @Override
-   public void afterPropertiesSet() {
-      byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-      this.key = Keys.hmacShaKeyFor(keyBytes);
-   }
+    @Override
+    public void afterPropertiesSet() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
 
-   public Authentication getAuthentication(String token) {
-      Claims claims = Jwts
-              .parserBuilder()
-              .setSigningKey(key)
-              .build()
-              .parseClaimsJws(token)
-              .getBody();
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-      Collection<? extends GrantedAuthority> authorities =
-              Arrays.stream(claims.get("auth").toString().split(","))
-                      .map(SimpleGrantedAuthority::new)
-                      .collect(Collectors.toList());
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get("auth").toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
-      User principal = new User(claims.getSubject(), "", authorities);
+        User principal = new User(claims.getSubject(), "", authorities);
 
-      return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-   }
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
 
-   public boolean checkToken(String token) {
-      try {
-         Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-         return true;
-      } catch (SecurityException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-         e.printStackTrace();
-      }
-      return false;
-   }
+    public boolean checkToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

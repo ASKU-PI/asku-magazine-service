@@ -1,72 +1,40 @@
 package pl.asku.askumagazineservice;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class AddTests {
-    @MockBean
-    private GeocodingClient geocodingClient;
-
-    @InjectMocks
-    private final MagazineService magazineService;
+public class AddTests extends TestBase {
     private final MagazineRepository magazineRepository;
-
-    private final MagazineDto testMagazineDtoTemplate;
-    private final MagazineDto testMagazineDtoMandatoryOnlyTemplate;
 
     @Autowired
     AddTests(MagazineService magazineService, MagazineRepository magazineRepository, MagazineDataProvider magazineDataProvider) {
-        this.magazineService = magazineService;
+        super(magazineService, magazineDataProvider);
         this.magazineRepository = magazineRepository;
-        this.testMagazineDtoTemplate = magazineDataProvider.validMagazineDto();
-        this.testMagazineDtoMandatoryOnlyTemplate = magazineDataProvider.mandatoryOnlyMagazineDto();
-    }
-
-    @BeforeEach
-    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
-        Mockito.when(geocodingClient.getGeolocation(
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString()))
-                .thenAnswer(invocationOnMock -> {
-                            if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                throw new LocationNotFoundException();
-                            }
-                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
-                        }
-                );
     }
 
     @Test
     public void shouldAddToDatabase() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
-        String username = "test";
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
 
         //when
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
@@ -80,8 +48,8 @@ public class AddTests {
     @Test
     public void shouldReturnCorrectMagazine() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
-        String username = "test";
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
 
         //when
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
@@ -124,8 +92,8 @@ public class AddTests {
     @Test
     public void succeedsForOnlyMandatoryFields() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = testMagazineDtoMandatoryOnlyTemplate.toBuilder().build();
-        String username = "test";
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
 
         //when
         Magazine magazine = magazineService.addMagazine(magazineDto, username);
@@ -168,10 +136,66 @@ public class AddTests {
     @Test
     public void failsForEmptyMandatoryFields() {
         //given
-        MagazineDto magazineDto = testMagazineDtoMandatoryOnlyTemplate.toBuilder()
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
                 .city("")
                 .build();
-        String username = "test";
+        String username = magazineDataProvider.userIdentifier();
+
+        //when
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+    }
+
+    @Test
+    public void failsForStartDateEqualsEndDate() {
+        LocalDate date = LocalDate.now().plusDays(1);
+
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+                .startDate(date)
+                .endDate(date)
+                .build();
+        String username = magazineDataProvider.userIdentifier();
+
+        //when
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+    }
+
+    @Test
+    public void failsForStartDateGreaterThanEndDate() {
+        LocalDate date = LocalDate.now().plusDays(1);
+
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+                .startDate(date.plusDays(1))
+                .endDate(date)
+                .build();
+        String username = magazineDataProvider.userIdentifier();
+
+        //when
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+    }
+
+    @Test
+    public void failsForMinAreaToRentGreaterThanTotalArea() {
+        BigDecimal area = BigDecimal.valueOf(100.0f);
+        BigDecimal minAreaToRent = BigDecimal.valueOf(150.0f);
+
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+                .areaInMeters(area)
+                .minAreaToRent(minAreaToRent)
+                .build();
+        String username = magazineDataProvider.userIdentifier();
+
+        //when
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+    }
+
+    @Test
+    public void failsForMinAreaToRentNotPositive() {
+        BigDecimal minAreaToRent = BigDecimal.valueOf(0.0f);
+
+        MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+                .minAreaToRent(minAreaToRent)
+                .build();
+        String username = magazineDataProvider.userIdentifier();
 
         //when
         assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));

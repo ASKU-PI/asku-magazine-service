@@ -11,4 +11,6 @@ public interface MagazineRepository
         extends PagingAndSortingRepository<Magazine, Long>, JpaSpecificationExecutor<Magazine> {
 
     List<Magazine> findAllByOwner(String username, PageRequest pageRequest);
+
+    List<Magazine> findAll();
 }

@@ -1,20 +1,14 @@
 package pl.asku.askumagazineservice;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
@@ -22,64 +16,35 @@ import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class SearchTests {
+class SearchTests extends TestBase {
 
-    @InjectMocks
-    private final MagazineService magazineService;
-
-    private final MagazineDto testMagazineDtoTemplate;
-
-    @MockBean
-    private GeocodingClient geocodingClient;
+    private final LocationFilter commonLocationFilter = new LocationFilter(
+            BigDecimal.valueOf(0.0f),
+            BigDecimal.valueOf(10.0f),
+            BigDecimal.valueOf(0.0f),
+            BigDecimal.valueOf(10.0f)
+    );
 
     @Autowired
     SearchTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
-        this.magazineService = magazineService;
-        this.testMagazineDtoTemplate = magazineDataProvider.validMagazineDto();
-    }
-
-    @BeforeEach
-    public void setUp() throws LocationNotFoundException, LocationIqRequestFailedException {
-        Mockito.when(geocodingClient.getGeolocation(
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString(),
-                        Mockito.anyString()))
-                .thenAnswer(invocationOnMock -> {
-                            if (Arrays.stream(invocationOnMock.getArguments()).noneMatch(e -> e != null && e != "")) {
-                                throw new LocationNotFoundException();
-                            }
-                            return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
-                        }
-                );
+        super(magazineService, magazineDataProvider);
     }
 
     @Test
     public void searchMagazinesShouldReturnMagazines() {
         //given
-        MagazineDto magazineDto = testMagazineDtoTemplate.toBuilder().build();
-        String username = "test";
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
 
         int magazinesToAdd = 5;
-        int page = 0;
-        LocalDate startDate = magazineDto.getStartDate().plusDays(1);
-        LocalDate endDate = magazineDto.getEndDate().minusDays(1);
-        BigDecimal minLongitude = BigDecimal.valueOf(0.0f);
-        BigDecimal maxLongitude = BigDecimal.valueOf(10.0f);
-        BigDecimal minLatitude = BigDecimal.valueOf(0.0f);
-        BigDecimal maxLatitude = BigDecimal.valueOf(10.0f);
-        BigDecimal minArea = BigDecimal.valueOf(15.0f);
-        BigDecimal maxArea = BigDecimal.valueOf(200.0f);
-
-        //when
         IntStream.range(0, magazinesToAdd).forEach($ -> {
             try {
                 magazineService.addMagazine(magazineDto, username);
@@ -87,66 +52,135 @@ class SearchTests {
                 e.printStackTrace();
             }
         });
+
+        MagazineFilters filters = MagazineFilters.builder()
+                .locationFilter(commonLocationFilter)
+                .startDateGreaterOrEqual(magazineDto.getStartDate().plusDays(1))
+                .endDateLessOrEqual(magazineDto.getEndDate().minusDays(1))
+                .minFreeArea(BigDecimal.valueOf(15.0f))
+                .build();
+
+        int page = 1;
+
+        //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                MagazineFilters.builder()
-                        .locationFilter(new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude))
-                        .startDateGreaterOrEqual(startDate)
-                        .endDateLessOrEqual(endDate)
-                        .minFreeArea(minArea)
-                        .maxFreeArea(maxArea)
-                        .build()
+                filters
         );
 
         //then
         Assertions.assertTrue(searchResult.size() >= magazinesToAdd);
+    }
 
+    @Test
+    public void searchMagazinesShouldReturnMeetingRequirements()
+            throws LocationNotFoundException, LocationIqRequestFailedException {
+        //given
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
+
+        LocalDate searchStartDate = magazineDto.getStartDate().plusDays(1);
+        LocalDate searchEndDate = magazineDto.getEndDate().minusDays(1);
+        BigDecimal searchArea = magazineDto.getAreaInMeters().subtract(BigDecimal.valueOf(10.0f));
+
+        int validMagazinesToAdd = 5;
+        IntStream.range(0, validMagazinesToAdd).forEach($ -> {
+            try {
+                magazineService.addMagazine(magazineDto, username);
+            } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().startDate(searchStartDate.plusDays(1)).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().endDate(searchEndDate.minusDays(1)).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().areaInMeters(searchArea.subtract(BigDecimal.valueOf(10.0f))).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto.toBuilder().minAreaToRent(searchArea.add(BigDecimal.valueOf(10.0f))).build(),
+                username
+        );
+
+        magazineService.addMagazine(
+                magazineDto,
+                magazineDataProvider.otherUserIdentifier()
+        );
+
+        MagazineFilters filters = MagazineFilters.builder()
+                .locationFilter(commonLocationFilter)
+                .startDateGreaterOrEqual(searchStartDate)
+                .endDateLessOrEqual(searchEndDate)
+                .minFreeArea(searchArea)
+                .ownerIdentifier(username)
+                .build();
+
+        int page = 1;
+
+        //when
+        List<Magazine> searchResult = magazineService.searchMagazines(
+                page,
+                filters
+        );
+
+        //then
+        searchResult.forEach(magazine -> Assertions.assertAll(
+                () -> assertTrue(searchStartDate.compareTo(magazine.getStartDate()) >= 0),
+                () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
+                () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
+                () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
+                () -> assertEquals(username, magazine.getOwner())
+        ));
     }
 
     @Test
     public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        String username = "test";
+        String username = magazineDataProvider.userIdentifier();
 
         Boolean antiTheftDoors = true;
         Boolean electricity = false;
         Boolean monitoring = true;
 
-        MagazineDto matchingMagazine = testMagazineDtoTemplate.toBuilder().build();
+        MagazineDto matchingMagazine = magazineDataProvider.validMagazineDto().toBuilder().build();
         matchingMagazine.setAntiTheftDoors(antiTheftDoors);
         matchingMagazine.setElectricity(electricity);
         matchingMagazine.setMonitoring(monitoring);
 
-        MagazineDto notMatchingMagazine = testMagazineDtoTemplate.toBuilder().build();
+        MagazineDto notMatchingMagazine = magazineDataProvider.validMagazineDto().toBuilder().build();
         notMatchingMagazine.setAntiTheftDoors(!antiTheftDoors);
         notMatchingMagazine.setElectricity(!electricity);
         notMatchingMagazine.setMonitoring(!monitoring);
 
-        int page = 0;
-        LocalDate startDate = matchingMagazine.getStartDate().plusDays(1);
-        LocalDate endDate = matchingMagazine.getEndDate().minusDays(1);
-        BigDecimal minLongitude = BigDecimal.valueOf(0.0f);
-        BigDecimal maxLongitude = BigDecimal.valueOf(10.0f);
-        BigDecimal minLatitude = BigDecimal.valueOf(0.0f);
-        BigDecimal maxLatitude = BigDecimal.valueOf(10.0f);
-        BigDecimal minArea = BigDecimal.valueOf(15.0f);
-        BigDecimal maxArea = BigDecimal.valueOf(200.0f);
+        int page = 1;
 
-        //when
+        MagazineFilters filters = MagazineFilters.builder()
+                .locationFilter(commonLocationFilter)
+                .startDateGreaterOrEqual(matchingMagazine.getStartDate().plusDays(1))
+                .endDateLessOrEqual(matchingMagazine.getEndDate().minusDays(1))
+                .minFreeArea(BigDecimal.valueOf(15.0f))
+                .hasAntiTheftDoors(true)
+                .hasMonitoring(true)
+                .hasElectricity(true)
+                .build();
+
         magazineService.addMagazine(matchingMagazine, username);
         magazineService.addMagazine(notMatchingMagazine, username);
+
+        //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                MagazineFilters.builder()
-                        .locationFilter(new LocationFilter(minLongitude, maxLongitude, minLatitude, maxLatitude))
-                        .startDateGreaterOrEqual(startDate)
-                        .endDateLessOrEqual(endDate)
-                        .minFreeArea(minArea)
-                        .maxFreeArea(maxArea)
-                        .hasAntiTheftDoors(true)
-                        .hasMonitoring(true)
-                        .hasElectricity(true)
-                        .build()
+                filters
         );
 
         //then
