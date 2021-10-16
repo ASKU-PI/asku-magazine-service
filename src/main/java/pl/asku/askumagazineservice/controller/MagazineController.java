@@ -6,15 +6,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
-import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
-import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -22,12 +22,13 @@ import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
-import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,56 +37,56 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 @RequestMapping("/api")
 @AllArgsConstructor
 public class MagazineController {
 
+    private final int MAX_PHOTOS_PER_UPLOAD = 20;
+
     private final MagazineService magazineService;
     private final MagazinePolicy magazinePolicy;
-    private final ImageServiceClient imageServiceClient;
     private final GeocodingClient geocodingClient;
+    private final MagazineConverter magazineConverter;
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+        return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
     @PostMapping(value = "/add", consumes = "multipart/form-data")
-    public ResponseEntity<MagazineDto> addMagazine(
-            @ModelAttribute Magazine magazine,
+    public ResponseEntity<Object> addMagazine(
+            @ModelAttribute @Valid MagazineDto magazineDto,
             @RequestPart(value = "files", required = false) MultipartFile[] photos,
             Authentication authentication) {
+        if (photos != null && photos.length > MAX_PHOTOS_PER_UPLOAD)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Max photos number is " + MAX_PHOTOS_PER_UPLOAD);
+
         if (!magazinePolicy.addMagazine(authentication))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(magazine.toMagazineDto());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authorized to add space to rent");
 
         String identifier = authentication.getName();
 
-        MagazinePictureDto magazinePictureDto = null;
+        Magazine magazine;
 
         try {
-            magazine = magazineService.addMagazine(magazine.toMagazineDto(), identifier);
-            if (photos != null)
-                magazinePictureDto = imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
-        } catch (ValidationException | IOException | LocationNotFoundException | LocationIqRequestFailedException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            magazine = magazineService.addMagazine(magazineDto, identifier, photos);
+        } catch (ValidationException | LocationNotFoundException | LocationIqRequestFailedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
-        MagazineDto magazineDto = magazine.toMagazineDto();
-        magazineDto.setId(magazine.getId());
-        if (photos != null) magazineDto.setPhotos(magazinePictureDto.getPhotos());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(magazineConverter.toDto(magazine));
     }
 
     @GetMapping("/details/{id}")
-    public ResponseEntity<MagazineDto> getMagazineDetails(@PathVariable Long id) {
+    public ResponseEntity<Object> getMagazineDetails(@Valid @PathVariable @NotNull Long id) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
         if (magazine.isPresent()) {
-            MagazineDto magazineDto = magazine.get().toMagazineDto();
-            try {
-                MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.get().getId());
-                magazineDto.setPhotos(magazinePictureDto.getPhotos());
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+            MagazineDto magazineDto = magazineConverter.toDto(magazine.get());
             return ResponseEntity.status(HttpStatus.OK).body(magazineDto);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Space not found");
         }
     }
 
@@ -137,7 +138,8 @@ public class MagazineController {
                         .body(null);
             }
         } else {
-            locationFilter = new LocationFilter(minLongitude.orElse(null), maxLongitude.orElse(null), minLatitude.orElse(null), maxLatitude.orElse(null));
+            locationFilter = new LocationFilter(minLongitude.orElse(null), maxLongitude.orElse(null),
+                    minLatitude.orElse(null), maxLatitude.orElse(null));
         }
 
         MagazineFilters filters = new MagazineFilters(
@@ -172,33 +174,28 @@ public class MagazineController {
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(magazines.stream().map(magazine -> {
-                    MagazinePreviewDto magazinePreviewDto = magazine.toMagazinePreviewDto();
-                    try {
-                        MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
-                        magazinePreviewDto.setPhotos(magazinePictureDto.getPhotos());
-                    } catch(Exception e) {
-                        e.printStackTrace();
-                    }
-                    return magazinePreviewDto;
-
-                }).collect(Collectors.toList()));
+                .body(magazines.stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()));
     }
 
     @GetMapping("/availability/{id}")
-    public ResponseEntity<Boolean> magazineAvailable(
+    public ResponseEntity<Object> magazineAvailable(
             @PathVariable Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
             @RequestParam @Min(0) BigDecimal minArea
     ) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-        return magazine.isEmpty() ?
-                ResponseEntity
-                        .status(HttpStatus.NOT_FOUND).build() :
-                ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(magazineService.checkIfMagazineAvailable(magazine.get(), start, end, minArea));
+
+        if (magazine.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Space not found");
+
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(magazineService.checkIfMagazineAvailable(magazine.get(), start, end, minArea));
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
 
     }
 

@@ -5,13 +5,13 @@ import lombok.*;
 import pl.asku.askumagazineservice.dto.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,19 +38,19 @@ public class MagazineDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PictureData> photos;
 
-    @NonNull
+    @NotNull
     @Size(min = 2, max = 50)
     private String country;
 
-    @NonNull
+    @NotNull
     @Size(min = 2, max = 50)
     private String city;
 
-    @NonNull
+    @NotNull
     @Size(min = 2, max = 50)
     private String street;
 
-    @NonNull
+    @NotNull
     @Size(min = 2, max = 50)
     private String building;
 
@@ -60,17 +60,17 @@ public class MagazineDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private BigDecimal latitude;
 
-    @NonNull
+    @NotNull
     private LocalDate startDate;
 
-    @NonNull
+    @NotNull
     private LocalDate endDate;
 
-    @NonNull
+    @NotNull
     @Min(0)
     private BigDecimal areaInMeters;
 
-    @NonNull
+    @NotNull
     @Min(0)
     private BigDecimal pricePerMeter;
 
@@ -109,7 +109,7 @@ public class MagazineDto {
 
     private Boolean vehicleManoeuvreArea;
 
-    @NonNull
+    @NotNull
     @Min(1)
     private BigDecimal minAreaToRent;
 
@@ -133,38 +133,5 @@ public class MagazineDto {
             violations.add("Min area to rent must be lower or equal total area");
 
         return violations;
-    }
-
-    public Magazine toMagazine(String username) {
-        return Magazine.builder()
-                .owner(username)
-                .country(country)
-                .city(city)
-                .street(street)
-                .building(building)
-                .startDate(startDate)
-                .endDate(endDate)
-                .areaInMeters(areaInMeters)
-                .pricePerMeter(pricePerMeter)
-                .type(type)
-                .heating(heating)
-                .light(light)
-                .whole(whole)
-                .monitoring(monitoring)
-                .antiTheftDoors(antiTheftDoors)
-                .ventilation(ventilation)
-                .smokeDetectors(smokeDetectors)
-                .selfService(selfService)
-                .floor(floor)
-                .height(height)
-                .doorHeight(doorHeight)
-                .doorWidth(doorWidth)
-                .electricity(electricity)
-                .parking(parking)
-                .vehicleManoeuvreArea(vehicleManoeuvreArea)
-                .minAreaToRent(minAreaToRent)
-                .ownerTransport(ownerTransport)
-                .description(description)
-                .build();
     }
 }

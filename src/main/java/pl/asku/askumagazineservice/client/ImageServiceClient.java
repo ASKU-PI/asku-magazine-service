@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 @Service
 public class ImageServiceClient {
@@ -25,7 +25,7 @@ public class ImageServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public MagazinePictureDto uploadMagazinePictures(Long magazineId, MultipartFile[] files) throws IOException {
+    public MagazinePictureDto uploadMagazinePictures(Long magazineId, MultipartFile[] files) {
         var path = "/magazine";
 
         UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
@@ -40,7 +40,12 @@ public class ImageServiceClient {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        return restTemplate.postForObject(pathBuilder.toUriString(), requestEntity, MagazinePictureDto.class);
+        MagazinePictureDto magazinePictureDto = restTemplate.postForObject(pathBuilder.toUriString(), requestEntity,
+                MagazinePictureDto.class);
+        if (magazinePictureDto == null) {
+            magazinePictureDto = new MagazinePictureDto(magazineId, new ArrayList<>());
+        }
+        return magazinePictureDto;
     }
 
     public MagazinePictureDto getMagazinePictures(Long magazineId) {
@@ -49,6 +54,11 @@ public class ImageServiceClient {
         UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
                 .queryParam("id", magazineId);
 
-        return restTemplate.getForObject(pathBuilder.toUriString(), MagazinePictureDto.class);
+        MagazinePictureDto magazinePictureDto = restTemplate.getForObject(pathBuilder.toUriString(),
+                MagazinePictureDto.class);
+        if (magazinePictureDto == null) {
+            magazinePictureDto = new MagazinePictureDto(magazineId, new ArrayList<>());
+        }
+        return magazinePictureDto;
     }
 }

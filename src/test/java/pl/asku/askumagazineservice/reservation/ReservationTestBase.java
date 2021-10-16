@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice;
+package pl.asku.askumagazineservice.reservation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
@@ -11,15 +11,15 @@ import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.model.Geolocation;
-import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class TestBase {
+public class ReservationTestBase {
 
     @InjectMocks
     protected final MagazineService magazineService;
@@ -28,7 +28,7 @@ public class TestBase {
     private GeocodingClient geocodingClient;
 
     @Autowired
-    TestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
+    public ReservationTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
         this.magazineService = magazineService;
         this.magazineDataProvider = magazineDataProvider;
     }

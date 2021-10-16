@@ -1,10 +1,11 @@
-package pl.asku.askumagazineservice;
+package pl.asku.askumagazineservice.magazine.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -12,7 +13,6 @@ import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
-import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class SearchTests extends TestBase {
+class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     private final LocationFilter commonLocationFilter = new LocationFilter(
             BigDecimal.valueOf(0.0f),
@@ -34,8 +34,9 @@ class SearchTests extends TestBase {
     );
 
     @Autowired
-    SearchTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
-        super(magazineService, magazineDataProvider);
+    SearchMagazineServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
+                               ImageServiceClient imageServiceClient) {
+        super(magazineService, magazineDataProvider, imageServiceClient);
     }
 
     @Test
@@ -47,7 +48,7 @@ class SearchTests extends TestBase {
         int magazinesToAdd = 5;
         IntStream.range(0, magazinesToAdd).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username);
+                magazineService.addMagazine(magazineDto, username, null);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -86,7 +87,7 @@ class SearchTests extends TestBase {
         int validMagazinesToAdd = 5;
         IntStream.range(0, validMagazinesToAdd).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username);
+                magazineService.addMagazine(magazineDto, username, null);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -94,27 +95,32 @@ class SearchTests extends TestBase {
 
         magazineService.addMagazine(
                 magazineDto.toBuilder().startDate(searchStartDate.plusDays(1)).build(),
-                username
+                username,
+                null
         );
 
         magazineService.addMagazine(
                 magazineDto.toBuilder().endDate(searchEndDate.minusDays(1)).build(),
-                username
+                username,
+                null
         );
 
         magazineService.addMagazine(
                 magazineDto.toBuilder().areaInMeters(searchArea.subtract(BigDecimal.valueOf(10.0f))).build(),
-                username
+                username,
+                null
         );
 
         magazineService.addMagazine(
                 magazineDto.toBuilder().minAreaToRent(searchArea.add(BigDecimal.valueOf(10.0f))).build(),
-                username
+                username,
+                null
         );
 
         magazineService.addMagazine(
                 magazineDto,
-                magazineDataProvider.otherUserIdentifier()
+                magazineDataProvider.otherUserIdentifier(),
+                null
         );
 
         MagazineFilters filters = MagazineFilters.builder()
@@ -144,7 +150,8 @@ class SearchTests extends TestBase {
     }
 
     @Test
-    public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException,
+            LocationIqRequestFailedException {
         //given
         String username = magazineDataProvider.userIdentifier();
 
@@ -174,8 +181,8 @@ class SearchTests extends TestBase {
                 .hasElectricity(true)
                 .build();
 
-        magazineService.addMagazine(matchingMagazine, username);
-        magazineService.addMagazine(notMatchingMagazine, username);
+        magazineService.addMagazine(matchingMagazine, username, null);
+        magazineService.addMagazine(notMatchingMagazine, username, null);
 
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(

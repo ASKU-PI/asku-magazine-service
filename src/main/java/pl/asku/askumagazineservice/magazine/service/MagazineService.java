@@ -1,11 +1,14 @@
-package pl.asku.askumagazineservice.service;
+package pl.asku.askumagazineservice.magazine.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
@@ -16,9 +19,15 @@ import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
+import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
+import pl.asku.askumagazineservice.util.validator.MagazineValidator;
 
 import javax.persistence.criteria.Predicate;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,21 +36,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 @AllArgsConstructor
 public class MagazineService {
 
     private final MagazineRepository magazineRepository;
     private final ReservationRepository reservationRepository;
+    private final ImageServiceClient imageServiceClient;
     private final GeocodingClient geocodingClient;
+    private final MagazineConverter magazineConverter;
+    private final MagazineValidator magazineValidator;
 
     @Transactional
-    public Magazine addMagazine(MagazineDto magazineDto, String username) throws LocationNotFoundException, LocationIqRequestFailedException {
-        List<String> violationMessages = magazineDto.getViolationMessages();
-        if (violationMessages.size() > 0) {
-            throw new ValidationException(violationMessages.toString());
-        }
+    public Magazine addMagazine(@Valid MagazineDto magazineDto, @NotNull @NotBlank String username,
+                                MultipartFile[] photos)
+            throws LocationNotFoundException, LocationIqRequestFailedException {
+        magazineValidator.validate(magazineDto);
 
-        Magazine magazine = magazineDto.toMagazine(username);
+        Magazine magazine = magazineConverter.toMagazine(magazineDto);
+
+        magazine.setOwner(username);
 
         Geolocation geolocation = geocodingClient.getGeolocation(
                 magazine.getCountry(),
@@ -53,10 +67,13 @@ public class MagazineService {
         magazine.setLongitude(geolocation.getLongitude());
         magazine.setLatitude(geolocation.getLatitude());
 
+        if (photos != null && photos.length > 0)
+            imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
+
         return magazineRepository.save(magazine);
     }
 
-    public Optional<Magazine> getMagazineDetails(Long id) {
+    public Optional<Magazine> getMagazineDetails(@NotNull Long id) {
         return magazineRepository.findById(id);
     }
 
@@ -66,14 +83,16 @@ public class MagazineService {
         return findMagazinesWithSingleQuery(page, filters);
     }
 
-    public Optional<Reservation> addReservation(ReservationDto reservationDto, String username) {
+    public Optional<Reservation> addReservation(@Valid ReservationDto reservationDto,
+                                                @NotNull @NotBlank String username) {
         Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
         if (magazine.isEmpty()) return Optional.empty();
         return addReservation(magazine.get(), reservationDto, username);
     }
 
     @Transactional
-    public Optional<Reservation> addReservation(Magazine magazine, ReservationDto reservationDto, String username) {
+    public Optional<Reservation> addReservation(@Valid Magazine magazine, @Valid ReservationDto reservationDto,
+                                                @NotNull @NotBlank String username) {
         if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0 ||
                 !checkIfMagazineAvailable(
                         magazine,
@@ -92,18 +111,22 @@ public class MagazineService {
         return Optional.of(reservationRepository.save(reservation));
     }
 
-    public boolean checkIfMagazineAvailable(Magazine magazine,
-                                            LocalDate start, LocalDate end, BigDecimal area) {
+    public boolean checkIfMagazineAvailable(@Valid Magazine magazine,
+                                            @NotNull LocalDate start, @NotNull LocalDate end,
+                                            @NotNull @Min(0) BigDecimal area) {
+        if (start.compareTo(end) >= 0)
+            throw new ValidationException("End date must be greater than end date");
+
         if (magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
                 || magazine.getStartDate().compareTo(start) > 0 ||
-                magazine.getEndDate().compareTo(end) < 0 || start.compareTo(end) >= 0) {
+                magazine.getEndDate().compareTo(end) < 0) {
             return false;
         }
         BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
         return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
     }
 
-    private BigDecimal getTakenArea(Long magazineId, LocalDate start, LocalDate end) {
+    private BigDecimal getTakenArea(@NotNull Long magazineId, @NotNull LocalDate start, @NotNull LocalDate end) {
         List<Reservation> reservations = reservationRepository
                 .findByMagazine_Id(magazineId)
                 .stream()
@@ -125,7 +148,8 @@ public class MagazineService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getTotalPrice(Magazine magazine, LocalDate start, LocalDate end, BigDecimal area) {
+    public BigDecimal getTotalPrice(@Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,
+                                    @NotNull @Min(0) BigDecimal area) {
         int dateDifference = start.until(end).getDays();
         return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
     }
@@ -137,59 +161,85 @@ public class MagazineService {
                         (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
                             List<Predicate> predicates = new ArrayList<>();
                             if (filters.getStartDateGreaterOrEqual() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("startDate"), filters.getStartDateGreaterOrEqual())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
+                                        "startDate"), filters.getStartDateGreaterOrEqual())));
                             if (filters.getEndDateLessOrEqual() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), filters.getEndDateLessOrEqual())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
+                                        "endDate"), filters.getEndDateLessOrEqual())));
                             if (filters.getMinFreeArea() != null) {
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("areaInMeters"), filters.getMinFreeArea())));
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("minAreaToRent"), filters.getMinFreeArea())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
+                                        "areaInMeters"), filters.getMinFreeArea())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
+                                        "minAreaToRent"), filters.getMinFreeArea())));
                             }
                             if (filters.getLocationFilter().getMinLongitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"), filters.getLocationFilter().getMinLongitude())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"),
+                                        filters.getLocationFilter().getMinLongitude())));
                             if (filters.getLocationFilter().getMaxLongitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"), filters.getLocationFilter().getMaxLongitude())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"),
+                                        filters.getLocationFilter().getMaxLongitude())));
                             if (filters.getLocationFilter().getMinLatitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"), filters.getLocationFilter().getMinLatitude())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"),
+                                        filters.getLocationFilter().getMinLatitude())));
                             if (filters.getLocationFilter().getMaxLatitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"), filters.getLocationFilter().getMaxLatitude())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"),
+                                        filters.getLocationFilter().getMaxLatitude())));
                             if (filters.getMaxPricePerMeter() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("pricePerMeter"), filters.getMaxPricePerMeter())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
+                                        "pricePerMeter"), filters.getMaxPricePerMeter())));
                             if (filters.getOwnerIdentifier() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("owner"), filters.getOwnerIdentifier())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("owner"),
+                                        filters.getOwnerIdentifier())));
                             if (filters.getType() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), filters.getType())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"),
+                                        filters.getType())));
                             if (filters.getHeating() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("heating"), filters.getHeating())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("heating"),
+                                        filters.getHeating())));
                             if (filters.getLight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("light"), filters.getLight())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("light"),
+                                        filters.getLight())));
                             if (filters.getIsWhole() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("whole"), filters.getIsWhole())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("whole"),
+                                        filters.getIsWhole())));
                             if (filters.getHasMonitoring() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("monitoring"), filters.getHasMonitoring())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("monitoring"),
+                                        filters.getHasMonitoring())));
                             if (filters.getHasAntiTheftDoors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("antiTheftDoors"), filters.getHasAntiTheftDoors())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("antiTheftDoors"),
+                                        filters.getHasAntiTheftDoors())));
                             if (filters.getHasVentilation() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("ventilation"), filters.getHasVentilation())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("ventilation"),
+                                        filters.getHasVentilation())));
                             if (filters.getHasSmokeDetectors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("smokeDetectors"), filters.getHasSmokeDetectors())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("smokeDetectors"),
+                                        filters.getHasSmokeDetectors())));
                             if (filters.getIsSelfService() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("selfService"), filters.getIsSelfService())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("selfService"),
+                                        filters.getIsSelfService())));
                             if (filters.getMinFloor() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("floor"), filters.getMinFloor())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
+                                        "floor"), filters.getMinFloor())));
                             if (filters.getMaxFloor() != null)
                                 predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("floor"), filters.getMaxFloor())));
                             if (filters.getMinDoorHeight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorHeight"), filters.getMinDoorHeight())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
+                                        "doorHeight"), filters.getMinDoorHeight())));
                             if (filters.getMinDoorWidth() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get("doorWidth"), filters.getMinDoorWidth())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
+                                        "doorWidth"), filters.getMinDoorWidth())));
                             if (filters.getHasElectricity() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("electricity"), filters.getHasElectricity())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("electricity"),
+                                        filters.getHasElectricity())));
                             if (filters.getHasParking() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("parking"), filters.getHasParking())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("parking"),
+                                        filters.getHasParking())));
                             if (filters.getHasVehicleManoeuvreArea() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getHasVehicleManoeuvreArea())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(
+                                        "vehicleManoeuvreArea"), filters.getHasVehicleManoeuvreArea())));
                             if (filters.getCanOwnerTransport() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("vehicleManoeuvreArea"), filters.getCanOwnerTransport())));
+                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(
+                                        "vehicleManoeuvreArea"), filters.getCanOwnerTransport())));
                             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
                         },
                         PageRequest.of(page - 1, 20))
