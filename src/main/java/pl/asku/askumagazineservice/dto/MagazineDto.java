@@ -15,6 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class MagazineDto {
     private String owner;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDate createdDate;
+    private Date createdDate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PictureData> photos;
@@ -137,7 +138,6 @@ public class MagazineDto {
     public Magazine toMagazine(String username) {
         return Magazine.builder()
                 .owner(username)
-                .createdDate(LocalDate.now())
                 .country(country)
                 .city(city)
                 .street(street)

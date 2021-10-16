@@ -83,7 +83,6 @@ public class MagazineService {
             return Optional.empty();
         }
         Reservation reservation = Reservation.builder()
-                .createdDate(LocalDate.now())
                 .user(username)
                 .startDate(reservationDto.getStartDate())
                 .endDate(reservationDto.getEndDate())

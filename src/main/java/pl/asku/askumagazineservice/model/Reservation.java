@@ -1,12 +1,15 @@
 package pl.asku.askumagazineservice.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "reservation")
@@ -22,7 +25,13 @@ public class Reservation {
     @Column(unique = true, updatable = false)
     private Long id;
 
-    private LocalDate createdDate;
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedDate;
 
     @NotNull
     @NotBlank

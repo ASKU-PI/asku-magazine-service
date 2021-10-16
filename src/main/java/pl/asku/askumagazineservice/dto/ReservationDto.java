@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class ReservationDto {
     private Long id;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDate createdDate;
+    private Date createdDate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String user;

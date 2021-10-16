@@ -7,6 +7,7 @@ import pl.asku.askumagazineservice.model.MagazineType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -22,7 +23,7 @@ public class MagazinePreviewDto {
     private String owner;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDate createdDate;
+    private Date createdDate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PictureData> photos;
