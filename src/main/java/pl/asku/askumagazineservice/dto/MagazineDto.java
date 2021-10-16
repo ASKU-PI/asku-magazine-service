@@ -7,9 +7,6 @@ import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
 import pl.asku.askumagazineservice.model.MagazineType;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,8 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Getter
 @Setter
@@ -117,21 +112,4 @@ public class MagazineDto {
 
     @Size(min = 3, max = 500)
     private String description;
-
-
-    public List<String> getViolationMessages() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-
-        List<String> violations = validator
-                .validate(this)
-                .stream().map(Object::toString)
-                .collect(Collectors.toList());
-
-        if (startDate.compareTo(endDate) >= 0) violations.add("Start date is not earlier than end date");
-        if (minAreaToRent.compareTo(areaInMeters) > 0)
-            violations.add("Min area to rent must be lower or equal total area");
-
-        return violations;
-    }
 }

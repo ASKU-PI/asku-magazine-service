@@ -1,17 +1,16 @@
-package pl.asku.askumagazineservice.magazine.controller;
+package pl.asku.askumagazineservice.reservation.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.controller.MagazineController;
+import pl.asku.askumagazineservice.controller.ReservationController;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
+import pl.asku.askumagazineservice.magazine.service.ReservationService;
 import pl.asku.askumagazineservice.model.Magazine;
 
 import java.math.BigDecimal;
@@ -20,15 +19,14 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CheckAvailableMagazineControllerTests extends MagazineControllerTestBase {
+public class CheckAvailableMagazineControllerTests extends ReservationControllerTestBase {
 
     @Autowired
     public CheckAvailableMagazineControllerTests(MagazineService magazineService,
                                                  MagazineDataProvider magazineDataProvider,
-                                                 MagazineController magazineController,
-                                                 AuthenticationProvider authenticationProvider,
-                                                 ImageServiceClient imageServiceClient) {
-        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient);
+                                                 ReservationService reservationService,
+                                                 ReservationController reservationController) {
+        super(magazineService, magazineDataProvider, reservationService, reservationController);
     }
 
     @Test
@@ -42,7 +40,7 @@ public class CheckAvailableMagazineControllerTests extends MagazineControllerTes
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        ResponseEntity<Object> response = magazineController.magazineAvailable(
+        ResponseEntity<Object> response = reservationController.magazineAvailable(
                 magazine.getId(),
                 startDate,
                 endDate,
@@ -68,7 +66,7 @@ public class CheckAvailableMagazineControllerTests extends MagazineControllerTes
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        ResponseEntity<Object> response = magazineController.magazineAvailable(
+        ResponseEntity<Object> response = reservationController.magazineAvailable(
                 magazine.getId(),
                 startDate,
                 endDate,
@@ -95,7 +93,7 @@ public class CheckAvailableMagazineControllerTests extends MagazineControllerTes
         LocalDate endDate = magazine.getStartDate().plusDays(1);
 
         //when
-        ResponseEntity<Object> response = magazineController.magazineAvailable(
+        ResponseEntity<Object> response = reservationController.magazineAvailable(
                 magazine.getId(),
                 startDate,
                 endDate,

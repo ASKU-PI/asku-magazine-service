@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
@@ -91,8 +90,8 @@ public class MagazineController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<MagazinePreviewDto>> searchMagazines(
-            @RequestParam(required = false) Optional<Integer> page,
+    public ResponseEntity<Object> searchMagazines(
+            @RequestParam(required = false) @Min(1) Optional<Integer> page,
             @RequestParam(required = false) Optional<BigDecimal> minLongitude,
             @RequestParam(required = false) Optional<BigDecimal> maxLongitude,
             @RequestParam(required = false) Optional<BigDecimal> minLatitude,
@@ -168,21 +167,25 @@ public class MagazineController {
                 ownerTransport.orElse(null)
         );
 
-        List<Magazine> magazines = magazineService.searchMagazines(
-                page.isPresent() && page.get() > 0 ? page.get() : 1,
-                filters
-        );
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(magazines.stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()));
+        try {
+            List<Magazine> magazines = magazineService.searchMagazines(
+                    page.isPresent() && page.get() > 0 ? page.get() : 1,
+                    filters
+            );
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(magazines.stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()));
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/availability/{id}")
-    public ResponseEntity<Object> magazineAvailable(
-            @PathVariable Long id,
+    @GetMapping("/total-price/{id}")
+    public ResponseEntity<Object> totalPrice(
+            @PathVariable @NotNull Long id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
-            @RequestParam @Min(0) BigDecimal minArea
+            @RequestParam @Min(0) BigDecimal area
     ) {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
 
@@ -192,26 +195,9 @@ public class MagazineController {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(magazineService.checkIfMagazineAvailable(magazine.get(), start, end, minArea));
+                    .body(magazineService.getTotalPrice(magazine.get(), start, end, area));
         } catch (ValidationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
-    }
-
-    @GetMapping("/total-price/{id}")
-    public ResponseEntity<BigDecimal> totalPrice(
-            @PathVariable Long id,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
-            @RequestParam @Min(0) BigDecimal area
-    ) {
-        Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-        return magazine.isEmpty() ?
-                ResponseEntity
-                        .status(HttpStatus.NOT_FOUND).build() :
-                ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(magazineService.getTotalPrice(magazine.get(), start, end, area));
     }
 }

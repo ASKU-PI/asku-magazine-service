@@ -8,29 +8,33 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
+import pl.asku.askumagazineservice.exception.MagazineNotFound;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
+import pl.asku.askumagazineservice.magazine.service.ReservationService;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.Reservation;
-import pl.asku.askumagazineservice.reservation.ReservationTestBase;
 
+import javax.validation.ValidationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class AddReservationServiceTests extends ReservationTestBase {
+class AddReservationServiceTests extends ReservationServiceTestBase {
 
     @Autowired
-    AddReservationServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider) {
-        super(magazineService, magazineDataProvider);
+    AddReservationServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
+                               ReservationService reservationService) {
+        super(magazineService, magazineDataProvider, reservationService);
     }
 
     @Test
-    public void returnsCorrectReservation() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void returnsCorrectReservation() throws LocationNotFoundException, LocationIqRequestFailedException,
+            MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -47,23 +51,23 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        Reservation reservation = reservationService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertTrue(reservation.isPresent()),
-                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 
     @Test
-    public void reserveFullDateIntervalAndArea() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void reserveFullDateIntervalAndArea() throws LocationNotFoundException, LocationIqRequestFailedException,
+            MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -80,23 +84,23 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        Reservation reservation = reservationService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertTrue(reservation.isPresent()),
-                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 
     @Test
-    public void reserveOneDayAndMinimumArea() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void reserveOneDayAndMinimumArea() throws LocationNotFoundException, LocationIqRequestFailedException,
+            MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -113,18 +117,17 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        Reservation reservation = reservationService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertTrue(reservation.isPresent()),
-                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 
@@ -138,7 +141,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -146,13 +148,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -166,7 +166,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate().minusDays(1);
         LocalDate endDate = magazine.getEndDate();
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -174,13 +173,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -194,7 +191,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate();
         LocalDate endDate = magazine.getEndDate().plusDays(1);
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -202,13 +198,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -222,7 +216,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate().minusDays(1);
         LocalDate endDate = magazine.getEndDate().plusDays(1);
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -230,13 +223,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -250,7 +241,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getEndDate().minusDays(1);
         LocalDate endDate = magazine.getStartDate().plusDays(2);
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -258,13 +248,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(ValidationException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -277,7 +265,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate();
         LocalDate endDate = magazine.getStartDate();
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -285,13 +272,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(ValidationException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
@@ -304,7 +289,6 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -312,17 +296,15 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
-    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -332,7 +314,7 @@ class AddReservationServiceTests extends ReservationTestBase {
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
-        magazineService.addReservation(
+        reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate.minusDays(1))
                         .endDate(endDate.plusDays(1))
@@ -342,8 +324,8 @@ class AddReservationServiceTests extends ReservationTestBase {
                 otherUserIdentifier
         );
 
-        //when
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when then
+        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate)
                         .endDate(endDate)
@@ -351,14 +333,11 @@ class AddReservationServiceTests extends ReservationTestBase {
                         .magazineId(magazine.getId())
                         .build(),
                 username
-        );
-
-        //then
-        assertTrue(reservation.isEmpty());
+        ));
     }
 
     @Test
-    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -367,7 +346,7 @@ class AddReservationServiceTests extends ReservationTestBase {
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
-        magazineService.addReservation(
+        reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate.minusDays(1))
                         .endDate(endDate.plusDays(1))
@@ -377,7 +356,6 @@ class AddReservationServiceTests extends ReservationTestBase {
                 otherUserIdentifier
         );
 
-        //when
         ReservationDto reservationDto = ReservationDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -385,18 +363,18 @@ class AddReservationServiceTests extends ReservationTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        Optional<Reservation> reservation = magazineService.addReservation(
+        //when
+        Reservation reservation = reservationService.addReservation(
                 reservationDto,
                 username
         );
 
         //then
         assertAll(
-                () -> assertTrue(reservation.isPresent()),
-                () -> assertEquals(reservation.get().getStartDate(), reservationDto.getStartDate()),
-                () -> assertEquals(reservation.get().getEndDate(), reservationDto.getEndDate()),
-                () -> assertEquals(reservation.get().getAreaInMeters(), reservationDto.getAreaInMeters()),
-                () -> assertEquals(reservation.get().getMagazine().getId(), reservationDto.getMagazineId())
+                () -> assertEquals(reservation.getStartDate(), reservationDto.getStartDate()),
+                () -> assertEquals(reservation.getEndDate(), reservationDto.getEndDate()),
+                () -> assertEquals(reservation.getAreaInMeters(), reservationDto.getAreaInMeters()),
+                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId())
         );
     }
 }

@@ -1,15 +1,18 @@
-package pl.asku.askumagazineservice.magazine.service;
+package pl.asku.askumagazineservice.reservation.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
+import pl.asku.askumagazineservice.exception.MagazineNotFound;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.magazine.service.MagazineService;
+import pl.asku.askumagazineservice.magazine.service.ReservationService;
 import pl.asku.askumagazineservice.model.Magazine;
 
 import javax.validation.ValidationException;
@@ -20,13 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase {
+public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBase {
 
     @Autowired
     public CheckAvailableMagazineServiceTests(MagazineService magazineService,
                                               MagazineDataProvider magazineDataProvider,
-                                              ImageServiceClient imageServiceClient) {
-        super(magazineService, magazineDataProvider, imageServiceClient);
+                                              ReservationService reservationService) {
+        super(magazineService, magazineDataProvider, reservationService);
     }
 
     @Test
@@ -41,7 +44,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -63,7 +66,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -86,7 +89,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getStartDate().plusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -108,7 +111,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -131,7 +134,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate();
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -154,7 +157,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().plusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -177,7 +180,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().plusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -200,7 +203,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getStartDate().plusDays(1);
 
         //when then
-        assertThrows(ValidationException.class, () -> magazineService.checkIfMagazineAvailable(
+        assertThrows(ValidationException.class, () -> reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -220,7 +223,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getStartDate();
 
         //when then
-        assertThrows(ValidationException.class, () -> magazineService.checkIfMagazineAvailable(
+        assertThrows(ValidationException.class, () -> reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -240,7 +243,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -252,7 +255,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
     }
 
     @Test
-    public void returnsFalseWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void returnsFalseWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -262,7 +265,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
-        magazineService.addReservation(
+        reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate.minusDays(1))
                         .endDate(endDate.plusDays(1))
@@ -273,7 +276,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         );
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
@@ -285,7 +288,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
     }
 
     @Test
-    public void returnsTrueWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void returnsTrueWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -294,7 +297,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
-        magazineService.addReservation(
+        reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate.minusDays(1))
                         .endDate(endDate.plusDays(1))
@@ -305,7 +308,7 @@ public class CheckAvailableMagazineServiceTests extends MagazineServiceTestBase 
         );
 
         //when
-        boolean available = magazineService.checkIfMagazineAvailable(
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,

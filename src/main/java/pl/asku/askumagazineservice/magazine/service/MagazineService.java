@@ -10,15 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
-import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
-import pl.asku.askumagazineservice.repository.ReservationRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 import pl.asku.askumagazineservice.util.validator.MagazineValidator;
 
@@ -41,7 +38,6 @@ import java.util.stream.Collectors;
 public class MagazineService {
 
     private final MagazineRepository magazineRepository;
-    private final ReservationRepository reservationRepository;
     private final ImageServiceClient imageServiceClient;
     private final GeocodingClient geocodingClient;
     private final MagazineConverter magazineConverter;
@@ -78,78 +74,16 @@ public class MagazineService {
     }
 
     public List<Magazine> searchMagazines(
-            Integer page,
-            MagazineFilters filters) {
+            @Min(1) Integer page,
+            @NotNull MagazineFilters filters) {
         return findMagazinesWithSingleQuery(page, filters);
     }
 
-    public Optional<Reservation> addReservation(@Valid ReservationDto reservationDto,
-                                                @NotNull @NotBlank String username) {
-        Optional<Magazine> magazine = getMagazineDetails(reservationDto.getMagazineId());
-        if (magazine.isEmpty()) return Optional.empty();
-        return addReservation(magazine.get(), reservationDto, username);
-    }
-
-    @Transactional
-    public Optional<Reservation> addReservation(@Valid Magazine magazine, @Valid ReservationDto reservationDto,
-                                                @NotNull @NotBlank String username) {
-        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0 ||
-                !checkIfMagazineAvailable(
-                        magazine,
-                        reservationDto.getStartDate(),
-                        reservationDto.getEndDate(),
-                        reservationDto.getAreaInMeters())) {
-            return Optional.empty();
-        }
-        Reservation reservation = Reservation.builder()
-                .user(username)
-                .startDate(reservationDto.getStartDate())
-                .endDate(reservationDto.getEndDate())
-                .areaInMeters(reservationDto.getAreaInMeters())
-                .magazine(magazine)
-                .build();
-        return Optional.of(reservationRepository.save(reservation));
-    }
-
-    public boolean checkIfMagazineAvailable(@Valid Magazine magazine,
-                                            @NotNull LocalDate start, @NotNull LocalDate end,
-                                            @NotNull @Min(0) BigDecimal area) {
+    public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,
+                                    @NotNull @Min(0) BigDecimal area) {
         if (start.compareTo(end) >= 0)
             throw new ValidationException("End date must be greater than end date");
 
-        if (magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
-                || magazine.getStartDate().compareTo(start) > 0 ||
-                magazine.getEndDate().compareTo(end) < 0) {
-            return false;
-        }
-        BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
-        return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
-    }
-
-    private BigDecimal getTakenArea(@NotNull Long magazineId, @NotNull LocalDate start, @NotNull LocalDate end) {
-        List<Reservation> reservations = reservationRepository
-                .findByMagazine_Id(magazineId)
-                .stream()
-                .filter(reservation -> (start.compareTo(reservation.getStartDate()) >= 0
-                        && start.compareTo(reservation.getEndDate()) <= 0) ||
-                        (end.compareTo(reservation.getStartDate()) >= 0
-                                && end.compareTo(reservation.getEndDate()) <= 0) ||
-                        (start.compareTo(reservation.getStartDate()) <= 0
-                                && end.compareTo(reservation.getEndDate()) >= 0) ||
-                        (start.compareTo(reservation.getStartDate()) >= 0
-                                && end.compareTo(reservation.getEndDate()) <= 0))
-                .collect(Collectors.toList());
-        if (reservations.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        return reservations
-                .stream()
-                .map(Reservation::getAreaInMeters)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal getTotalPrice(@Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,
-                                    @NotNull @Min(0) BigDecimal area) {
         int dateDifference = start.until(end).getDays();
         return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
     }
