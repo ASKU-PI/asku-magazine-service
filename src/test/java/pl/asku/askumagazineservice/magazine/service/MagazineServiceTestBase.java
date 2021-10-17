@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles("test")
 public class MagazineServiceTestBase {
 

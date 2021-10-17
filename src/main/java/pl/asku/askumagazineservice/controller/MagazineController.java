@@ -164,7 +164,10 @@ public class MagazineController {
                 electricity.orElse(null),
                 parking.orElse(null),
                 vehicleManoeuvreArea.orElse(null),
-                ownerTransport.orElse(null)
+                ownerTransport.orElse(null),
+                availableOnly.orElse(null),
+                currentlyReservedBy.orElse(null),
+                historicallyReservedBy.orElse(null)
         );
 
         try {

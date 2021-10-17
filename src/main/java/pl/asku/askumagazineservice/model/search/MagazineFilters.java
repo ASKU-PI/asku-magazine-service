@@ -37,4 +37,7 @@ public class MagazineFilters {
     private Boolean hasParking;
     private Boolean hasVehicleManoeuvreArea;
     private Boolean canOwnerTransport;
+    private Boolean availableOnly;
+    private String currentlyReservedBy;
+    private String historicallyReservedBy;
 }

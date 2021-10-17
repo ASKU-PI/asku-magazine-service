@@ -2,7 +2,6 @@ package pl.asku.askumagazineservice.magazine.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +19,6 @@ import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 import pl.asku.askumagazineservice.util.validator.MagazineValidator;
 
-import javax.persistence.criteria.Predicate;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
@@ -28,10 +26,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -79,7 +75,7 @@ public class MagazineService {
     public List<Magazine> searchMagazines(
             @Min(1) Integer page,
             @NotNull MagazineFilters filters) {
-        return findMagazinesWithSingleQuery(page, filters);
+        return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
     }
 
     public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,
@@ -95,99 +91,6 @@ public class MagazineService {
         Magazine maxAreaMagazine = magazineRepository.findFirstByOrderByAreaInMetersDesc();
         if (maxAreaMagazine == null) throw new MagazineNotFoundException();
         return maxAreaMagazine.getAreaInMeters();
-    }
-
-    private List<Magazine> findMagazinesWithSingleQuery(Integer page, MagazineFilters filters) {
-        //TODO: make this take reservations into account, allow multiple enum selections
-        return magazineRepository
-                .findAll(
-                        (Specification<Magazine>) (root, criteriaQuery, criteriaBuilder) -> {
-                            List<Predicate> predicates = new ArrayList<>();
-                            if (filters.getStartDateGreaterOrEqual() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
-                                        "startDate"), filters.getStartDateGreaterOrEqual())));
-                            if (filters.getEndDateLessOrEqual() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
-                                        "endDate"), filters.getEndDateLessOrEqual())));
-                            if (filters.getMinFreeArea() != null) {
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
-                                        "areaInMeters"), filters.getMinFreeArea())));
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
-                                        "minAreaToRent"), filters.getMinFreeArea())));
-                            }
-                            if (filters.getLocationFilter().getMinLongitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("longitude"),
-                                        filters.getLocationFilter().getMinLongitude())));
-                            if (filters.getLocationFilter().getMaxLongitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("longitude"),
-                                        filters.getLocationFilter().getMaxLongitude())));
-                            if (filters.getLocationFilter().getMinLatitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThan(root.get("latitude"),
-                                        filters.getLocationFilter().getMinLatitude())));
-                            if (filters.getLocationFilter().getMaxLatitude() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThan(root.get("latitude"),
-                                        filters.getLocationFilter().getMaxLatitude())));
-                            if (filters.getMaxPricePerMeter() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get(
-                                        "pricePerMeter"), filters.getMaxPricePerMeter())));
-                            if (filters.getOwnerIdentifier() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("owner"),
-                                        filters.getOwnerIdentifier())));
-                            if (filters.getType() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"),
-                                        filters.getType())));
-                            if (filters.getHeating() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("heating"),
-                                        filters.getHeating())));
-                            if (filters.getLight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("light"),
-                                        filters.getLight())));
-                            if (filters.getIsWhole() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("whole"),
-                                        filters.getIsWhole())));
-                            if (filters.getHasMonitoring() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("monitoring"),
-                                        filters.getHasMonitoring())));
-                            if (filters.getHasAntiTheftDoors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("antiTheftDoors"),
-                                        filters.getHasAntiTheftDoors())));
-                            if (filters.getHasVentilation() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("ventilation"),
-                                        filters.getHasVentilation())));
-                            if (filters.getHasSmokeDetectors() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("smokeDetectors"),
-                                        filters.getHasSmokeDetectors())));
-                            if (filters.getIsSelfService() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("selfService"),
-                                        filters.getIsSelfService())));
-                            if (filters.getMinFloor() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
-                                        "floor"), filters.getMinFloor())));
-                            if (filters.getMaxFloor() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.lessThanOrEqualTo(root.get("floor"), filters.getMaxFloor())));
-                            if (filters.getMinDoorHeight() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
-                                        "doorHeight"), filters.getMinDoorHeight())));
-                            if (filters.getMinDoorWidth() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.greaterThanOrEqualTo(root.get(
-                                        "doorWidth"), filters.getMinDoorWidth())));
-                            if (filters.getHasElectricity() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("electricity"),
-                                        filters.getHasElectricity())));
-                            if (filters.getHasParking() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("parking"),
-                                        filters.getHasParking())));
-                            if (filters.getHasVehicleManoeuvreArea() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(
-                                        "vehicleManoeuvreArea"), filters.getHasVehicleManoeuvreArea())));
-                            if (filters.getCanOwnerTransport() != null)
-                                predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(
-                                        "vehicleManoeuvreArea"), filters.getCanOwnerTransport())));
-                            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-                        },
-                        PageRequest.of(page - 1, 20))
-                .stream()
-                .collect(Collectors.toList());
     }
 
 }
