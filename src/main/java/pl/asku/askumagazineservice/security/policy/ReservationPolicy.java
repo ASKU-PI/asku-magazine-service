@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class ReservationPolicy {
 
     public boolean addReservation(Authentication authentication) {
-        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
+        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+                "ROLE_USER"));
     }
 }

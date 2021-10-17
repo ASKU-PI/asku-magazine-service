@@ -29,7 +29,8 @@ public class LocationFilter {
         this.maxLatitude = maxLatitude;
     }
 
-    public LocationFilter(String location, GeocodingClient geocodingClient) throws LocationNotFoundException, LocationIqRequestFailedException {
+    public LocationFilter(String location, GeocodingClient geocodingClient) throws LocationNotFoundException,
+            LocationIqRequestFailedException {
         Geolocation center = geocodingClient.getGeolocation(location);
 
         setBoundariesInRadius(center, kilometersToDegrees(defaultRadiusInKilometers));

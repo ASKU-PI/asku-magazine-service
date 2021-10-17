@@ -1,17 +1,17 @@
-package pl.asku.askumagazineservice;
+package pl.asku.askumagazineservice.magazine.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
-import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,12 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class AddTests extends TestBase {
+public class AddMagazineServiceTests extends MagazineServiceTestBase {
     private final MagazineRepository magazineRepository;
 
     @Autowired
-    AddTests(MagazineService magazineService, MagazineRepository magazineRepository, MagazineDataProvider magazineDataProvider) {
-        super(magazineService, magazineDataProvider);
+    AddMagazineServiceTests(MagazineService magazineService, MagazineRepository magazineRepository,
+                            MagazineDataProvider magazineDataProvider, ImageServiceClient imageServiceClient) {
+        super(magazineService, magazineDataProvider, imageServiceClient);
         this.magazineRepository = magazineRepository;
     }
 
@@ -37,7 +38,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         Optional<Magazine> magazineFromDb = magazineRepository.findById(magazine.getId());
 
         //then
@@ -52,7 +53,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
 
         //then
         Assertions.assertAll(
@@ -96,7 +97,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username);
+        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
 
         //then
         Assertions.assertAll(
@@ -142,7 +143,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
     }
 
     @Test
@@ -156,7 +157,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
     }
 
     @Test
@@ -170,7 +171,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
     }
 
     @Test
@@ -185,7 +186,7 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
     }
 
     @Test
@@ -198,6 +199,6 @@ public class AddTests extends TestBase {
         String username = magazineDataProvider.userIdentifier();
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
     }
 }

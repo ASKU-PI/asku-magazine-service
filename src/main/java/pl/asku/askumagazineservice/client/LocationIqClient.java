@@ -37,7 +37,8 @@ public class LocationIqClient implements GeocodingClient {
         return getGeolocation(search);
     }
 
-    public Geolocation getGeolocation(String search) throws LocationIqRequestFailedException, LocationNotFoundException {
+    public Geolocation getGeolocation(String search) throws LocationIqRequestFailedException,
+            LocationNotFoundException {
         String url = new StringBuilder(baseUrl)
                 .append("search.php?key=")
                 .append(accessKey)

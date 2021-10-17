@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 public class MagazinePolicy {
 
     public boolean addMagazine(Authentication authentication) {
-        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
+        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+                "ROLE_USER"));
     }
 
 }

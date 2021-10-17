@@ -4,15 +4,14 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
-import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "magazine")
@@ -112,67 +111,10 @@ public class Magazine {
 
     private Boolean vehicleManoeuvreArea;
 
+    @Min(1)
     private BigDecimal minAreaToRent;
 
     private Boolean ownerTransport;
 
     private String description;
-
-    public MagazineDto toMagazineDto() {
-        return new MagazineDto(
-                id,
-                owner,
-                createdDate,
-                null,
-                country,
-                city,
-                street,
-                building,
-                longitude,
-                latitude,
-                startDate,
-                endDate,
-                areaInMeters,
-                pricePerMeter,
-                type,
-                heating,
-                light,
-                whole,
-                monitoring,
-                antiTheftDoors,
-                ventilation,
-                smokeDetectors,
-                selfService,
-                floor,
-                height,
-                doorHeight,
-                doorWidth,
-                electricity,
-                parking,
-                vehicleManoeuvreArea,
-                minAreaToRent,
-                ownerTransport,
-                description
-        );
-    }
-
-    public MagazinePreviewDto toMagazinePreviewDto() {
-        return new MagazinePreviewDto(
-                id,
-                owner,
-                createdDate,
-                null,
-                country,
-                city,
-                street,
-                building,
-                longitude,
-                latitude,
-                startDate,
-                endDate,
-                areaInMeters,
-                pricePerMeter,
-                type
-        );
-    }
 }
