@@ -6,7 +6,11 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
 import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
+import pl.asku.askumagazineservice.dto.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.Magazine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -15,13 +19,17 @@ public class MagazineConverter {
     private final ImageServiceClient imageServiceClient;
 
     public MagazineDto toDto(Magazine magazine) {
-        MagazinePictureDto magazinePictureDto = imageServiceClient.getMagazinePictures(magazine.getId());
+        List<PictureData> photos;
+        if (magazine.getId() == null)
+            photos = new ArrayList<>();
+        else
+            photos = imageServiceClient.getMagazinePictures(magazine.getId()).getPhotos();
 
         return new MagazineDto(
                 magazine.getId(),
                 magazine.getOwner(),
                 magazine.getCreatedDate(),
-                magazinePictureDto.getPhotos(),
+                photos,
                 magazine.getCountry(),
                 magazine.getCity(),
                 magazine.getStreet(),

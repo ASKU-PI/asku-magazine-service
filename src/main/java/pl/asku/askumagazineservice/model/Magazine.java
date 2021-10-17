@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -110,6 +111,7 @@ public class Magazine {
 
     private Boolean vehicleManoeuvreArea;
 
+    @Min(1)
     private BigDecimal minAreaToRent;
 
     private Boolean ownerTransport;

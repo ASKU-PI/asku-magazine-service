@@ -67,15 +67,14 @@ public class MagazineController {
 
         String identifier = authentication.getName();
 
-        Magazine magazine;
-
         try {
-            magazine = magazineService.addMagazine(magazineDto, identifier, photos);
+            Magazine magazine = magazineService.addMagazine(magazineDto, identifier, photos);
+            magazineDto = magazineConverter.toDto(magazine);
         } catch (ValidationException | LocationNotFoundException | LocationIqRequestFailedException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(magazineConverter.toDto(magazine));
+        return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
     }
 
     @GetMapping("/details/{id}")
@@ -91,7 +90,7 @@ public class MagazineController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchMagazines(
-            @RequestParam(required = false) @Min(1) Optional<Integer> page,
+            @RequestParam(required = false) Optional<Integer> page,
             @RequestParam(required = false) Optional<BigDecimal> minLongitude,
             @RequestParam(required = false) Optional<BigDecimal> maxLongitude,
             @RequestParam(required = false) Optional<BigDecimal> minLatitude,
