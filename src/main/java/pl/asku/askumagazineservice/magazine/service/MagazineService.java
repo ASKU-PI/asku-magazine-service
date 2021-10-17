@@ -63,10 +63,12 @@ public class MagazineService {
         magazine.setLongitude(geolocation.getLongitude());
         magazine.setLatitude(geolocation.getLatitude());
 
+        magazine = magazineRepository.save(magazine);
+
         if (photos != null && photos.length > 0)
             imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
 
-        return magazineRepository.save(magazine);
+        return magazine;
     }
 
     public Optional<Magazine> getMagazineDetails(@NotNull Long id) {
