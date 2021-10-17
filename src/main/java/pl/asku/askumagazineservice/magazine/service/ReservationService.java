@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.asku.askumagazineservice.dto.ReservationDto;
-import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
-import pl.asku.askumagazineservice.exception.MagazineNotFound;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
@@ -33,16 +33,16 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
 
     public Reservation addReservation(@Valid ReservationDto reservationDto,
-                                      @NotNull @NotBlank String username) throws MagazineNotAvailable,
-            MagazineNotFound {
+                                      @NotNull @NotBlank String username) throws MagazineNotAvailableException,
+            MagazineNotFoundException {
         Optional<Magazine> magazine = magazineService.getMagazineDetails(reservationDto.getMagazineId());
-        if (magazine.isEmpty()) throw new MagazineNotFound();
+        if (magazine.isEmpty()) throw new MagazineNotFoundException();
         return addReservation(magazine.get(), reservationDto, username);
     }
 
     @Transactional
     public Reservation addReservation(@NotNull @Valid Magazine magazine, @NotNull @Valid ReservationDto reservationDto,
-                                      @NotNull @NotBlank String username) throws MagazineNotAvailable {
+                                      @NotNull @NotBlank String username) throws MagazineNotAvailableException {
         reservationValidator.validate(reservationDto);
 
         if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0 ||
@@ -51,7 +51,7 @@ public class ReservationService {
                         reservationDto.getStartDate(),
                         reservationDto.getEndDate(),
                         reservationDto.getAreaInMeters())) {
-            throw new MagazineNotAvailable();
+            throw new MagazineNotAvailableException();
         }
         Reservation reservation = Reservation.builder()
                 .user(username)

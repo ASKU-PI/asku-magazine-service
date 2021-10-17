@@ -8,8 +8,8 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
-import pl.asku.askumagazineservice.exception.MagazineNotFound;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.magazine.service.ReservationService;
@@ -34,7 +34,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     @Test
     public void returnsCorrectReservation() throws LocationNotFoundException, LocationIqRequestFailedException,
-            MagazineNotAvailable, MagazineNotFound {
+            MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -67,7 +67,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     @Test
     public void reserveFullDateIntervalAndArea() throws LocationNotFoundException, LocationIqRequestFailedException,
-            MagazineNotAvailable, MagazineNotFound {
+            MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -100,7 +100,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     @Test
     public void reserveOneDayAndMinimumArea() throws LocationNotFoundException, LocationIqRequestFailedException,
-            MagazineNotAvailable, MagazineNotFound {
+            MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -149,7 +149,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .build();
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
         ));
@@ -174,7 +174,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .build();
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
         ));
@@ -199,7 +199,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .build();
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
         ));
@@ -224,7 +224,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .build();
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
         ));
@@ -297,14 +297,14 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .build();
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 reservationDto,
                 username
         ));
     }
 
     @Test
-    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
+    public void failsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -325,7 +325,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
         );
 
         //when then
-        assertThrows(MagazineNotAvailable.class, () -> reservationService.addReservation(
+        assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
                 ReservationDto.builder()
                         .startDate(startDate)
                         .endDate(endDate)
@@ -337,7 +337,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     }
 
     @Test
-    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
+    public void succeedsWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();

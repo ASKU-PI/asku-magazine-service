@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
@@ -88,6 +89,12 @@ public class MagazineService {
 
         int dateDifference = start.until(end).getDays();
         return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
+    }
+
+    public BigDecimal maxArea() throws MagazineNotFoundException {
+        Magazine maxAreaMagazine = magazineRepository.findFirstByOrderByAreaInMetersDesc();
+        if (maxAreaMagazine == null) throw new MagazineNotFoundException();
+        return maxAreaMagazine.getAreaInMeters();
     }
 
     private List<Magazine> findMagazinesWithSingleQuery(Integer page, MagazineFilters filters) {
