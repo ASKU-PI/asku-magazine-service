@@ -13,4 +13,6 @@ public interface MagazineRepository
     List<Magazine> findAllByOwner(String username, PageRequest pageRequest);
 
     List<Magazine> findAll();
+
+    Magazine findFirstByOrderByAreaInMetersDesc();
 }

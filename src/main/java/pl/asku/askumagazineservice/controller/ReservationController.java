@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.ReservationDto;
-import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
-import pl.asku.askumagazineservice.exception.MagazineNotFound;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.magazine.service.ReservationService;
 import pl.asku.askumagazineservice.model.Magazine;
@@ -55,9 +55,9 @@ public class ReservationController {
             Reservation reservation = reservationService.addReservation(reservationDto, username);
             reservationDto.setId(reservation.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
-        } catch (MagazineNotAvailable e) {
+        } catch (MagazineNotAvailableException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (MagazineNotFound e) {
+        } catch (MagazineNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

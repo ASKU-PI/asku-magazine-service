@@ -8,8 +8,8 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.exception.MagazineNotAvailable;
-import pl.asku.askumagazineservice.exception.MagazineNotFound;
+import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.magazine.service.ReservationService;
@@ -255,7 +255,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     }
 
     @Test
-    public void returnsFalseWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
+    public void returnsFalseWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -288,7 +288,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     }
 
     @Test
-    public void returnsTrueWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailable, MagazineNotFound {
+    public void returnsTrueWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
