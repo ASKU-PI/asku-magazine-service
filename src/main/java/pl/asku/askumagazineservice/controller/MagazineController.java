@@ -21,6 +21,7 @@ import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.MagazineType;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.search.SortOptions;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 
@@ -92,6 +93,7 @@ public class MagazineController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchMagazines(
             @RequestParam(required = false) Optional<Integer> page,
+            @RequestParam(required = false) Optional<SortOptions> sortBy,
             @RequestParam(required = false) Optional<BigDecimal> minLongitude,
             @RequestParam(required = false) Optional<BigDecimal> maxLongitude,
             @RequestParam(required = false) Optional<BigDecimal> minLatitude,
@@ -101,15 +103,20 @@ public class MagazineController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> end,
             @RequestParam(required = false) Optional<BigDecimal> minArea,
-            @RequestParam(required = false) Optional<BigDecimal> pricePerMeter,
+            @RequestParam(required = false) Optional<BigDecimal> maxArea,
+            @RequestParam(required = false) Optional<BigDecimal> minTemperature,
+            @RequestParam(required = false) Optional<BigDecimal> maxTemperature,
+            @RequestParam(required = false) Optional<BigDecimal> minPricePerMeter,
+            @RequestParam(required = false) Optional<BigDecimal> maxPricePerMeter,
             @RequestParam(required = false) Optional<String> ownerIdentifier,
-            @RequestParam(required = false) Optional<Boolean> availableOnly, //TODO
-            @RequestParam(required = false) Optional<String> currentlyReservedBy, //TODO
-            @RequestParam(required = false) Optional<String> historicallyReservedBy, //TODO
+            @RequestParam(required = false) Optional<Boolean> availableOnly,
+            @RequestParam(required = false) Optional<String> currentlyReservedBy,
+            @RequestParam(required = false) Optional<String> historicallyReservedBy,
             @RequestParam(required = false) Optional<MagazineType> type,
             @RequestParam(required = false) Optional<Heating> heating,
             @RequestParam(required = false) Optional<Light> light,
-            @RequestParam(required = false) Optional<Boolean> whole,
+            @RequestParam(required = false) Optional<Boolean> wholeLocation,
+            @RequestParam(required = false) Optional<Boolean> elevator,
             @RequestParam(required = false) Optional<Boolean> monitoring,
             @RequestParam(required = false) Optional<Boolean> antiTheftDoors,
             @RequestParam(required = false) Optional<Boolean> ventilation,
@@ -119,6 +126,7 @@ public class MagazineController {
             @RequestParam(required = false) Optional<Integer> maxFloor,
             @RequestParam(required = false) Optional<BigDecimal> doorHeight,
             @RequestParam(required = false) Optional<BigDecimal> doorWidth,
+            @RequestParam(required = false) Optional<BigDecimal> height,
             @RequestParam(required = false) Optional<Boolean> electricity,
             @RequestParam(required = false) Optional<Boolean> parking,
             @RequestParam(required = false) Optional<Boolean> vehicleManoeuvreArea,
@@ -146,12 +154,14 @@ public class MagazineController {
                 start.orElse(null),
                 end.orElse(null),
                 minArea.orElse(null),
-                pricePerMeter.orElse(null),
+                maxArea.orElse(null),
+                maxPricePerMeter.orElse(null),
+                minPricePerMeter.orElse(null),
                 ownerIdentifier.orElse(null),
                 type.orElse(null),
                 heating.orElse(null),
                 light.orElse(null),
-                whole.orElse(null),
+                wholeLocation.orElse(null),
                 monitoring.orElse(null),
                 antiTheftDoors.orElse(null),
                 ventilation.orElse(null),
@@ -161,19 +171,24 @@ public class MagazineController {
                 maxFloor.orElse(null),
                 doorHeight.orElse(null),
                 doorWidth.orElse(null),
+                height.orElse(null),
                 electricity.orElse(null),
                 parking.orElse(null),
+                elevator.orElse(null),
                 vehicleManoeuvreArea.orElse(null),
                 ownerTransport.orElse(null),
                 availableOnly.orElse(null),
                 currentlyReservedBy.orElse(null),
-                historicallyReservedBy.orElse(null)
+                historicallyReservedBy.orElse(null),
+                minTemperature.orElse(null),
+                maxTemperature.orElse(null)
         );
 
         try {
             List<Magazine> magazines = magazineService.searchMagazines(
                     page.isPresent() && page.get() > 0 ? page.get() : 1,
-                    filters
+                    filters,
+                    sortBy.orElse(null)
             );
             return ResponseEntity
                     .status(HttpStatus.OK)

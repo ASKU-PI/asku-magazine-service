@@ -14,6 +14,7 @@ import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.search.SortOptions;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -68,10 +69,9 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                filters
+                filters,
+                SortOptions.PRICE_ASC
         );
-
-        System.out.println(searchResult.size());
 
         //then
         Assertions.assertTrue(searchResult.size() == magazinesToAdd);
@@ -140,7 +140,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                filters
+                filters,
+                null
         );
 
         //then
@@ -191,7 +192,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                filters
+                filters,
+                null
         );
 
         //then
@@ -229,10 +231,9 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                filters
+                filters,
+                null
         );
-
-        System.out.println(searchResult.size());
 
         //then
         assertEquals(20, searchResult.size());
@@ -284,10 +285,60 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
                 page,
-                filters
+                filters,
+                null
         );
 
-        System.out.println(searchResult.size());
+        //then
+        Assertions.assertTrue(searchResult.size() == availableMagazines);
+    }
+
+    @Test
+    public void shouldFilterCurrentlyReservedBy() {
+        //given
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        String username = magazineDataProvider.userIdentifier();
+
+        int availableMagazines = 5;
+        IntStream.range(0, availableMagazines).forEach($ -> {
+            try {
+                magazineService.addMagazine(magazineDto, username, null);
+            } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        int unavailableMagazines = 5;
+        IntStream.range(0, unavailableMagazines).forEach($ -> {
+            try {
+                Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+
+                reservationService.addReservation(
+                        ReservationDto.builder()
+                                .startDate(magazineDto.getStartDate())
+                                .endDate(magazineDto.getEndDate())
+                                .areaInMeters(magazineDto.getAreaInMeters())
+                                .magazineId(magazine.getId())
+                                .build(),
+                        username
+                );
+            } catch (LocationNotFoundException | LocationIqRequestFailedException | MagazineNotAvailableException | MagazineNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        MagazineFilters filters = MagazineFilters.builder()
+                .currentlyReservedBy(username)
+                .build();
+
+        int page = 1;
+
+        //when
+        List<Magazine> searchResult = magazineService.searchMagazines(
+                page,
+                filters,
+                null
+        );
 
         //then
         Assertions.assertTrue(searchResult.size() == availableMagazines);

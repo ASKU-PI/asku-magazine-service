@@ -18,7 +18,9 @@ public class MagazineFilters {
     private LocalDate startDateGreaterOrEqual;
     private LocalDate endDateLessOrEqual;
     private BigDecimal minFreeArea;
+    private BigDecimal maxFreeArea;
     private BigDecimal maxPricePerMeter;
+    private BigDecimal minPricePerMeter;
     private String ownerIdentifier;
     private MagazineType type;
     private Heating heating;
@@ -33,11 +35,15 @@ public class MagazineFilters {
     private Integer maxFloor;
     private BigDecimal minDoorHeight;
     private BigDecimal minDoorWidth;
+    private BigDecimal minHeight;
     private Boolean hasElectricity;
     private Boolean hasParking;
+    private Boolean hasElevator;
     private Boolean hasVehicleManoeuvreArea;
     private Boolean canOwnerTransport;
     private Boolean availableOnly;
     private String currentlyReservedBy;
     private String historicallyReservedBy;
+    private BigDecimal minTemperature;
+    private BigDecimal maxTemperature;
 }

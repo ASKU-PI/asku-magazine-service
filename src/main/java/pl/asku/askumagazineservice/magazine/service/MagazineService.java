@@ -15,6 +15,7 @@ import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.search.SortOptions;
 import pl.asku.askumagazineservice.repository.MagazineRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 import pl.asku.askumagazineservice.util.validator.MagazineValidator;
@@ -74,8 +75,13 @@ public class MagazineService {
 
     public List<Magazine> searchMagazines(
             @Min(1) Integer page,
-            @NotNull MagazineFilters filters) {
-        return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
+            @NotNull MagazineFilters filters,
+            SortOptions sortOptions) {
+        if (sortOptions == null) {
+            return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
+        } else {
+            return magazineRepository.search(filters, PageRequest.of(page - 1, 20, sortOptions.getSort()));
+        }
     }
 
     public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,

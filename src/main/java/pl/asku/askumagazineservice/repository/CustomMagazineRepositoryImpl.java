@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.repository;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 
@@ -8,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,44 +20,48 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
 
     @Override
     public List<Magazine> search(MagazineFilters magazineFilters, PageRequest pageRequest) {
-        TypedQuery<QueryResult> query = createQuery(magazineFilters, pageRequest);
+        TypedQuery<QueryResult> query = createQuery(magazineFilters, pageRequest.getSort());
         query.setFirstResult(pageRequest.getPageNumber() * pageRequest.getPageSize());
         query.setMaxResults(pageRequest.getPageSize());
         return query.getResultList().stream().map(queryResult -> queryResult.magazine).collect(Collectors.toList());
     }
 
-    private TypedQuery<QueryResult> createQuery(MagazineFilters magazineFilters, PageRequest pageRequest) {
+    private TypedQuery<QueryResult> createQuery(MagazineFilters magazineFilters, Sort sortBy) {
+        LocalDate today = LocalDate.now();
+
         StringBuilder queryBuilder =
                 new StringBuilder("SELECT NEW pl.asku.askumagazineservice.repository.QueryResult(m, SUM(r" +
                         ".areaInMeters)) FROM Magazine m LEFT JOIN Reservation r ON r.magazine = m.id WHERE 1 = 1 " +
                         "AND");
 
-        if (magazineFilters.getLocationFilter().getMaxLatitude() != null) {
-            queryBuilder
-                    .append(" m.latitude <= ")
-                    .append(magazineFilters.getLocationFilter().getMaxLatitude().toString())
-                    .append(" AND");
-        }
+        if (magazineFilters.getLocationFilter() != null) {
+            if (magazineFilters.getLocationFilter().getMaxLatitude() != null) {
+                queryBuilder
+                        .append(" m.latitude <= ")
+                        .append(magazineFilters.getLocationFilter().getMaxLatitude().toString())
+                        .append(" AND");
+            }
 
-        if (magazineFilters.getLocationFilter().getMinLatitude() != null) {
-            queryBuilder
-                    .append(" m.latitude >= ")
-                    .append(magazineFilters.getLocationFilter().getMinLatitude().toString())
-                    .append(" AND");
-        }
+            if (magazineFilters.getLocationFilter().getMinLatitude() != null) {
+                queryBuilder
+                        .append(" m.latitude >= ")
+                        .append(magazineFilters.getLocationFilter().getMinLatitude().toString())
+                        .append(" AND");
+            }
 
-        if (magazineFilters.getLocationFilter().getMaxLongitude() != null) {
-            queryBuilder
-                    .append(" m.longitude <= ")
-                    .append(magazineFilters.getLocationFilter().getMaxLongitude().toString())
-                    .append(" AND");
-        }
+            if (magazineFilters.getLocationFilter().getMaxLongitude() != null) {
+                queryBuilder
+                        .append(" m.longitude <= ")
+                        .append(magazineFilters.getLocationFilter().getMaxLongitude().toString())
+                        .append(" AND");
+            }
 
-        if (magazineFilters.getLocationFilter().getMinLongitude() != null) {
-            queryBuilder
-                    .append(" m.longitude >= ")
-                    .append(magazineFilters.getLocationFilter().getMinLongitude().toString())
-                    .append(" AND");
+            if (magazineFilters.getLocationFilter().getMinLongitude() != null) {
+                queryBuilder
+                        .append(" m.longitude >= ")
+                        .append(magazineFilters.getLocationFilter().getMinLongitude().toString())
+                        .append(" AND");
+            }
         }
 
         if (magazineFilters.getStartDateGreaterOrEqual() != null) {
@@ -70,6 +76,13 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
                     .append(" m.endDate >= TO_DATE('")
                     .append(magazineFilters.getEndDateLessOrEqual())
                     .append("','yyyy-MM-dd') AND");
+        }
+
+        if (magazineFilters.getMaxFreeArea() != null) {
+            queryBuilder
+                    .append(" m.areaInMeters <= ")
+                    .append(magazineFilters.getMaxFreeArea().toString())
+                    .append(" AND");
         }
 
         if (magazineFilters.getMinFreeArea() != null) {
@@ -90,6 +103,13 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
             queryBuilder
                     .append(" m.pricePerMeter <= ")
                     .append(magazineFilters.getMaxPricePerMeter().toString())
+                    .append(" AND");
+        }
+
+        if (magazineFilters.getMinPricePerMeter() != null) {
+            queryBuilder
+                    .append(" m.pricePerMeter >= ")
+                    .append(magazineFilters.getMinPricePerMeter().toString())
                     .append(" AND");
         }
 
@@ -191,6 +211,27 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
                     .append(" AND");
         }
 
+        if (magazineFilters.getMinHeight() != null) {
+            queryBuilder
+                    .append(" m.height >= ")
+                    .append(magazineFilters.getMinHeight().toString())
+                    .append(" AND");
+        }
+
+        if (magazineFilters.getMinTemperature() != null) {
+            queryBuilder
+                    .append(" m.minTemperature >= ")
+                    .append(magazineFilters.getMinTemperature().toString())
+                    .append(" AND");
+        }
+
+        if (magazineFilters.getMaxTemperature() != null) {
+            queryBuilder
+                    .append(" m.maxTemperature <= ")
+                    .append(magazineFilters.getMaxTemperature().toString())
+                    .append(" AND");
+        }
+
         if (magazineFilters.getHasElectricity() != null) {
             queryBuilder
                     .append(" m.electricity = ")
@@ -202,6 +243,13 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
             queryBuilder
                     .append(" m.parking = ")
                     .append(magazineFilters.getHasParking().toString())
+                    .append(" AND");
+        }
+
+        if (magazineFilters.getHasElevator() != null) {
+            queryBuilder
+                    .append(" m.parking = ")
+                    .append(magazineFilters.getHasElevator().toString())
                     .append(" AND");
         }
 
@@ -217,6 +265,24 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
                     .append(" m.ownerTransport = ")
                     .append(magazineFilters.getCanOwnerTransport().toString())
                     .append(" AND");
+        }
+
+        if (magazineFilters.getCurrentlyReservedBy() != null) {
+            queryBuilder
+                    .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
+                    .append(magazineFilters.getCurrentlyReservedBy())
+                    .append("' AND r.endDate >= TO_DATE('")
+                    .append(today)
+                    .append("','yyyy-MM-dd')) AND");
+        }
+
+        if (magazineFilters.getHistoricallyReservedBy() != null) {
+            queryBuilder
+                    .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
+                    .append(magazineFilters.getHistoricallyReservedBy())
+                    .append("' AND r.endDate < TO_DATE('")
+                    .append(today)
+                    .append("','yyyy-MM-dd')) AND");
         }
 
         queryBuilder.setLength(queryBuilder.length() - 4);
@@ -236,7 +302,12 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
 
         queryBuilder.setLength(queryBuilder.length() - 4);
 
-        System.out.println(queryBuilder.toString());
+        if (sortBy != null && sortBy != Sort.unsorted()) {
+            String sortByString = "m." + sortBy.toString().replace(":", "");
+            queryBuilder
+                    .append(" ORDER BY ")
+                    .append(sortByString);
+        }
 
         return em.createQuery(queryBuilder.toString(), QueryResult.class);
     }
