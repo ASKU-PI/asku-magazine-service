@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.repository;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
 
@@ -19,14 +20,14 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
     private EntityManager em;
 
     @Override
-    public List<Magazine> search(MagazineFilters magazineFilters, PageRequest pageRequest) {
+    public List<Magazine> search(MagazineFilters magazineFilters, PageRequest pageRequest) throws UserNotFoundException {
         TypedQuery<QueryResult> query = createQuery(magazineFilters, pageRequest.getSort());
         query.setFirstResult(pageRequest.getPageNumber() * pageRequest.getPageSize());
         query.setMaxResults(pageRequest.getPageSize());
         return query.getResultList().stream().map(queryResult -> queryResult.magazine).collect(Collectors.toList());
     }
 
-    private TypedQuery<QueryResult> createQuery(MagazineFilters magazineFilters, Sort sortBy) {
+    private TypedQuery<QueryResult> createQuery(MagazineFilters magazineFilters, Sort sortBy) throws UserNotFoundException {
         LocalDate today = LocalDate.now();
 
         StringBuilder queryBuilder =
@@ -114,6 +115,9 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
         }
 
         if (magazineFilters.getOwnerIdentifier() != null) {
+            if (!isUserIdentifier(magazineFilters.getOwnerIdentifier())) {
+                throw new UserNotFoundException();
+            }
             queryBuilder
                     .append(" m.owner = '")
                     .append(magazineFilters.getOwnerIdentifier())
@@ -268,6 +272,9 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
         }
 
         if (magazineFilters.getCurrentlyReservedBy() != null) {
+            if (!isUserIdentifier(magazineFilters.getCurrentlyReservedBy())) {
+                throw new UserNotFoundException();
+            }
             queryBuilder
                     .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
                     .append(magazineFilters.getCurrentlyReservedBy())
@@ -277,6 +284,9 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
         }
 
         if (magazineFilters.getHistoricallyReservedBy() != null) {
+            if (!isUserIdentifier(magazineFilters.getHistoricallyReservedBy())) {
+                throw new UserNotFoundException();
+            }
             queryBuilder
                     .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
                     .append(magazineFilters.getHistoricallyReservedBy())
@@ -310,5 +320,10 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
         }
 
         return em.createQuery(queryBuilder.toString(), QueryResult.class);
+    }
+
+    // Temporary SQL Injection protection, will be changed when user accouts are added.
+    private boolean isUserIdentifier(String identifier) {
+        return !identifier.contains(" ") && identifier.contains("@");
     }
 }

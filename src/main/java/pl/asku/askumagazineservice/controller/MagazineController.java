@@ -14,6 +14,7 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.magazine.service.MagazineService;
 import pl.asku.askumagazineservice.model.Heating;
 import pl.asku.askumagazineservice.model.Light;
@@ -193,7 +194,7 @@ public class MagazineController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(magazines.stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()));
-        } catch (ValidationException e) {
+        } catch (ValidationException | UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

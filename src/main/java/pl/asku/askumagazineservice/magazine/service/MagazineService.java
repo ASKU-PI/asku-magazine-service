@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.Geolocation;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.MagazineFilters;
@@ -76,7 +77,7 @@ public class MagazineService {
     public List<Magazine> searchMagazines(
             @Min(1) Integer page,
             @NotNull MagazineFilters filters,
-            SortOptions sortOptions) {
+            SortOptions sortOptions) throws UserNotFoundException {
         if (sortOptions == null) {
             return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
         } else {

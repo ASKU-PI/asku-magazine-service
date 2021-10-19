@@ -63,10 +63,10 @@ public class MagazineDataProvider {
     }
 
     public String userIdentifier() {
-        return "test";
+        return "test@test.pl";
     }
 
     public String otherUserIdentifier() {
-        return "otherUser";
+        return "otherUser@test.pl";
     }
 }

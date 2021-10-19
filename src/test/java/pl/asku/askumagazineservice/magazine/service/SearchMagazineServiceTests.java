@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
-import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
-import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
-import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.*;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.search.LocationFilter;
@@ -43,7 +40,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     }
 
     @Test
-    public void searchMagazinesShouldReturnMagazines() {
+    public void searchMagazinesShouldReturnMagazines() throws UserNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -79,7 +76,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     @Test
     public void searchMagazinesShouldReturnMeetingRequirements()
-            throws LocationNotFoundException, LocationIqRequestFailedException {
+            throws LocationNotFoundException, LocationIqRequestFailedException, UserNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -156,7 +153,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     @Test
     public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException,
-            LocationIqRequestFailedException {
+            LocationIqRequestFailedException, UserNotFoundException {
         //given
         String username = magazineDataProvider.userIdentifier();
 
@@ -205,7 +202,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     }
 
     @Test
-    public void searchMagazinesShouldLimitResultsPerPage() {
+    public void searchMagazinesShouldLimitResultsPerPage() throws UserNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -240,7 +237,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     }
 
     @Test
-    public void shouldFilterNotAvailableMagazines() {
+    public void shouldFilterNotAvailableMagazines() throws UserNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
@@ -294,7 +291,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     }
 
     @Test
-    public void shouldFilterCurrentlyReservedBy() {
+    public void shouldFilterCurrentlyReservedBy() throws UserNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = magazineDataProvider.userIdentifier();
