@@ -105,6 +105,8 @@ public class MagazineDto {
 
     private Boolean parking;
 
+    private Boolean elevator;
+
     private Boolean vehicleManoeuvreArea;
 
     @NotNull
@@ -115,4 +117,8 @@ public class MagazineDto {
 
     @Size(min = 3, max = 500)
     private String description;
+
+    private BigDecimal minTemperature;
+
+    private BigDecimal maxTemperature;
 }

@@ -55,10 +55,13 @@ public class MagazineConverter {
                 magazine.getDoorWidth(),
                 magazine.getElectricity(),
                 magazine.getParking(),
+                magazine.getElevator(),
                 magazine.getVehicleManoeuvreArea(),
                 magazine.getMinAreaToRent(),
                 magazine.getOwnerTransport(),
-                magazine.getDescription()
+                magazine.getDescription(),
+                magazine.getMinTemperature(),
+                magazine.getMaxTemperature()
         );
     }
 
@@ -114,6 +117,9 @@ public class MagazineConverter {
                 .minAreaToRent(magazineDto.getMinAreaToRent())
                 .ownerTransport(magazineDto.getOwnerTransport())
                 .description(magazineDto.getDescription())
+                .elevator(magazineDto.getElevator())
+                .maxTemperature(magazineDto.getMaxTemperature())
+                .minTemperature(magazineDto.getMinTemperature())
                 .build();
     }
 }

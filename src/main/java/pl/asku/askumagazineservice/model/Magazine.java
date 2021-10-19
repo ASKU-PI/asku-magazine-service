@@ -109,6 +109,8 @@ public class Magazine {
 
     private Boolean parking;
 
+    private Boolean elevator;
+
     private Boolean vehicleManoeuvreArea;
 
     @Min(1)
@@ -117,4 +119,8 @@ public class Magazine {
     private Boolean ownerTransport;
 
     private String description;
+
+    private BigDecimal minTemperature;
+
+    private BigDecimal maxTemperature;
 }

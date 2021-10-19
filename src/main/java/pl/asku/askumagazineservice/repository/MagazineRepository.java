@@ -8,7 +8,8 @@ import pl.asku.askumagazineservice.model.Magazine;
 import java.util.List;
 
 public interface MagazineRepository
-        extends PagingAndSortingRepository<Magazine, Long>, JpaSpecificationExecutor<Magazine> {
+        extends PagingAndSortingRepository<Magazine, Long>, JpaSpecificationExecutor<Magazine>,
+        CustomMagazineRepository {
 
     List<Magazine> findAllByOwner(String username, PageRequest pageRequest);
 

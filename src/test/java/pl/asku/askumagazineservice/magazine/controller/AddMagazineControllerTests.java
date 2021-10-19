@@ -3,11 +3,9 @@ package pl.asku.askumagazineservice.magazine.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.context.ActiveProfiles;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.controller.MagazineController;
 import pl.asku.askumagazineservice.dto.MagazineDto;
@@ -21,8 +19,6 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
 public class AddMagazineControllerTests extends MagazineControllerTestBase {
 
     @Autowired
