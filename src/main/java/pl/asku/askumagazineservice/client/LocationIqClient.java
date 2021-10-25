@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import pl.asku.askumagazineservice.dto.locationiq.LocationIqResponse;
+import pl.asku.askumagazineservice.dto.client.locationiq.LocationIqResponse;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
-import pl.asku.askumagazineservice.model.Geolocation;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 
 import java.math.BigDecimal;
 

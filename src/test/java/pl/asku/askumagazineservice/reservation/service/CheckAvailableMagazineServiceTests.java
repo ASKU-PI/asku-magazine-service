@@ -2,16 +2,17 @@ package pl.asku.askumagazineservice.reservation.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.asku.askumagazineservice.dto.MagazineDto;
 import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.magazine.service.MagazineService;
-import pl.asku.askumagazineservice.magazine.service.ReservationService;
-import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.ReservationService;
 
 import javax.validation.ValidationException;
 import java.math.BigDecimal;
@@ -24,8 +25,9 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     @Autowired
     public CheckAvailableMagazineServiceTests(MagazineService magazineService,
                                               MagazineDataProvider magazineDataProvider,
-                                              ReservationService reservationService) {
-        super(magazineService, magazineDataProvider, reservationService);
+                                              ReservationService reservationService,
+                                              UserDataProvider userDataProvider) {
+        super(magazineService, magazineDataProvider, reservationService, userDataProvider);
     }
 
     @Test
@@ -33,7 +35,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0f));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -55,7 +57,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     public void returnsTrueWhenFullDateIntervalAndArea() throws LocationNotFoundException,
             LocationIqRequestFailedException {
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getAreaInMeters();
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -78,7 +80,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent();
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate();
@@ -100,7 +102,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     public void returnsFalseMagazineTooSmall() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getAreaInMeters().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -123,7 +125,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().minusDays(1);
@@ -146,7 +148,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate();
@@ -169,7 +171,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().minusDays(1);
@@ -192,7 +194,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getEndDate().minusDays(1);
@@ -212,7 +214,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate();
@@ -232,7 +234,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent().subtract(BigDecimal.valueOf(2.0d));
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -254,8 +256,8 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     public void returnsFalseWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsNotEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
-        String otherUserIdentifier = magazineDataProvider.otherUserIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
+        String otherUserIdentifier = userDataProvider.getUser("test2@test.pl").getId();
         BigDecimal area = magazineDto.getAreaInMeters();
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -287,8 +289,8 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     public void returnsTrueWhenDatesIntervalCrossesOtherReservationAndAvailableAreaIsEnough() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
-        String otherUserIdentifier = magazineDataProvider.otherUserIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
+        String otherUserIdentifier = userDataProvider.getUser("test2@test.pl").getId();
         BigDecimal area = magazineDto.getMinAreaToRent();
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
         LocalDate startDate = magazine.getStartDate().plusDays(1);

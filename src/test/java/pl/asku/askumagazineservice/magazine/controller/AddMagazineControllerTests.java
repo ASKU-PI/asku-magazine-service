@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.controller.MagazineController;
-import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.magazine.service.MagazineService;
+import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.service.MagazineService;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
@@ -25,8 +26,9 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     public AddMagazineControllerTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
                                       MagazineController magazineController,
                                       AuthenticationProvider authenticationProvider,
-                                      ImageServiceClient imageServiceClient) {
-        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient);
+                                      ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
+        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient,
+                userDataProvider);
     }
 
     @Test

@@ -5,8 +5,9 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.controller.MagazineController;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.magazine.service.MagazineService;
-import pl.asku.askumagazineservice.magazine.service.MagazineServiceTestBase;
+import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.MagazineServiceTestBase;
 
 public class MagazineControllerTestBase extends MagazineServiceTestBase {
     protected final MagazineController magazineController;
@@ -18,8 +19,8 @@ public class MagazineControllerTestBase extends MagazineServiceTestBase {
             MagazineService magazineService,
             MagazineDataProvider magazineDataProvider,
             MagazineController magazineController, AuthenticationProvider authenticationProvider,
-            ImageServiceClient imageServiceClient) {
-        super(magazineService, magazineDataProvider, imageServiceClient);
+            ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
+        super(magazineService, magazineDataProvider, imageServiceClient, userDataProvider);
         this.magazineController = magazineController;
         this.authenticationProvider = authenticationProvider;
     }

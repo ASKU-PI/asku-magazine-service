@@ -7,13 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.controller.MagazineController;
-import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
-import pl.asku.askumagazineservice.magazine.service.MagazineService;
-import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.service.MagazineService;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Objects;
@@ -26,8 +27,9 @@ public class GetMagazineControllerTests extends MagazineControllerTestBase {
     public GetMagazineControllerTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
                                       MagazineController magazineController,
                                       AuthenticationProvider authenticationProvider,
-                                      ImageServiceClient imageServiceClient) {
-        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient);
+                                      ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
+        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient,
+                userDataProvider);
     }
 
     @Test
@@ -35,7 +37,7 @@ public class GetMagazineControllerTests extends MagazineControllerTestBase {
             LocationNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = magazineDataProvider.userIdentifier();
+        String username = userDataProvider.getUser("test@test.pl").getId();
         Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
 
         //when

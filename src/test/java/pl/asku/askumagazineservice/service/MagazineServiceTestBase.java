@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice.reservation.service;
+package pl.asku.askumagazineservice.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
@@ -9,36 +9,38 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import pl.asku.askumagazineservice.client.GeocodingClient;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
+import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
-import pl.asku.askumagazineservice.service.MagazineService;
-import pl.asku.askumagazineservice.service.ReservationService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class ReservationServiceTestBase {
+public class MagazineServiceTestBase {
 
     @InjectMocks
     protected final MagazineService magazineService;
-    protected final ReservationService reservationService;
     protected final MagazineDataProvider magazineDataProvider;
     protected final UserDataProvider userDataProvider;
     @MockBean
     private GeocodingClient geocodingClient;
+    @MockBean
+    private ImageServiceClient imageServiceClient;
 
     @Autowired
-    public ReservationServiceTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                                      ReservationService reservationService, UserDataProvider userDataProvider) {
+    public MagazineServiceTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
+                                   ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
         this.magazineService = magazineService;
         this.magazineDataProvider = magazineDataProvider;
-        this.reservationService = reservationService;
+        this.imageServiceClient = imageServiceClient;
         this.userDataProvider = userDataProvider;
     }
 
@@ -56,6 +58,10 @@ public class ReservationServiceTestBase {
                             return new Geolocation(BigDecimal.valueOf(5.0f), BigDecimal.valueOf(5.0f));
                         }
                 );
+
+        Mockito.when(imageServiceClient.getMagazinePictures(Mockito.anyLong()))
+                .thenAnswer(invocationOnMock -> new MagazinePictureDto(invocationOnMock.getArgument(0),
+                        new ArrayList<>()));
     }
 
 }

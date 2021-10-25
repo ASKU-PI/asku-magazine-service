@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
-import pl.asku.askumagazineservice.magazine.service.MagazineService;
-import pl.asku.askumagazineservice.magazine.service.ReservationService;
-import pl.asku.askumagazineservice.model.Magazine;
 import pl.asku.askumagazineservice.model.Reservation;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
+import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.ReservationService;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
