@@ -2,7 +2,7 @@ package pl.asku.askumagazineservice.util.validator;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.asku.askumagazineservice.dto.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;

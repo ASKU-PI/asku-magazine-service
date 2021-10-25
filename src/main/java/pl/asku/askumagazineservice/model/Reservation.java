@@ -1,11 +1,12 @@
 package pl.asku.askumagazineservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,9 +34,14 @@ public class Reservation {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
+
+    @Column(name = "user_id")
     @NotNull
-    @NotBlank
-    private String user;
+    private String userId;
 
     @NotNull
     private LocalDate startDate;
@@ -50,5 +56,4 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "magazine_id", referencedColumnName = "id")
     private Magazine magazine;
-
 }

@@ -1,10 +1,10 @@
 package pl.asku.askumagazineservice.helpers.data;
 
 import org.springframework.stereotype.Component;
-import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.model.Heating;
-import pl.asku.askumagazineservice.model.Light;
-import pl.asku.askumagazineservice.model.MagazineType;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.model.magazine.Heating;
+import pl.asku.askumagazineservice.model.magazine.Light;
+import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -60,13 +60,5 @@ public class MagazineDataProvider {
                 .pricePerMeter(BigDecimal.valueOf(100.0f))
                 .minAreaToRent(BigDecimal.valueOf(10.0f))
                 .build();
-    }
-
-    public String userIdentifier() {
-        return "test@test.pl";
-    }
-
-    public String otherUserIdentifier() {
-        return "otherUser@test.pl";
     }
 }

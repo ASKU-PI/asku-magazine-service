@@ -10,7 +10,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
+import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
 
 import java.util.ArrayList;
 

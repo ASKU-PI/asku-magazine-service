@@ -3,11 +3,11 @@ package pl.asku.askumagazineservice.util.modelconverter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.dto.MagazineDto;
-import pl.asku.askumagazineservice.dto.MagazinePreviewDto;
-import pl.asku.askumagazineservice.dto.imageservice.MagazinePictureDto;
-import pl.asku.askumagazineservice.dto.imageservice.PictureData;
-import pl.asku.askumagazineservice.model.Magazine;
+import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
+import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazinePreviewDto;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class MagazineConverter {
 
         return new MagazineDto(
                 magazine.getId(),
-                magazine.getOwner(),
+                magazine.getOwnerId(),
                 magazine.getCreatedDate(),
                 photos,
                 magazine.getCountry(),
@@ -70,7 +70,7 @@ public class MagazineConverter {
 
         return new MagazinePreviewDto(
                 magazine.getId(),
-                magazine.getOwner(),
+                magazine.getOwnerId(),
                 magazine.getCreatedDate(),
                 magazinePictureDto.getPhotos(),
                 magazine.getCountry(),
@@ -89,7 +89,7 @@ public class MagazineConverter {
 
     public Magazine toMagazine(MagazineDto magazineDto) {
         return Magazine.builder()
-                .owner(magazineDto.getOwner())
+                .ownerId(magazineDto.getOwner())
                 .country(magazineDto.getCountry())
                 .city(magazineDto.getCity())
                 .street(magazineDto.getStreet())
