@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice.service;
+package pl.asku.askumagazineservice.magazine.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,10 @@ import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.*;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.ReservationService;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
@@ -80,7 +83,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     public void searchMagazinesShouldReturnMeetingRequirements()
             throws LocationNotFoundException, LocationIqRequestFailedException, UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().type(MagazineType.CELL).build();
         String username = userDataProvider.getUser("test@test.pl").getId();
 
         LocalDate searchStartDate = magazineDto.getStartDate().plusDays(1);
@@ -132,6 +135,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 .endDateLessOrEqual(searchEndDate)
                 .minFreeArea(searchArea)
                 .ownerIdentifier(username)
+                .type(MagazineType.CELL)
                 .build();
 
         int page = 1;
@@ -149,7 +153,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
                 () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
                 () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
-                () -> assertEquals(username, magazine.getOwnerId())
+                () -> assertEquals(username, magazine.getOwnerId()),
+                () -> assertEquals(MagazineType.CELL, magazine.getType())
         ));
     }
 

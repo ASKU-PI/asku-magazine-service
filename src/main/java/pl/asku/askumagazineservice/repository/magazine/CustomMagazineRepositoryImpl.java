@@ -126,23 +126,23 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
 
         if (magazineFilters.getType() != null) {
             queryBuilder
-                    .append(" m.type = ")
+                    .append(" m.type = '")
                     .append(magazineFilters.getType().toString())
-                    .append(" AND");
+                    .append("' AND");
         }
 
         if (magazineFilters.getHeating() != null) {
             queryBuilder
-                    .append(" m.heating = ")
+                    .append(" m.heating = '")
                     .append(magazineFilters.getHeating().toString())
-                    .append(" AND");
+                    .append("' AND");
         }
 
         if (magazineFilters.getLight() != null) {
             queryBuilder
-                    .append(" m.light = ")
+                    .append(" m.light = '")
                     .append(magazineFilters.getLight().toString())
-                    .append(" AND");
+                    .append("' AND");
         }
 
         if (magazineFilters.getIsWhole() != null) {

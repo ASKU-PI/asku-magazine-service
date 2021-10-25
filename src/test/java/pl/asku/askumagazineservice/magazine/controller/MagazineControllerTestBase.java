@@ -6,8 +6,8 @@ import pl.asku.askumagazineservice.controller.MagazineController;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.magazine.service.MagazineServiceTestBase;
 import pl.asku.askumagazineservice.service.MagazineService;
-import pl.asku.askumagazineservice.service.MagazineServiceTestBase;
 
 public class MagazineControllerTestBase extends MagazineServiceTestBase {
     protected final MagazineController magazineController;

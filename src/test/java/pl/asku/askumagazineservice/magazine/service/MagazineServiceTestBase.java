@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice.service;
+package pl.asku.askumagazineservice.magazine.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
@@ -15,6 +15,7 @@ import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 
 import java.math.BigDecimal;
