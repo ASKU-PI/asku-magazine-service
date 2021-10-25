@@ -35,6 +35,10 @@ public class MagazineDto {
     private List<PictureData> photos;
 
     @NotNull
+    @Size(min = 3, max = 100)
+    private String title;
+
+    @NotNull
     @Size(min = 2, max = 50)
     private String country;
 

@@ -14,6 +14,7 @@ public class MagazineDataProvider {
 
     public MagazineDto validMagazineDto() {
         return MagazineDto.builder()
+                .title("Test test")
                 .country("Poland")
                 .city("Kraków")
                 .street("Kawiory")
@@ -48,6 +49,7 @@ public class MagazineDataProvider {
 
     public MagazineDto mandatoryOnlyMagazineDto() {
         return MagazineDto.builder()
+                .title("Test test")
                 .country("Poland")
                 .city("Kraków")
                 .street("Kawiory")

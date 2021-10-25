@@ -30,6 +30,7 @@ public class MagazineConverter {
                 magazine.getOwnerId(),
                 magazine.getCreatedDate(),
                 photos,
+                magazine.getTitle(),
                 magazine.getCountry(),
                 magazine.getCity(),
                 magazine.getStreet(),
@@ -73,6 +74,7 @@ public class MagazineConverter {
                 magazine.getOwnerId(),
                 magazine.getCreatedDate(),
                 magazinePictureDto.getPhotos(),
+                magazine.getTitle(),
                 magazine.getCountry(),
                 magazine.getCity(),
                 magazine.getStreet(),
@@ -90,6 +92,7 @@ public class MagazineConverter {
     public Magazine toMagazine(MagazineDto magazineDto) {
         return Magazine.builder()
                 .ownerId(magazineDto.getOwner())
+                .title(magazineDto.getTitle())
                 .country(magazineDto.getCountry())
                 .city(magazineDto.getCity())
                 .street(magazineDto.getStreet())

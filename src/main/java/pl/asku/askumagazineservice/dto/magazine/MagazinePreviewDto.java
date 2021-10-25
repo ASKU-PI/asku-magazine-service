@@ -5,6 +5,8 @@ import lombok.*;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
@@ -27,6 +29,10 @@ public class MagazinePreviewDto {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PictureData> photos;
+
+    @NotNull
+    @Size(min = 3, max = 100)
+    private String title;
 
     private String country;
 

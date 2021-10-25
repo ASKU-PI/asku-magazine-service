@@ -11,6 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
@@ -46,6 +47,11 @@ public class Magazine {
     @Column(name = "owner_id")
     @NotNull
     private String ownerId;
+
+    @NotNull
+    @NotBlank
+    @Size(min = 3, max = 100)
+    private String title;
 
     @NotNull
     @NotBlank
