@@ -23,7 +23,15 @@ public class MagazineValidator {
         if (magazineDto.getStartDate().compareTo(magazineDto.getEndDate()) >= 0)
             violations.add("End date must be greater than end date");
 
-        if (magazineDto.getMinAreaToRent().compareTo(magazineDto.getAreaInMeters()) > 0)
+        if (magazineDto.getMinAreaToRent() == null && (magazineDto.getWhole() == null || !magazineDto.getWhole())) {
+            violations.add("Min area to rent must be provided when not whole");
+        }
+
+        if (magazineDto.getMinAreaToRent() != null && magazineDto.getWhole() != null && magazineDto.getWhole()) {
+            violations.add("Min area mustn't be provided when isWhole flag is true");
+        }
+
+        if (magazineDto.getMinAreaToRent() != null && magazineDto.getMinAreaToRent().compareTo(magazineDto.getAreaInMeters()) > 0)
             violations.add("Min area to rent must be less than or equal total area");
 
         if (violations.size() > 0) {
