@@ -79,7 +79,7 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
                     .append("','yyyy-MM-dd') AND");
         }
 
-        if (magazineFilters.getMaxFreeArea() != null && magazineFilters.getIsWhole()) {
+        if (magazineFilters.getMaxFreeArea() != null && magazineFilters.getIsWhole() != null && magazineFilters.getIsWhole()) {
             queryBuilder
                     .append(" m.areaInMeters <= ")
                     .append(magazineFilters.getMaxFreeArea().toString())
