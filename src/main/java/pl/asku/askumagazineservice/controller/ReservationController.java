@@ -16,6 +16,7 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
+import pl.asku.askumagazineservice.util.modelconverter.ReservationConverter;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -35,6 +37,7 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final MagazineService magazineService;
     private final ReservationPolicy reservationPolicy;
+    private final ReservationConverter reservationConverter;
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -62,6 +65,30 @@ public class ReservationController {
         }
     }
 
+    @GetMapping("/daily-reservations")
+    public ResponseEntity<Object> getDailyReservations(
+            @RequestBody Long spaceId,
+            @RequestBody LocalDate day,
+            Authentication authentication
+    ) {
+        try {
+            if (!reservationPolicy.getReservations(authentication, spaceId))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("You're not authorized to get reservations of this space");
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                        reservationService.getDailyReservations(spaceId, day)
+                                .stream()
+                                .map(reservationConverter::toDto)
+                                .collect(Collectors.toList()
+                                ));
+    }
+
+
     @GetMapping("/availability/{id}")
     public ResponseEntity<Object> magazineAvailable(
             @PathVariable @NotNull Long id,
@@ -69,17 +96,15 @@ public class ReservationController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
             @RequestParam @Min(0) BigDecimal minArea
     ) {
-        Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-
-        if (magazine.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Space not found");
-
         try {
+            Magazine magazine = magazineService.getMagazineDetails(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(reservationService.checkIfMagazineAvailable(magazine.get(), start, end, minArea));
+                    .body(reservationService.checkIfMagazineAvailable(magazine, start, end, minArea));
         } catch (ValidationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
     }

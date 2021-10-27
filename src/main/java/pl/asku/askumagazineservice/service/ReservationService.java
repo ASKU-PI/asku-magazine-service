@@ -35,9 +35,8 @@ public class ReservationService {
     public Reservation addReservation(@Valid ReservationDto reservationDto,
                                       @NotNull @NotBlank String username) throws MagazineNotAvailableException,
             MagazineNotFoundException {
-        Optional<Magazine> magazine = magazineService.getMagazineDetails(reservationDto.getMagazineId());
-        if (magazine.isEmpty()) throw new MagazineNotFoundException();
-        return addReservation(magazine.get(), reservationDto, username);
+        Magazine magazine = magazineService.getMagazineDetails(reservationDto.getMagazineId());
+        return addReservation(magazine, reservationDto, username);
     }
 
     @Transactional
@@ -61,6 +60,10 @@ public class ReservationService {
                 .magazine(magazine)
                 .build();
         return reservationRepository.save(reservation);
+    }
+
+    public List<Reservation> getDailyReservations(Long id, LocalDate day) {
+        return reservationRepository.findByMagazine_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(id, day, day);
     }
 
     public boolean checkIfMagazineAvailable(@NotNull @Valid Magazine magazine,

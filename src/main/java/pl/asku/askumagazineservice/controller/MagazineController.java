@@ -82,12 +82,11 @@ public class MagazineController {
 
     @GetMapping("/details/{id}")
     public ResponseEntity<Object> getMagazineDetails(@Valid @PathVariable @NotNull Long id) {
-        Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-        if (magazine.isPresent()) {
-            MagazineDto magazineDto = magazineConverter.toDto(magazine.get());
-            return ResponseEntity.status(HttpStatus.OK).body(magazineDto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Space not found");
+        try {
+            Magazine magazine = magazineService.getMagazineDetails(id);
+            return ResponseEntity.status(HttpStatus.OK).body(magazineConverter.toDto(magazine));
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -206,17 +205,15 @@ public class MagazineController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
             @RequestParam @Min(0) BigDecimal area
     ) {
-        Optional<Magazine> magazine = magazineService.getMagazineDetails(id);
-
-        if (magazine.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Space not found");
-
         try {
+            Magazine magazine = magazineService.getMagazineDetails(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(magazineService.getTotalPrice(magazine.get(), start, end, area));
+                    .body(magazineService.getTotalPrice(magazine, start, end, area));
         } catch (ValidationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

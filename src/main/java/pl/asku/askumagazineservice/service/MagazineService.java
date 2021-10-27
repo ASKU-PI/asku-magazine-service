@@ -70,8 +70,10 @@ public class MagazineService {
         return magazine;
     }
 
-    public Optional<Magazine> getMagazineDetails(@NotNull Long id) {
-        return magazineRepository.findById(id);
+    public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
+        Optional<Magazine> magazine = magazineRepository.findById(id);
+        if(magazine.isEmpty()) throw new MagazineNotFoundException();
+        return magazine.get();
     }
 
     public List<Magazine> searchMagazines(
