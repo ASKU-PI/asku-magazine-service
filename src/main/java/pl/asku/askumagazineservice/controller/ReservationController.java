@@ -8,7 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.dto.reservation.AvailableSpaceDto;
+import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.Reservation;
@@ -25,7 +26,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -107,5 +107,22 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
+    }
+
+    @GetMapping("/available-area/{id}")
+    public ResponseEntity<Object> availableArea(
+            @PathVariable @NotNull Long id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end
+    ) {
+        try {
+            Magazine magazine = magazineService.getMagazineDetails(id);
+            BigDecimal availableArea = reservationService.getAvailableArea(magazine, start, end);
+            return ResponseEntity.status(HttpStatus.OK).body(new AvailableSpaceDto(magazine.getId(), availableArea));
+        } catch (ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

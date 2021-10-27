@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.Reservation;
@@ -20,7 +20,6 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,6 +78,14 @@ public class ReservationService {
         }
         BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
         return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
+    }
+
+    public BigDecimal getAvailableArea(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end) {
+        if (start.compareTo(end) >= 0)
+            throw new ValidationException("End date must be greater than end date");
+
+        BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
+        return magazine.getAreaInMeters().subtract(takenArea);
     }
 
     private BigDecimal getTakenArea(@NotNull Long magazineId, @NotNull LocalDate start, @NotNull LocalDate end) {

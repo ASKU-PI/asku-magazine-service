@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.dto.ReservationDto;
+import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.*;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
