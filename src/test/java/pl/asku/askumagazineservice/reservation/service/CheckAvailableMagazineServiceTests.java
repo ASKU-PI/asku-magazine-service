@@ -2,8 +2,8 @@ package pl.asku.askumagazineservice.reservation.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
@@ -210,7 +210,7 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
     }
 
     @Test
-    public void returnsFalseWhenStartDateEqualsEndDate() throws LocationNotFoundException,
+    public void succeedeWhenStartDateEqualsEndDate() throws LocationNotFoundException,
             LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
@@ -220,13 +220,16 @@ public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBa
         LocalDate startDate = magazine.getStartDate();
         LocalDate endDate = magazine.getStartDate();
 
-        //when then
-        assertThrows(ValidationException.class, () -> reservationService.checkIfMagazineAvailable(
+        //when
+        boolean available = reservationService.checkIfMagazineAvailable(
                 magazine,
                 startDate,
                 endDate,
                 area
-        ));
+        );
+
+        //then
+        assertTrue(available);
     }
 
     @Test

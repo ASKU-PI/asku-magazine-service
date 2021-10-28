@@ -10,12 +10,8 @@ import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
-import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import pl.asku.askumagazineservice.service.MagazineService;
 
 public class GetMagazineServiceTests extends MagazineServiceTestBase {
 

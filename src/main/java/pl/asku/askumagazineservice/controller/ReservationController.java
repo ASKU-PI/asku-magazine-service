@@ -12,8 +12,8 @@ import pl.asku.askumagazineservice.dto.reservation.AvailableSpaceDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
-import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -65,14 +65,14 @@ public class ReservationController {
         }
     }
 
-    @GetMapping("/daily-reservations")
+    @GetMapping("/daily-reservations/{id}")
     public ResponseEntity<Object> getDailyReservations(
-            @RequestBody Long spaceId,
-            @RequestBody LocalDate day,
+            @PathVariable Long id,
+            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
             Authentication authentication
     ) {
         try {
-            if (!reservationPolicy.getReservations(authentication, spaceId))
+            if (!reservationPolicy.getReservations(authentication, id))
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("You're not authorized to get reservations of this space");
         } catch (MagazineNotFoundException e) {
@@ -81,11 +81,24 @@ public class ReservationController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(
-                        reservationService.getDailyReservations(spaceId, day)
+                        reservationService.getDailyReservations(id, day)
                                 .stream()
                                 .map(reservationConverter::toDto)
                                 .collect(Collectors.toList()
                                 ));
+    }
+
+    @GetMapping("/daily-states/{id}")
+    public ResponseEntity<Object> getDailyStates(
+            @PathVariable Long id,
+            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(reservationService.getDailyStates(id, fromDate, toDate));
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 

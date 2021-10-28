@@ -1,9 +1,10 @@
-package pl.asku.askumagazineservice.model;
+package pl.asku.askumagazineservice.model.reservation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 import javax.persistence.*;

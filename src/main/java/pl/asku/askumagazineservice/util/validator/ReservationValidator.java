@@ -20,8 +20,8 @@ public class ReservationValidator {
         List<String> violations =
                 validator.validate(reservationDto).stream().map(ConstraintViolation::getMessage).collect(Collectors.toList());
 
-        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0)
-            violations.add("End date must be greater than end date");
+        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0)
+            violations.add("End date must be greater than or equal to start date");
 
         if (violations.size() > 0) {
             throw new ValidationException(violations.toString());

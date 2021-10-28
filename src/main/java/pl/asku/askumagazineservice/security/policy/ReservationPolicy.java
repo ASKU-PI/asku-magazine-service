@@ -21,8 +21,8 @@ public class ReservationPolicy {
     public boolean getReservations(Authentication authentication, Long spaceId) throws MagazineNotFoundException {
         boolean atLeastModerator =
                 authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
-                "ROLE_MODERATOR"
-        ));
+                        "ROLE_MODERATOR"
+                ));
 
         boolean isMagazineOwner =
                 authentication != null && magazineService.getMagazineDetails(spaceId).getOwnerId().equals(authentication.getName());

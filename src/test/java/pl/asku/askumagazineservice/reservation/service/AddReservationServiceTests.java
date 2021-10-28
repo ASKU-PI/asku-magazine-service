@@ -2,16 +2,16 @@ package pl.asku.askumagazineservice.reservation.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
-import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
 
@@ -253,7 +253,8 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     }
 
     @Test
-    public void failsWhenStartDateEqualsEndDate() throws LocationNotFoundException, LocationIqRequestFailedException {
+    public void succeedsWhenStartDateEqualsEndDate() throws LocationNotFoundException,
+            LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = userDataProvider.getUser("test@test.pl").getId();
@@ -269,11 +270,18 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
                 .magazineId(magazine.getId())
                 .build();
 
-        //when then
-        assertThrows(ValidationException.class, () -> reservationService.addReservation(
+        //when
+        Reservation reservation = reservationService.addReservation(
                 reservationDto,
                 username
-        ));
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals(reservation.getStartDate(), startDate),
+                () -> assertEquals(reservation.getEndDate(), endDate),
+                () -> assertEquals(reservation.getAreaInMeters(), areaToRent),
+                () -> assertEquals(reservation.getMagazine().getId(), reservationDto.getMagazineId()));
     }
 
     @Test

@@ -48,7 +48,7 @@ public class UserController {
 
     @GetMapping("/user/{id}")
     public ResponseEntity<Object> getUser(@PathVariable @NotNull String id, Authentication authentication) {
-        if(!userPolicy.getUser(authentication)){
+        if (!userPolicy.getUser(authentication)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authorized to get users");
         }
         try {

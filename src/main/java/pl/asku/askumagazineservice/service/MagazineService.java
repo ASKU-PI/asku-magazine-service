@@ -72,7 +72,7 @@ public class MagazineService {
 
     public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
         Optional<Magazine> magazine = magazineRepository.findById(id);
-        if(magazine.isEmpty()) throw new MagazineNotFoundException();
+        if (magazine.isEmpty()) throw new MagazineNotFoundException();
         return magazine.get();
     }
 

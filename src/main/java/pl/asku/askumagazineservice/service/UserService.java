@@ -45,7 +45,7 @@ public class UserService {
 
     public User getUser(@NotNull String id) throws UserNotFoundException {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()) throw new UserNotFoundException();
+        if (user.isEmpty()) throw new UserNotFoundException();
         return user.get();
     }
 }

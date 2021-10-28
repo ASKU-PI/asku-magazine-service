@@ -112,7 +112,7 @@ public class MagazineDto {
     private Boolean elevator;
 
     private Boolean vehicleManoeuvreArea;
-    
+
     @Min(1)
     private BigDecimal minAreaToRent;
 

@@ -3,7 +3,7 @@ package pl.asku.askumagazineservice.util.modelconverter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
-import pl.asku.askumagazineservice.model.Reservation;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 
 @Service
 @AllArgsConstructor

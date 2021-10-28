@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
-import pl.asku.askumagazineservice.model.Reservation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
 import pl.asku.askumagazineservice.util.validator.ReservationValidator;
 
@@ -19,6 +21,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +46,7 @@ public class ReservationService {
                                       @NotNull @NotBlank String username) throws MagazineNotAvailableException {
         reservationValidator.validate(reservationDto);
 
-        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) >= 0 ||
+        if (reservationDto.getStartDate().compareTo(reservationDto.getEndDate()) > 0 ||
                 !checkIfMagazineAvailable(
                         magazine,
                         reservationDto.getStartDate(),
@@ -65,11 +68,39 @@ public class ReservationService {
         return reservationRepository.findByMagazine_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(id, day, day);
     }
 
+    public List<DailyStateDto> getDailyStates(Long id, LocalDate fromDate, LocalDate toDate) throws MagazineNotFoundException {
+        List<Reservation> reservations =
+                reservationRepository.findActiveReservations(id,
+                        fromDate, toDate);
+        System.out.println(reservations);
+        Magazine magazine = magazineService.getMagazineDetails(id);
+        List<DailyStateDto> result = new ArrayList<>();
+        for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
+            LocalDate currentDate = date;
+            List<Reservation> dailyReservations =
+                    reservations.stream().filter(reservation -> reservation.getStartDate().compareTo(currentDate) <= 0 && reservation.getEndDate().compareTo(currentDate) >= 0).collect(Collectors.toList());
+            if (dailyReservations.isEmpty()) {
+                result.add(new DailyStateDto(id, date, AvailabilityState.EMPTY));
+                continue;
+            }
+            BigDecimal takenArea = dailyReservations
+                    .stream()
+                    .map(Reservation::getAreaInMeters)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (takenArea.compareTo(magazine.getAreaInMeters()) == 0) {
+                result.add(new DailyStateDto(id, date, AvailabilityState.FULL));
+                continue;
+            }
+            result.add(new DailyStateDto(id, date, AvailabilityState.SOME));
+        }
+        return result;
+    }
+
     public boolean checkIfMagazineAvailable(@NotNull @Valid Magazine magazine,
                                             @NotNull LocalDate start, @NotNull LocalDate end,
                                             @NotNull @Min(0) BigDecimal area) {
-        if (start.compareTo(end) >= 0)
-            throw new ValidationException("End date must be greater than end date");
+        if (start.compareTo(end) > 0)
+            throw new ValidationException("End date must be greater or equal end date");
 
         if (magazine.getAreaInMeters().compareTo(area) < 0 || magazine.getMinAreaToRent().compareTo(area) > 0
                 || magazine.getStartDate().compareTo(start) > 0 ||
@@ -80,7 +111,8 @@ public class ReservationService {
         return magazine.getAreaInMeters().subtract(takenArea).compareTo(area) >= 0;
     }
 
-    public BigDecimal getAvailableArea(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end) {
+    public BigDecimal getAvailableArea(@NotNull @Valid Magazine magazine, @NotNull LocalDate start,
+                                       @NotNull LocalDate end) {
         if (start.compareTo(end) >= 0)
             throw new ValidationException("End date must be greater than end date");
 
@@ -89,8 +121,8 @@ public class ReservationService {
     }
 
     private BigDecimal getTakenArea(@NotNull Long magazineId, @NotNull LocalDate start, @NotNull LocalDate end) {
-        if (start.compareTo(end) >= 0)
-            throw new ValidationException("End date must be greater than end date");
+        if (start.compareTo(end) > 0)
+            throw new ValidationException("End date must be greater than or equal to end date");
 
         List<Reservation> reservations = reservationRepository
                 .findByMagazine_Id(magazineId)

@@ -17,12 +17,15 @@ import pl.asku.askumagazineservice.service.ReservationService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AvailableSpaceReservationServiceTests extends ReservationServiceTestBase{
+public class AvailableSpaceReservationServiceTests extends ReservationServiceTestBase {
 
     @Autowired
-    public AvailableSpaceReservationServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider, ReservationService reservationService, UserDataProvider userDataProvider) {
+    public AvailableSpaceReservationServiceTests(MagazineService magazineService,
+                                                 MagazineDataProvider magazineDataProvider,
+                                                 ReservationService reservationService,
+                                                 UserDataProvider userDataProvider) {
         super(magazineService, magazineDataProvider, reservationService, userDataProvider);
     }
 
@@ -48,7 +51,8 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
     }
 
     @Test
-    public void returnsZeroWhenWholeSpaceReserved() throws LocationNotFoundException, LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
+    public void returnsZeroWhenWholeSpaceReserved() throws LocationNotFoundException,
+            LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
         MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
         String username = userDataProvider.getUser("test@test.pl").getId();
