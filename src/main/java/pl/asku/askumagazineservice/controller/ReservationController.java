@@ -68,7 +68,7 @@ public class ReservationController {
     @GetMapping("/daily-reservations/{id}")
     public ResponseEntity<Object> getDailyReservations(
             @PathVariable Long id,
-            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
             Authentication authentication
     ) {
         try {
@@ -91,8 +91,8 @@ public class ReservationController {
     @GetMapping("/daily-states/{id}")
     public ResponseEntity<Object> getDailyStates(
             @PathVariable Long id,
-            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestBody @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(reservationService.getDailyStates(id, fromDate, toDate));

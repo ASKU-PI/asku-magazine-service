@@ -8,6 +8,7 @@ import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +64,12 @@ public class ReservationService {
                 .magazine(magazine)
                 .build();
         return reservationRepository.save(reservation);
+    }
+
+    public Reservation getReservation(@NotNull Long id) throws ReservationNotFoundException {
+        Optional<Reservation> reservation = reservationRepository.findById(id);
+        if (reservation.isEmpty()) throw new ReservationNotFoundException();
+        return reservation.get();
     }
 
     public List<Reservation> getDailyReservations(Long id, LocalDate day) {
