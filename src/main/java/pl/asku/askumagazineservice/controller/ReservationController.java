@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.dto.reservation.AvailableSpaceDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.model.reservation.TotalPrice;
@@ -62,6 +63,23 @@ public class ReservationController {
         } catch (MagazineNotAvailableException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/reservation/{id}")
+    public ResponseEntity<Object> getReservation(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        try {
+            Reservation reservation = reservationService.getReservation(id);
+
+            if (!reservationPolicy.getReservation(authentication, reservation))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authorized to get this reservation");
+
+            return ResponseEntity.status(HttpStatus.OK).body(reservationConverter.toDto(reservation));
+        } catch (ReservationNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

@@ -9,6 +9,9 @@ import pl.asku.askumagazineservice.model.reservation.Reservation;
 @AllArgsConstructor
 public class ReservationConverter {
 
+    public MagazineConverter magazineConverter;
+    public UserConverter userConverter;
+
     public ReservationDto toDto(Reservation reservation) {
         return ReservationDto.builder()
                 .areaInMeters(reservation.getAreaInMeters())
@@ -16,7 +19,8 @@ public class ReservationConverter {
                 .endDate(reservation.getEndDate())
                 .createdDate(reservation.getCreatedDate())
                 .magazineId(reservation.getMagazine().getId())
-                .user(reservation.getUserId())
+                .magazine(magazineConverter.toDto(reservation.getMagazine()))
+                .user(userConverter.toDto(reservation.getUser()))
                 .build();
     }
 }

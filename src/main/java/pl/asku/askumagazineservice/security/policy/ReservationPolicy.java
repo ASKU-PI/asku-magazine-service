@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 @Component
@@ -16,6 +17,21 @@ public class ReservationPolicy {
     public boolean addReservation(Authentication authentication) {
         return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
                 "ROLE_USER"));
+    }
+
+    public boolean getReservation(Authentication authentication, Reservation reservation) {
+        boolean atLeastModerator =
+                authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+                        "ROLE_MODERATOR"
+                ));
+
+        boolean isMagazineOwner =
+                authentication != null && reservation.getMagazine().getOwnerId().equals(authentication.getName());
+
+        boolean isReservationOwner =
+                authentication != null && reservation.getUserId().equals(authentication.getName());
+
+        return atLeastModerator || isMagazineOwner || isReservationOwner;
     }
 
     public boolean getReservations(Authentication authentication, Long spaceId) throws MagazineNotFoundException {

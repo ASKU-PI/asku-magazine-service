@@ -2,6 +2,9 @@ package pl.asku.askumagazineservice.dto.reservation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,7 +23,7 @@ public class ReservationDto {
     private Date createdDate;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String user;
+    private UserDto user;
 
     private LocalDate startDate;
 
@@ -28,5 +31,9 @@ public class ReservationDto {
 
     private BigDecimal areaInMeters;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long magazineId;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private MagazineDto magazine;
 }
