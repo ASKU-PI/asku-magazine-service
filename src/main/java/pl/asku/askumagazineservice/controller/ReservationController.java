@@ -14,6 +14,7 @@ import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.reservation.TotalPrice;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -136,6 +137,28 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (MagazineNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/total-price/{id}")
+    public ResponseEntity<Object> totalPrice(
+            @PathVariable @NotNull Long id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
+            @RequestParam @Min(0) BigDecimal area
+    ) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(reservationService.getTotalPrice(ReservationDto.builder()
+                            .magazineId(id)
+                            .startDate(start)
+                            .endDate(end)
+                            .areaInMeters(area)
+                            .build()
+                    ));
+        } catch (MagazineNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
         }
     }
 }

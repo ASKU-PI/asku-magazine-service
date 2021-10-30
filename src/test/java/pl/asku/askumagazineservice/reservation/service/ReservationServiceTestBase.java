@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.service.MagazineService;
@@ -30,16 +31,19 @@ public class ReservationServiceTestBase {
     protected final ReservationService reservationService;
     protected final MagazineDataProvider magazineDataProvider;
     protected final UserDataProvider userDataProvider;
+    protected final ReservationDataProvider reservationDataProvider;
     @MockBean
     private GeocodingClient geocodingClient;
 
     @Autowired
     public ReservationServiceTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                                      ReservationService reservationService, UserDataProvider userDataProvider) {
+                                      ReservationService reservationService, UserDataProvider userDataProvider,
+                                      ReservationDataProvider reservationDataProvider) {
         this.magazineService = magazineService;
         this.magazineDataProvider = magazineDataProvider;
         this.reservationService = reservationService;
         this.userDataProvider = userDataProvider;
+        this.reservationDataProvider = reservationDataProvider;
     }
 
     @BeforeEach

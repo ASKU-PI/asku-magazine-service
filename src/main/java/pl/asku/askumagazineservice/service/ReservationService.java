@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.reservation.TotalPrice;
 import pl.asku.askumagazineservice.repository.ReservationRepository;
 import pl.asku.askumagazineservice.util.validator.ReservationValidator;
 
@@ -126,6 +127,16 @@ public class ReservationService {
 
         BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
         return magazine.getAreaInMeters().subtract(takenArea);
+    }
+
+    public TotalPrice getTotalPrice(@Valid ReservationDto reservation) throws MagazineNotFoundException {
+        Magazine magazine = magazineService.getMagazineDetails(reservation.getMagazineId());
+        return new TotalPrice(
+                magazine.getPricePerMeter(),
+                reservation.getAreaInMeters(),
+                reservation.getStartDate(),
+                reservation.getEndDate()
+        );
     }
 
     private BigDecimal getTakenArea(@NotNull Long magazineId, @NotNull LocalDate start, @NotNull LocalDate end) {

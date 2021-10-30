@@ -9,6 +9,7 @@ import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
@@ -21,14 +22,15 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CheckAvailableMagazineServiceTests extends ReservationServiceTestBase {
+public class CheckAvailableReservationServiceTests extends ReservationServiceTestBase {
 
     @Autowired
-    public CheckAvailableMagazineServiceTests(MagazineService magazineService,
-                                              MagazineDataProvider magazineDataProvider,
-                                              ReservationService reservationService,
-                                              UserDataProvider userDataProvider) {
-        super(magazineService, magazineDataProvider, reservationService, userDataProvider);
+    public CheckAvailableReservationServiceTests(MagazineService magazineService,
+                                                 MagazineDataProvider magazineDataProvider,
+                                                 ReservationService reservationService,
+                                                 UserDataProvider userDataProvider,
+                                                 ReservationDataProvider reservationDataProvider) {
+        super(magazineService, magazineDataProvider, reservationService, userDataProvider, reservationDataProvider);
     }
 
     @Test

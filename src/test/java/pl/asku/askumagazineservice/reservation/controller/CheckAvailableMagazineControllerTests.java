@@ -9,6 +9,7 @@ import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
+import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
@@ -28,8 +29,9 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
                                                  MagazineDataProvider magazineDataProvider,
                                                  ReservationService reservationService,
                                                  ReservationController reservationController,
-                                                 UserDataProvider userDataProvider) {
-        super(magazineService, magazineDataProvider, reservationService, reservationController, userDataProvider);
+                                                 UserDataProvider userDataProvider,
+                                                 ReservationDataProvider reservationDataProvider) {
+        super(magazineService, magazineDataProvider, reservationService, reservationController, userDataProvider, reservationDataProvider);
     }
 
     @Test

@@ -18,7 +18,7 @@ public class ReviewServiceTestBase extends ReservationServiceTestBase {
     public ReviewServiceTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
                                  ReservationService reservationService, ReviewService reviewService,
                                  UserDataProvider userDataProvider, ReservationDataProvider reservationDataProvider) {
-        super(magazineService, magazineDataProvider, reservationService, userDataProvider);
+        super(magazineService, magazineDataProvider, reservationService, userDataProvider, reservationDataProvider);
         this.reviewService = reviewService;
         this.reservationDataProvider = reservationDataProvider;
     }
