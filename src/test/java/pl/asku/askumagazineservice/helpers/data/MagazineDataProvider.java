@@ -1,18 +1,27 @@
 package pl.asku.askumagazineservice.helpers.data;
 
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
+import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Heating;
 import pl.asku.askumagazineservice.model.magazine.Light;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
+import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Component
+@Service
+@AllArgsConstructor
 public class MagazineDataProvider {
 
-    public MagazineDto validMagazineDto() {
+    MagazineService magazineService;
+
+    public MagazineDto magazineDto() {
         return MagazineDto.builder()
                 .title("Test test")
                 .country("Poland")
@@ -62,5 +71,14 @@ public class MagazineDataProvider {
                 .pricePerMeter(BigDecimal.valueOf(100.0f))
                 .minAreaToRent(BigDecimal.valueOf(10.0f))
                 .build();
+    }
+
+    public Magazine magazine(User user) throws LocationNotFoundException, LocationIqRequestFailedException {
+        return magazine(user, magazineDto());
+    }
+
+    public Magazine magazine(User user, MagazineDto magazineDto) throws LocationNotFoundException,
+            LocationIqRequestFailedException {
+        return magazineService.addMagazine(magazineDto, user.getId(), null);
     }
 }

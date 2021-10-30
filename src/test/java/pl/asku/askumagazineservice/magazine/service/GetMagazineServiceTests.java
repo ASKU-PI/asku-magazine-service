@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
@@ -25,9 +25,8 @@ public class GetMagazineServiceTests extends MagazineServiceTestBase {
     public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationNotFoundException,
             LocationIqRequestFailedException, MagazineNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Magazine magazine = magazineDataProvider.magazine(user);
 
         //when
         Magazine magazineDetails = magazineService.getMagazineDetails(magazine.getId());

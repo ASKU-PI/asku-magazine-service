@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import javax.validation.ConstraintViolationException;
@@ -34,8 +35,9 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     @Test
     public void shouldReturnCorrectMagazine() {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        Authentication authentication = authenticationProvider.userAuthentication();
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Authentication authentication = authenticationProvider.userAuthentication(user);
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
 
         //when
         ResponseEntity<Object> response = magazineController.addMagazine(magazineDto, null, authentication);
@@ -83,10 +85,11 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     @Test
     public void failsForEmptyMandatoryFields() {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder()
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Authentication authentication = authenticationProvider.userAuthentication(user);
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
                 .city("")
                 .build();
-        Authentication authentication = authenticationProvider.userAuthentication();
 
         //when then
         assertThrows(ConstraintViolationException.class, () -> magazineController.addMagazine(magazineDto, null,
@@ -96,7 +99,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     @Test
     public void failsWhenNotAuthenticated() {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
 
         //when
         ResponseEntity<Object> response = magazineController.addMagazine(magazineDto, null, null);
@@ -110,10 +113,12 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
         //given
         BigDecimal minAreaToRent = BigDecimal.valueOf(0.0f);
 
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder()
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Authentication authentication = authenticationProvider.userAuthentication(user);
+
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
                 .minAreaToRent(minAreaToRent)
                 .build();
-        Authentication authentication = authenticationProvider.userAuthentication();
 
         //when then
         assertThrows(ConstraintViolationException.class, () -> magazineController.addMagazine(magazineDto, null,

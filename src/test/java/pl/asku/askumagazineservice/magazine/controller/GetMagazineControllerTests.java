@@ -13,6 +13,7 @@ import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
@@ -36,9 +37,8 @@ public class GetMagazineControllerTests extends MagazineControllerTestBase {
     public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationIqRequestFailedException,
             LocationNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Magazine magazine = magazineDataProvider.magazine(user);
 
         //when
         ResponseEntity<Object> response = magazineController.getMagazineDetails(magazine.getId());

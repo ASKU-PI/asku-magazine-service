@@ -5,25 +5,31 @@ import org.springframework.stereotype.Component;
 import pl.asku.askumagazineservice.dto.UserDto;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.repository.UserRepository;
-import pl.asku.askumagazineservice.util.modelconverter.UserConverter;
 
 @Component
 @AllArgsConstructor
 public class UserDataProvider {
 
     private final UserRepository userRepository;
-    private final UserConverter userConverter;
 
-    public UserDto getUser(String identifier) {
-        UserDto userDto = UserDto.builder()
-                .id(identifier)
+    public UserDto userDto(String email, String phoneNumber) {
+        return UserDto.builder()
                 .firstName("Test")
                 .lastName("Test")
-                .phoneNumber("666666666")
-                .email(identifier)
+                .phoneNumber(phoneNumber)
+                .email(email)
+                .build();
+    }
+
+    public User user(String email, String phoneNumber) {
+        User user = User.builder()
+                .id(email)
+                .firstName("Test")
+                .lastName("Test")
+                .phoneNumber(phoneNumber)
+                .email(email)
                 .build();
 
-        User user = userConverter.toUser(userDto);
-        return userConverter.toDto(userRepository.save(user));
+        return userRepository.save(user);
     }
 }

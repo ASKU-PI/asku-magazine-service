@@ -9,6 +9,7 @@ import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.repository.magazine.MagazineRepository;
 import pl.asku.askumagazineservice.service.MagazineService;
@@ -33,11 +34,11 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     @Test
     public void shouldAddToDatabase() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
         Optional<Magazine> magazineFromDb = magazineRepository.findById(magazine.getId());
 
         //then
@@ -48,16 +49,16 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     @Test
     public void shouldReturnCorrectMagazine() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
 
         //then
         Assertions.assertAll(
                 () -> assertNotNull(magazine.getId()),
-                () -> assertEquals(username, magazine.getOwnerId()),
+                () -> assertEquals(user.getId(), magazine.getOwnerId()),
                 () -> assertNotNull(magazine.getCreatedDate()),
                 () -> assertEquals(magazineDto.getCountry(), magazine.getCountry()),
                 () -> assertEquals(magazineDto.getCity(), magazine.getCity()),
@@ -93,15 +94,15 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     public void succeedsForOnlyMandatoryFields() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
         MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
 
         //then
         Assertions.assertAll(
                 () -> assertNotNull(magazine.getId()),
-                () -> assertEquals(username, magazine.getOwnerId()),
+                () -> assertEquals(user.getId(), magazine.getOwnerId()),
                 () -> assertNotNull(magazine.getCreatedDate()),
                 () -> assertEquals(magazineDto.getCountry(), magazine.getCountry()),
                 () -> assertEquals(magazineDto.getCity(), magazine.getCity()),
@@ -139,10 +140,10 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
         MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
                 .city("")
                 .build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, user.getId(), null));
     }
 
     @Test
@@ -153,10 +154,10 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
                 .startDate(date)
                 .endDate(date)
                 .build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, user.getId(), null));
     }
 
     @Test
@@ -167,10 +168,10 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
                 .startDate(date.plusDays(1))
                 .endDate(date)
                 .build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, user.getId(), null));
     }
 
     @Test
@@ -182,10 +183,10 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
                 .areaInMeters(area)
                 .minAreaToRent(minAreaToRent)
                 .build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, user.getId(), null));
     }
 
     @Test
@@ -195,9 +196,9 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
         MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
                 .minAreaToRent(minAreaToRent)
                 .build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         //when
-        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, username, null));
+        assertThrows(RuntimeException.class, () -> magazineService.addMagazine(magazineDto, user.getId(), null));
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.asku.askumagazineservice.dto.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
+import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.model.Review;
 import pl.asku.askumagazineservice.security.policy.ReviewPolicy;
 import pl.asku.askumagazineservice.service.ReviewService;
@@ -48,6 +49,10 @@ public class ReviewController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You cannot add the review.");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.addReview(review));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.addReview(review));
+        } catch (ReviewAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 }

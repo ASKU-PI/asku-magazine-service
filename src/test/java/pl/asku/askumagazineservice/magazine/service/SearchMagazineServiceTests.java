@@ -9,6 +9,7 @@ import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.*;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
@@ -47,13 +48,13 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     @Test
     public void searchMagazinesShouldReturnMagazines() throws UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         int magazinesToAdd = 5;
         IntStream.range(0, magazinesToAdd).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username, null);
+                magazineDataProvider.magazine(user, magazineDto);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -76,15 +77,15 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         );
 
         //then
-        Assertions.assertTrue(searchResult.size() == magazinesToAdd);
+        assertEquals(searchResult.size(), magazinesToAdd);
     }
 
     @Test
     public void searchMagazinesShouldReturnMeetingRequirements()
             throws LocationNotFoundException, LocationIqRequestFailedException, UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().type(MagazineType.CELL).build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().type(MagazineType.CELL).build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         LocalDate searchStartDate = magazineDto.getStartDate().plusDays(1);
         LocalDate searchEndDate = magazineDto.getEndDate().minusDays(1);
@@ -93,48 +94,26 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int validMagazinesToAdd = 5;
         IntStream.range(0, validMagazinesToAdd).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username, null);
+                magazineDataProvider.magazine(user, magazineDto);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
         });
 
-        magazineService.addMagazine(
-                magazineDto.toBuilder().startDate(searchStartDate.plusDays(1)).build(),
-                username,
-                null
-        );
-
-        magazineService.addMagazine(
-                magazineDto.toBuilder().endDate(searchEndDate.minusDays(1)).build(),
-                username,
-                null
-        );
-
-        magazineService.addMagazine(
-                magazineDto.toBuilder().areaInMeters(searchArea.subtract(BigDecimal.valueOf(10.0f))).build(),
-                username,
-                null
-        );
-
-        magazineService.addMagazine(
-                magazineDto.toBuilder().minAreaToRent(searchArea.add(BigDecimal.valueOf(10.0f))).build(),
-                username,
-                null
-        );
-
-        magazineService.addMagazine(
-                magazineDto,
-                userDataProvider.getUser("test2@test.pl").getId(),
-                null
-        );
+        magazineDataProvider.magazine(user, magazineDto.toBuilder().startDate(searchStartDate.plusDays(1)).build());
+        magazineDataProvider.magazine(user, magazineDto.toBuilder().endDate(searchEndDate.minusDays(1)).build());
+        magazineDataProvider.magazine(user,
+                magazineDto.toBuilder().areaInMeters(searchArea.subtract(BigDecimal.valueOf(10.0f))).build());
+        magazineDataProvider.magazine(user,
+                magazineDto.toBuilder().minAreaToRent(searchArea.add(BigDecimal.valueOf(10.0f))).build());
+        magazineDataProvider.magazine(userDataProvider.user("test2@test.pl", "777777777"), magazineDto);
 
         MagazineFilters filters = MagazineFilters.builder()
                 .locationFilter(commonLocationFilter)
                 .startDateGreaterOrEqual(searchStartDate)
                 .endDateLessOrEqual(searchEndDate)
                 .minFreeArea(searchArea)
-                .ownerIdentifier(username)
+                .ownerIdentifier(user.getId())
                 .type(MagazineType.CELL)
                 .build();
 
@@ -153,7 +132,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
                 () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
                 () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
-                () -> assertEquals(username, magazine.getOwnerId()),
+                () -> assertEquals(user.getId(), magazine.getOwnerId()),
                 () -> assertEquals(MagazineType.CELL, magazine.getType())
         ));
     }
@@ -162,18 +141,18 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     public void searchMagazinesBooleanFiltersWork() throws LocationNotFoundException,
             LocationIqRequestFailedException, UserNotFoundException {
         //given
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         Boolean antiTheftDoors = true;
         Boolean electricity = false;
         Boolean monitoring = true;
 
-        MagazineDto matchingMagazine = magazineDataProvider.validMagazineDto().toBuilder().build();
+        MagazineDto matchingMagazine = magazineDataProvider.magazineDto().toBuilder().build();
         matchingMagazine.setAntiTheftDoors(antiTheftDoors);
         matchingMagazine.setElectricity(electricity);
         matchingMagazine.setMonitoring(monitoring);
 
-        MagazineDto notMatchingMagazine = magazineDataProvider.validMagazineDto().toBuilder().build();
+        MagazineDto notMatchingMagazine = magazineDataProvider.magazineDto().toBuilder().build();
         notMatchingMagazine.setAntiTheftDoors(!antiTheftDoors);
         notMatchingMagazine.setElectricity(!electricity);
         notMatchingMagazine.setMonitoring(!monitoring);
@@ -190,8 +169,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 .hasElectricity(true)
                 .build();
 
-        magazineService.addMagazine(matchingMagazine, username, null);
-        magazineService.addMagazine(notMatchingMagazine, username, null);
+        magazineDataProvider.magazine(user, matchingMagazine);
+        magazineDataProvider.magazine(user, notMatchingMagazine);
 
         //when
         List<Magazine> searchResult = magazineService.searchMagazines(
@@ -211,13 +190,13 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     @Test
     public void searchMagazinesShouldLimitResultsPerPage() throws UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         int magazinesToAdd = 100;
         IntStream.range(0, magazinesToAdd).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username, null);
+                magazineDataProvider.magazine(user, magazineDto);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -246,13 +225,13 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     @Test
     public void shouldFilterNotAvailableMagazines() throws UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         int availableMagazines = 5;
         IntStream.range(0, availableMagazines).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username, null);
+                magazineDataProvider.magazine(user, magazineDto);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -261,7 +240,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int unavailableMagazines = 5;
         IntStream.range(0, unavailableMagazines).forEach($ -> {
             try {
-                Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+                Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
 
                 reservationService.addReservation(
                         ReservationDto.builder()
@@ -270,7 +249,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                                 .areaInMeters(magazineDto.getAreaInMeters())
                                 .magazineId(magazine.getId())
                                 .build(),
-                        username
+                        user.getId()
                 );
             } catch (LocationNotFoundException | LocationIqRequestFailedException | MagazineNotAvailableException | MagazineNotFoundException e) {
                 e.printStackTrace();
@@ -294,19 +273,19 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         );
 
         //then
-        Assertions.assertTrue(searchResult.size() == availableMagazines);
+        assertEquals(searchResult.size(), availableMagazines);
     }
 
     @Test
     public void shouldFilterCurrentlyReservedBy() throws UserNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
 
         int availableMagazines = 5;
         IntStream.range(0, availableMagazines).forEach($ -> {
             try {
-                magazineService.addMagazine(magazineDto, username, null);
+                magazineDataProvider.magazine(user, magazineDto);
             } catch (LocationNotFoundException | LocationIqRequestFailedException e) {
                 e.printStackTrace();
             }
@@ -315,7 +294,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int unavailableMagazines = 5;
         IntStream.range(0, unavailableMagazines).forEach($ -> {
             try {
-                Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+                Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
 
                 reservationService.addReservation(
                         ReservationDto.builder()
@@ -324,7 +303,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                                 .areaInMeters(magazineDto.getAreaInMeters())
                                 .magazineId(magazine.getId())
                                 .build(),
-                        username
+                        user.getId()
                 );
             } catch (LocationNotFoundException | LocationIqRequestFailedException | MagazineNotAvailableException | MagazineNotFoundException e) {
                 e.printStackTrace();
@@ -332,7 +311,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         });
 
         MagazineFilters filters = MagazineFilters.builder()
-                .currentlyReservedBy(username)
+                .currentlyReservedBy(user.getId())
                 .build();
 
         int page = 1;
@@ -345,7 +324,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         );
 
         //then
-        Assertions.assertTrue(searchResult.size() == availableMagazines);
+        assertEquals(searchResult.size(), availableMagazines);
     }
 
 }

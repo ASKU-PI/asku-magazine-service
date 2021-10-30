@@ -10,6 +10,7 @@ import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -34,10 +35,10 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
     @Test
     public void returnsTrueWhenAvailable() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0f));
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
@@ -60,10 +61,10 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
     @Test
     public void returnsFalseWhenUnavailable() throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
         BigDecimal area = magazineDto.getAreaInMeters().add(BigDecimal.valueOf(2.0f));
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
@@ -87,10 +88,10 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
     public void failsWhenStartDateGreaterThanMagazineEndDate()
             throws LocationNotFoundException, LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
         BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
         LocalDate startDate = magazine.getEndDate().minusDays(1);
         LocalDate endDate = magazine.getStartDate().plusDays(1);
 

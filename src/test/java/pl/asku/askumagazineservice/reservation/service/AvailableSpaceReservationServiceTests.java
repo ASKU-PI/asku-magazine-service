@@ -10,6 +10,7 @@ import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -33,9 +34,9 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
     public void returnsWholeSpaceWhenNoOtherReservations() throws LocationNotFoundException,
             LocationIqRequestFailedException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
@@ -54,11 +55,11 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
     public void returnsZeroWhenWholeSpaceReserved() throws LocationNotFoundException,
             LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.validMagazineDto().toBuilder().build();
-        String username = userDataProvider.getUser("test@test.pl").getId();
-        String otherUserIdentifier = userDataProvider.getUser("test2@test.pl").getId();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        User user = userDataProvider.user("test@test.pl", "666666666");
+        User otherUser = userDataProvider.user("test2@test.pl", "7777778777");
         BigDecimal area = magazineDto.getAreaInMeters();
-        Magazine magazine = magazineService.addMagazine(magazineDto, username, null);
+        Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
         LocalDate startDate = magazine.getStartDate().plusDays(1);
         LocalDate endDate = magazine.getEndDate().minusDays(1);
 
@@ -69,7 +70,7 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
                         .areaInMeters(area)
                         .magazineId(magazine.getId())
                         .build(),
-                otherUserIdentifier
+                otherUser.getId()
         );
 
         //when

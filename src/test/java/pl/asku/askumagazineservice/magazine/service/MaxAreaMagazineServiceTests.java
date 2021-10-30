@@ -9,6 +9,7 @@ import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 import java.math.BigDecimal;
@@ -42,9 +43,9 @@ public class MaxAreaMagazineServiceTests extends MagazineServiceTestBase {
 
         for (BigDecimal area : areas) {
             MagazineDto magazineDto =
-                    magazineDataProvider.validMagazineDto().toBuilder().areaInMeters(area).build();
-            String username = userDataProvider.getUser("test@test.pl").getId();
-            magazineService.addMagazine(magazineDto, username, null);
+                    magazineDataProvider.magazineDto().toBuilder().areaInMeters(area).build();
+            User user = userDataProvider.user("test@test.pl", "666666666");
+            magazineDataProvider.magazine(user, magazineDto);
         }
 
         //when
