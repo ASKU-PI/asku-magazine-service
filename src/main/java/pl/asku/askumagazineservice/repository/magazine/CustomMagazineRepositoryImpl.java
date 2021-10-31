@@ -319,6 +319,8 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
                     .append(sortByString);
         }
 
+        System.out.println(queryBuilder);
+
         return em.createQuery(queryBuilder.toString(), QueryResult.class);
     }
 
