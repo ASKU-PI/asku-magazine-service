@@ -76,6 +76,10 @@ public class MagazineService {
         return magazine.get();
     }
 
+    public List<Magazine> getActiveByOwner(@NotNull String ownerId) {
+        return magazineRepository.findAllActiveByOwner(ownerId);
+    }
+
     public List<Magazine> searchMagazines(
             @Min(1) Integer page,
             @NotNull MagazineFilters filters,

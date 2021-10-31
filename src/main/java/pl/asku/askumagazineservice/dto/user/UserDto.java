@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice.dto;
+package pl.asku.askumagazineservice.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

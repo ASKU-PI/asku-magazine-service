@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import pl.asku.askumagazineservice.client.AuthServiceClient;
-import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookUserDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;

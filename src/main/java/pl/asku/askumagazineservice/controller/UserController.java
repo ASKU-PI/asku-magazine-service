@@ -6,13 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.security.policy.UserPolicy;
 import pl.asku.askumagazineservice.service.UserService;
 import pl.asku.askumagazineservice.util.modelconverter.UserConverter;
+import pl.asku.askumagazineservice.util.modelconverter.UserPersonalConverter;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -26,6 +27,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserConverter userConverter;
+    private final UserPersonalConverter userPersonalConverter;
     private final UserPolicy userPolicy;
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -54,6 +56,36 @@ public class UserController {
         try {
             User user = userService.getUser(id);
             return ResponseEntity.status(HttpStatus.OK).body(userConverter.toDto(user));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/user-personal/{id}")
+    public ResponseEntity<Object> getUserPersonal(@PathVariable @NotNull String id, Authentication authentication) {
+        try {
+            User user = userService.getUser(id);
+
+            if (!userPolicy.getUserPersonal(authentication, user)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authorized to get this user");
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(userPersonalConverter.toPersonalDto(user));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/user-personal")
+    public ResponseEntity<Object> getMePersonal(Authentication authentication) {
+        try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in!");
+            }
+
+            User user = userService.getUser(authentication.getName());
+
+            return ResponseEntity.status(HttpStatus.OK).body(userPersonalConverter.toPersonalDto(user));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

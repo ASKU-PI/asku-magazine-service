@@ -105,6 +105,10 @@ public class ReservationService {
         return result;
     }
 
+    public List<Reservation> getUserActive(String userId) {
+        return reservationRepository.findActiveReservationsByUser(userId);
+    }
+
     public boolean checkIfMagazineAvailable(@NotNull @Valid Magazine magazine,
                                             @NotNull LocalDate start, @NotNull LocalDate end,
                                             @NotNull @Min(0) BigDecimal area) {

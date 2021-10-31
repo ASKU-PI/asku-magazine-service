@@ -2,7 +2,7 @@ package pl.asku.askumagazineservice.helpers.data;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.repository.UserRepository;
 

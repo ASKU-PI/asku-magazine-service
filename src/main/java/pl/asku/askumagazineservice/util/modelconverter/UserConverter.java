@@ -1,8 +1,14 @@
 package pl.asku.askumagazineservice.util.modelconverter;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserPersonalDto;
 import pl.asku.askumagazineservice.model.User;
+import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.ReservationService;
+
+import java.util.stream.Collectors;
 
 @Service
 public class UserConverter {

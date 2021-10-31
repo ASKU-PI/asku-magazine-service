@@ -2,9 +2,8 @@ package pl.asku.askumagazineservice.dto.reservation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import pl.asku.askumagazineservice.dto.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
-import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
