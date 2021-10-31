@@ -14,6 +14,7 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -51,7 +52,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
         User user = userDataProvider.user("test@test.pl", "666666666");
 
-        int magazinesToAdd = 5;
+        int magazinesToAdd = 6;
         IntStream.range(0, magazinesToAdd).forEach($ -> {
             try {
                 magazineDataProvider.magazine(user, magazineDto);
@@ -70,14 +71,16 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int page = 1;
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 SortOptions.PRICE_ASC
         );
 
         //then
-        assertEquals(searchResult.size(), magazinesToAdd);
+        assertEquals(searchResult.getSpaces().size(), magazinesToAdd);
+        assertEquals(searchResult.getPages(), 1);
+        assertEquals(searchResult.getRecords(), magazinesToAdd);
     }
 
     @Test
@@ -120,14 +123,14 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int page = 1;
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 null
         );
 
         //then
-        searchResult.forEach(magazine -> Assertions.assertAll(
+        searchResult.getSpaces().forEach(magazine -> Assertions.assertAll(
                 () -> assertTrue(searchStartDate.compareTo(magazine.getStartDate()) >= 0),
                 () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
                 () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
@@ -135,6 +138,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 () -> assertEquals(user.getId(), magazine.getOwnerId()),
                 () -> assertEquals(MagazineType.CELL, magazine.getType())
         ));
+        assertEquals(searchResult.getPages(), 1);
+        assertEquals(searchResult.getRecords(), 5);
     }
 
     @Test
@@ -143,19 +148,17 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         //given
         User user = userDataProvider.user("test@test.pl", "666666666");
 
-        Boolean antiTheftDoors = true;
-        Boolean electricity = false;
-        Boolean monitoring = true;
+        MagazineDto matchingMagazine = magazineDataProvider.magazineDto().toBuilder()
+                .antiTheftDoors(true)
+                .electricity(false)
+                .monitoring(true)
+                .build();
 
-        MagazineDto matchingMagazine = magazineDataProvider.magazineDto().toBuilder().build();
-        matchingMagazine.setAntiTheftDoors(antiTheftDoors);
-        matchingMagazine.setElectricity(electricity);
-        matchingMagazine.setMonitoring(monitoring);
-
-        MagazineDto notMatchingMagazine = magazineDataProvider.magazineDto().toBuilder().build();
-        notMatchingMagazine.setAntiTheftDoors(!antiTheftDoors);
-        notMatchingMagazine.setElectricity(!electricity);
-        notMatchingMagazine.setMonitoring(!monitoring);
+        MagazineDto notMatchingMagazine = magazineDataProvider.magazineDto().toBuilder()
+                .antiTheftDoors(false)
+                .electricity(true)
+                .monitoring(false)
+                .build();
 
         int page = 1;
 
@@ -166,25 +169,27 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 .minFreeArea(BigDecimal.valueOf(15.0f))
                 .hasAntiTheftDoors(true)
                 .hasMonitoring(true)
-                .hasElectricity(true)
+                .hasElectricity(false)
                 .build();
 
         magazineDataProvider.magazine(user, matchingMagazine);
         magazineDataProvider.magazine(user, notMatchingMagazine);
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 null
         );
 
         //then
-        searchResult.forEach(magazine -> Assertions.assertAll(
-                () -> assertEquals(antiTheftDoors, magazine.getAntiTheftDoors()),
-                () -> assertEquals(monitoring, magazine.getMonitoring()),
-                () -> assertEquals(electricity, magazine.getElectricity())
+        searchResult.getSpaces().forEach(magazine -> Assertions.assertAll(
+                () -> assertEquals(true, magazine.getAntiTheftDoors()),
+                () -> assertEquals(true, magazine.getMonitoring()),
+                () -> assertEquals(false, magazine.getElectricity())
         ));
+        assertEquals(searchResult.getPages(), 1);
+        assertEquals(searchResult.getRecords(), 1);
     }
 
     @Test
@@ -212,14 +217,16 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int page = 1;
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 null
         );
 
         //then
-        assertEquals(20, searchResult.size());
+        assertEquals(20, searchResult.getSpaces().size());
+        assertEquals(searchResult.getPages(), 5);
+        assertEquals(searchResult.getRecords(), 100);
     }
 
     @Test
@@ -266,14 +273,16 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int page = 1;
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 null
         );
 
         //then
-        assertEquals(searchResult.size(), availableMagazines);
+        assertEquals(searchResult.getSpaces().size(), availableMagazines);
+        assertEquals(searchResult.getPages(), 1);
+        assertEquals(searchResult.getRecords(), 5);
     }
 
     @Test
@@ -317,14 +326,16 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         int page = 1;
 
         //when
-        List<Magazine> searchResult = magazineService.searchMagazines(
+        SearchResult searchResult = magazineService.searchMagazines(
                 page,
                 filters,
                 null
         );
 
         //then
-        assertEquals(searchResult.size(), availableMagazines);
+        assertEquals(searchResult.getSpaces().size(), availableMagazines);
+        assertEquals(searchResult.getPages(), 1);
+        assertEquals(searchResult.getRecords(), 5);
     }
 
 }

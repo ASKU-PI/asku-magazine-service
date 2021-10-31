@@ -4,9 +4,10 @@ import org.springframework.data.domain.PageRequest;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 
 import java.util.List;
 
 public interface CustomMagazineRepository {
-    List<Magazine> search(MagazineFilters magazineFilters, PageRequest pageRequest) throws UserNotFoundException;
+    SearchResult search(MagazineFilters magazineFilters, PageRequest pageRequest) throws UserNotFoundException;
 }

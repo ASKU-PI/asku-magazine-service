@@ -21,10 +21,12 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
+import pl.asku.askumagazineservice.util.modelconverter.SearchResultConverter;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -50,6 +52,7 @@ public class MagazineController {
     private final MagazinePolicy magazinePolicy;
     private final GeocodingClient geocodingClient;
     private final MagazineConverter magazineConverter;
+    private final SearchResultConverter searchResultConverter;
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -185,14 +188,14 @@ public class MagazineController {
         );
 
         try {
-            List<Magazine> magazines = magazineService.searchMagazines(
+            SearchResult result = magazineService.searchMagazines(
                     page.isPresent() && page.get() > 0 ? page.get() : 1,
                     filters,
                     sortBy.orElse(null)
             );
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(magazines.stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()));
+                    .body(searchResultConverter.toDto(result));
         } catch (ValidationException | UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

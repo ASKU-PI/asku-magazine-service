@@ -16,6 +16,7 @@ import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.repository.magazine.MagazineRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
@@ -80,7 +81,7 @@ public class MagazineService {
         return magazineRepository.findAllActiveByOwner(ownerId);
     }
 
-    public List<Magazine> searchMagazines(
+    public SearchResult searchMagazines(
             @Min(1) Integer page,
             @NotNull MagazineFilters filters,
             SortOptions sortOptions) throws UserNotFoundException {

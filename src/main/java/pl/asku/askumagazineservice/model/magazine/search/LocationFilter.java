@@ -17,6 +17,7 @@ public class LocationFilter {
     private BigDecimal maxLongitude;
     private BigDecimal minLatitude;
     private BigDecimal maxLatitude;
+    private Geolocation mapCenter;
 
     public LocationFilter(
             BigDecimal minLongitude,
@@ -27,18 +28,22 @@ public class LocationFilter {
         this.maxLongitude = maxLongitude;
         this.minLatitude = minLatitude;
         this.maxLatitude = maxLatitude;
+        this.mapCenter = Geolocation.builder()
+                .latitude(minLatitude.add(maxLatitude).divide(BigDecimal.valueOf(2.0f), 10, RoundingMode.HALF_EVEN))
+                .longitude(minLongitude.add(maxLongitude).divide(BigDecimal.valueOf(2.0f), 10, RoundingMode.HALF_EVEN))
+                .build();
     }
 
     public LocationFilter(String location, GeocodingClient geocodingClient) throws LocationNotFoundException,
             LocationIqRequestFailedException {
         Geolocation center = geocodingClient.getGeolocation(location);
-
+        this.mapCenter = center;
         setBoundariesInRadius(center, kilometersToDegrees(defaultRadiusInKilometers));
     }
 
     public LocationFilter(String location, BigDecimal radiusInKilometers, GeocodingClient geocodingClient) throws LocationNotFoundException, LocationIqRequestFailedException {
         Geolocation center = geocodingClient.getGeolocation(location);
-
+        this.mapCenter = center;
         setBoundariesInRadius(center, kilometersToDegrees(radiusInKilometers));
     }
 

@@ -1,0 +1,25 @@
+package pl.asku.askumagazineservice.util.modelconverter;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import pl.asku.askumagazineservice.dto.magazine.SearchResultDto;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
+
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class SearchResultConverter {
+
+    private final MagazineConverter magazineConverter;
+
+    public SearchResultDto toDto(SearchResult searchResult) {
+        return SearchResultDto.builder()
+                .spaces(searchResult.getSpaces().stream().map(magazineConverter::toPreviewDto).collect(Collectors.toList()))
+                .mapCenter(searchResult.getMapCenter())
+                .pages(searchResult.getPages())
+                .records(searchResult.getRecords())
+                .build();
+    }
+
+}

@@ -3,13 +3,16 @@ package pl.asku.askumagazineservice.repository.magazine;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
+import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,11 +23,20 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
     private EntityManager em;
 
     @Override
-    public List<Magazine> search(MagazineFilters magazineFilters, PageRequest pageRequest) throws UserNotFoundException {
+    public SearchResult search(MagazineFilters magazineFilters, PageRequest pageRequest) throws UserNotFoundException {
         TypedQuery<QueryResult> query = createQuery(magazineFilters, pageRequest.getSort());
+        int recordsCount = query.getResultList().size();
+        Integer pages = new BigDecimal(recordsCount).divide(new BigDecimal(pageRequest.getPageSize()), RoundingMode.UP).intValue();
         query.setFirstResult(pageRequest.getPageNumber() * pageRequest.getPageSize());
         query.setMaxResults(pageRequest.getPageSize());
-        return query.getResultList().stream().map(queryResult -> queryResult.magazine).collect(Collectors.toList());
+        List<Magazine> magazines =
+                query.getResultList().stream().map(queryResult -> queryResult.magazine).collect(Collectors.toList());
+        return SearchResult.builder()
+                .mapCenter(magazineFilters.getLocationFilter() != null ? magazineFilters.getLocationFilter().getMapCenter() : null)
+                .spaces(magazines)
+                .records(recordsCount)
+                .pages(pages)
+                .build();
     }
 
     private TypedQuery<QueryResult> createQuery(MagazineFilters magazineFilters, Sort sortBy) throws UserNotFoundException {
