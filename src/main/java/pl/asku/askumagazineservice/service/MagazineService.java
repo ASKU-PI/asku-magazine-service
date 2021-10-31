@@ -71,6 +71,12 @@ public class MagazineService {
     return magazine;
   }
 
+  @Transactional
+  public Magazine updateMagazine(@Valid Magazine magazine, @Valid MagazineDto magazineDto) {
+    Magazine updatedMagazine = magazineConverter.updateMagazine(magazine, magazineDto);
+    return magazineRepository.save(updatedMagazine);
+  }
+
   public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
     Optional<Magazine> magazine = magazineRepository.findById(id);
     if (magazine.isEmpty()) {

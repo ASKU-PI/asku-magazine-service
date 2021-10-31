@@ -132,4 +132,30 @@ public class MagazineConverter {
         .minTemperature(magazineDto.getMinTemperature())
         .build();
   }
+
+  public Magazine updateMagazine(Magazine magazine, MagazineDto magazineDto) {
+    magazine.setTitle(magazineDto.getTitle());
+    magazine.setHeating(magazineDto.getHeating());
+    magazine.setLight(magazineDto.getLight());
+    magazine.setMonitoring(magazineDto.getMonitoring());
+    magazine.setAntiTheftDoors(magazineDto.getAntiTheftDoors());
+    magazine.setVentilation(magazineDto.getVentilation());
+    magazine.setSmokeDetectors(magazineDto.getSmokeDetectors());
+    magazine.setSelfService(magazineDto.getSelfService());
+    magazine.setFloor(magazineDto.getFloor());
+    magazine.setHeight(magazineDto.getHeight());
+    magazine.setDoorHeight(magazineDto.getDoorHeight());
+    magazine.setDoorWidth(magazineDto.getDoorWidth());
+    magazine.setElectricity(magazineDto.getElectricity());
+    magazine.setParking(magazineDto.getParking());
+    magazine.setVehicleManoeuvreArea(magazineDto.getVehicleManoeuvreArea());
+    magazine.setMinAreaToRent(magazineDto.getMinAreaToRent());
+    magazine.setOwnerTransport(magazineDto.getOwnerTransport());
+    magazine.setDescription(magazineDto.getDescription());
+    magazine.setElevator(magazineDto.getElevator());
+    magazine.setMaxTemperature(magazineDto.getMaxTemperature());
+    magazine.setMinTemperature(magazineDto.getMinTemperature());
+
+    return magazine;
+  }
 }
