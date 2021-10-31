@@ -86,6 +86,10 @@ public class ReservationService {
         List<DailyStateDto> result = new ArrayList<>();
         for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
             LocalDate currentDate = date;
+            if (magazine.getStartDate().compareTo(date) > 0 || magazine.getEndDate().compareTo(date) < 0) {
+                result.add(new DailyStateDto(id, date, AvailabilityState.UNAVAILABLE));
+                continue;
+            }
             List<Reservation> dailyReservations =
                     reservations.stream().filter(reservation -> reservation.getStartDate().compareTo(currentDate) <= 0 && reservation.getEndDate().compareTo(currentDate) >= 0).collect(Collectors.toList());
             if (dailyReservations.isEmpty()) {

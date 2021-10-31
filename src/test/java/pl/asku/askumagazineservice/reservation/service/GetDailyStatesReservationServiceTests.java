@@ -18,6 +18,7 @@ import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +37,9 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
     public void returnsCorrectResultMultipleDays() throws LocationNotFoundException, LocationIqRequestFailedException
             , MagazineNotAvailableException, MagazineNotFoundException {
         //given
-        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+        MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(2)).build();
         User user = userDataProvider.user("test@test.pl", "666666666");
         User reservingUser = userDataProvider.user("test2@test.pl", "777777777");
         Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -71,30 +74,29 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
                 reservingUser.getId()
         );
 
-        reservationService.addReservation(
-                ReservationDto.builder()
-                        .startDate(magazine.getEndDate())
-                        .endDate(magazine.getEndDate())
-                        .areaInMeters(magazine.getAreaInMeters())
-                        .magazineId(magazine.getId())
-                        .build(),
-                reservingUser.getId()
-        );
-
         //when
-        List<DailyStateDto> states = reservationService.getDailyStates(magazine.getId(), magazine.getStartDate(),
-                magazine.getStartDate().plusDays(2));
+        List<DailyStateDto> states = reservationService.getDailyStates(magazine.getId(), magazine.getStartDate().minusDays(1),
+                magazine.getEndDate().plusDays(2));
 
         //then
-        assertEquals(states.size(), 3);
+        assertEquals(states.size(), 6);
 
-        assertEquals(states.get(0).getDay(), magazine.getStartDate());
-        assertEquals(states.get(0).getAvailabilityState(), AvailabilityState.FULL);
+        assertEquals(states.get(0).getDay(), magazine.getStartDate().minusDays(1));
+        assertEquals(states.get(0).getAvailabilityState(), AvailabilityState.UNAVAILABLE);
 
-        assertEquals(states.get(1).getDay(), magazine.getStartDate().plusDays(1));
-        assertEquals(states.get(1).getAvailabilityState(), AvailabilityState.SOME);
+        assertEquals(states.get(1).getDay(), magazine.getStartDate());
+        assertEquals(states.get(1).getAvailabilityState(), AvailabilityState.FULL);
 
-        assertEquals(states.get(2).getDay(), magazine.getStartDate().plusDays(2));
-        assertEquals(states.get(2).getAvailabilityState(), AvailabilityState.EMPTY);
+        assertEquals(states.get(2).getDay(), magazine.getStartDate().plusDays(1));
+        assertEquals(states.get(2).getAvailabilityState(), AvailabilityState.SOME);
+
+        assertEquals(states.get(3).getDay(), magazine.getStartDate().plusDays(2));
+        assertEquals(states.get(3).getAvailabilityState(), AvailabilityState.EMPTY);
+
+        assertEquals(states.get(4).getDay(), magazine.getStartDate().plusDays(3));
+        assertEquals(states.get(4).getAvailabilityState(), AvailabilityState.UNAVAILABLE);
+
+        assertEquals(states.get(5).getDay(), magazine.getStartDate().plusDays(4));
+        assertEquals(states.get(5).getAvailabilityState(), AvailabilityState.UNAVAILABLE);
     }
 }
