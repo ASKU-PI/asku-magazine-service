@@ -60,6 +60,12 @@ public class MagazineDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private BigDecimal latitude;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer numberOfReviews;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BigDecimal averageRating;
+
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate startDate;

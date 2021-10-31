@@ -6,6 +6,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import pl.asku.askumagazineservice.exception.*;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
+import pl.asku.askumagazineservice.helpers.data.ReviewDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.Review;
 import pl.asku.askumagazineservice.model.User;
@@ -22,9 +23,10 @@ public class AddReviewServiceTests extends ReviewServiceTestBase {
     @Autowired
     public AddReviewServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
                                  ReservationService reservationService, ReviewService reviewService,
-                                 UserDataProvider userDataProvider, ReservationDataProvider reservationDataProvider) {
+                                 UserDataProvider userDataProvider, ReservationDataProvider reservationDataProvider,
+                                 ReviewDataProvider reviewDataProvider) {
         super(magazineService, magazineDataProvider, reservationService, reviewService, userDataProvider,
-                reservationDataProvider);
+                reservationDataProvider, reviewDataProvider);
     }
 
     @Test

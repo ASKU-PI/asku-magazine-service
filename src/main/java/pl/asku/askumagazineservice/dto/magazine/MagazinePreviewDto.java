@@ -48,6 +48,12 @@ public class MagazinePreviewDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private BigDecimal latitude;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Integer numberOfReviews;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BigDecimal averageRating;
+
     private LocalDate startDate;
 
     private LocalDate endDate;

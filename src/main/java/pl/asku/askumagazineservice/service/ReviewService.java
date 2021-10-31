@@ -10,6 +10,7 @@ import pl.asku.askumagazineservice.repository.ReviewRepository;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -38,5 +39,13 @@ public class ReviewService {
         Optional<Review> review = reviewRepository.findByReservation_Id(reservationId);
         if (review.isEmpty()) throw new ReviewNotFoundException();
         return review.get();
+    }
+
+    public Integer getMagazineReviewsNumber(@NotNull Long magazineId) {
+        return reviewRepository.countByReservation_Magazine_Id(magazineId);
+    }
+
+    public BigDecimal getMagazineAverageRating(@NotNull Long magazineId) {
+        return reviewRepository.averageByReservation_Magazine_Id(magazineId);
     }
 }

@@ -8,6 +8,7 @@ import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazinePreviewDto;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
+import pl.asku.askumagazineservice.service.ReviewService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 public class MagazineConverter {
 
     private final ImageServiceClient imageServiceClient;
+    private final ReviewService reviewService;
 
     public MagazineDto toDto(Magazine magazine) {
         List<PictureData> photos;
@@ -37,6 +39,8 @@ public class MagazineConverter {
                 magazine.getBuilding(),
                 magazine.getLongitude(),
                 magazine.getLatitude(),
+                reviewService.getMagazineReviewsNumber(magazine.getId()),
+                reviewService.getMagazineAverageRating(magazine.getId()),
                 magazine.getStartDate(),
                 magazine.getEndDate(),
                 magazine.getAreaInMeters(),
@@ -81,6 +85,8 @@ public class MagazineConverter {
                 magazine.getBuilding(),
                 magazine.getLongitude(),
                 magazine.getLatitude(),
+                reviewService.getMagazineReviewsNumber(magazine.getId()),
+                reviewService.getMagazineAverageRating(magazine.getId()),
                 magazine.getStartDate(),
                 magazine.getEndDate(),
                 magazine.getAreaInMeters(),
