@@ -14,6 +14,7 @@ public class ReservationConverter {
 
     public ReservationDto toDto(Reservation reservation) {
         return ReservationDto.builder()
+                .id(reservation.getId())
                 .areaInMeters(reservation.getAreaInMeters())
                 .startDate(reservation.getStartDate())
                 .endDate(reservation.getEndDate())
