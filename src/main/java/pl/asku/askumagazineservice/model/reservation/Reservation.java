@@ -1,17 +1,30 @@
 package pl.asku.askumagazineservice.model.reservation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "reservation")
@@ -22,39 +35,39 @@ import java.util.Date;
 @NoArgsConstructor
 public class Reservation {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(unique = true, updatable = false)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(unique = true, updatable = false)
+  private Long id;
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+  @CreationTimestamp
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdDate;
 
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedDate;
+  @UpdateTimestamp
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date updatedDate;
 
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private User user;
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
+  @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+  @JsonIgnore
+  private User user;
 
-    @Column(name = "user_id")
-    @NotNull
-    private String userId;
+  @Column(name = "user_id")
+  @NotNull
+  private String userId;
 
-    @NotNull
-    private LocalDate startDate;
+  @NotNull
+  private LocalDate startDate;
 
-    @NotNull
-    private LocalDate endDate;
+  @NotNull
+  private LocalDate endDate;
 
-    @NotNull
-    private BigDecimal areaInMeters;
+  @NotNull
+  private BigDecimal areaInMeters;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "magazine_id", referencedColumnName = "id")
-    private Magazine magazine;
+  @NotNull
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "magazine_id", referencedColumnName = "id")
+  private Magazine magazine;
 }

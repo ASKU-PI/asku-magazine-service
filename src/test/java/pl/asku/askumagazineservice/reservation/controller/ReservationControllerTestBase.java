@@ -11,15 +11,17 @@ import pl.asku.askumagazineservice.service.ReservationService;
 
 public class ReservationControllerTestBase extends ReservationServiceTestBase {
 
-    protected final ReservationController reservationController;
+  protected final ReservationController reservationController;
 
-    @Autowired
-    public ReservationControllerTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                                         ReservationService reservationService,
-                                         ReservationController reservationController,
-                                         UserDataProvider userDataProvider,
-                                         ReservationDataProvider reservationDataProvider) {
-        super(magazineService, magazineDataProvider, reservationService, userDataProvider, reservationDataProvider);
-        this.reservationController = reservationController;
-    }
+  @Autowired
+  public ReservationControllerTestBase(MagazineService magazineService,
+                                       MagazineDataProvider magazineDataProvider,
+                                       ReservationService reservationService,
+                                       ReservationController reservationController,
+                                       UserDataProvider userDataProvider,
+                                       ReservationDataProvider reservationDataProvider) {
+    super(magazineService, magazineDataProvider, reservationService, userDataProvider,
+        reservationDataProvider);
+    this.reservationController = reservationController;
+  }
 }

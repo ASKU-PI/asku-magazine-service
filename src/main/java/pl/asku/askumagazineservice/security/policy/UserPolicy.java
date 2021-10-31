@@ -8,19 +8,21 @@ import pl.asku.askumagazineservice.model.User;
 @Component
 public class UserPolicy {
 
-    public boolean getUser(Authentication authentication) {
-        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
-                "ROLE_USER"
-        ));
-    }
+  public boolean getUser(Authentication authentication) {
+    return authentication != null
+        && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+        "ROLE_USER"
+    ));
+  }
 
-    public boolean getUserPersonal(Authentication authentication, User user) {
-        boolean isOwner = authentication != null && authentication.getName().equals(user.getId());
+  public boolean getUserPersonal(Authentication authentication, User user) {
+    boolean isOwner = authentication != null && authentication.getName().equals(user.getId());
 
-        boolean isModerator = authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
-                "ROLE_MODERATOR"
-        ));
+    boolean isModerator = authentication != null
+        && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+        "ROLE_MODERATOR"
+    ));
 
-        return isOwner || isModerator;
-    }
+    return isOwner || isModerator;
+  }
 }

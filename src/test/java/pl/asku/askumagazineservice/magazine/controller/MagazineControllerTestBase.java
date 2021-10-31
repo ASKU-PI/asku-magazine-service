@@ -10,18 +10,18 @@ import pl.asku.askumagazineservice.magazine.service.MagazineServiceTestBase;
 import pl.asku.askumagazineservice.service.MagazineService;
 
 public class MagazineControllerTestBase extends MagazineServiceTestBase {
-    protected final MagazineController magazineController;
+  protected final MagazineController magazineController;
 
-    protected final AuthenticationProvider authenticationProvider;
+  protected final AuthenticationProvider authenticationProvider;
 
-    @Autowired
-    public MagazineControllerTestBase(
-            MagazineService magazineService,
-            MagazineDataProvider magazineDataProvider,
-            MagazineController magazineController, AuthenticationProvider authenticationProvider,
-            ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
-        super(magazineService, magazineDataProvider, imageServiceClient, userDataProvider);
-        this.magazineController = magazineController;
-        this.authenticationProvider = authenticationProvider;
-    }
+  @Autowired
+  public MagazineControllerTestBase(
+      MagazineService magazineService,
+      MagazineDataProvider magazineDataProvider,
+      MagazineController magazineController, AuthenticationProvider authenticationProvider,
+      ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
+    super(magazineService, magazineDataProvider, imageServiceClient, userDataProvider);
+    this.magazineController = magazineController;
+    this.authenticationProvider = authenticationProvider;
+  }
 }

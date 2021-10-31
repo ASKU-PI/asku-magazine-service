@@ -1,8 +1,11 @@
 package pl.asku.askumagazineservice.model.magazine;
 
-import lombok.*;
-
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -11,6 +14,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class Geolocation {
 
-    private BigDecimal longitude;
-    private BigDecimal latitude;
+  private BigDecimal longitude;
+  private BigDecimal latitude;
 }

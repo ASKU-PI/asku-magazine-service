@@ -15,23 +15,25 @@ import pl.asku.askumagazineservice.service.MagazineService;
 
 public class GetMagazineServiceTests extends MagazineServiceTestBase {
 
-    @Autowired
-    GetMagazineServiceTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                            ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
-        super(magazineService, magazineDataProvider, imageServiceClient, userDataProvider);
-    }
+  @Autowired
+  GetMagazineServiceTests(MagazineService magazineService,
+                          MagazineDataProvider magazineDataProvider,
+                          ImageServiceClient imageServiceClient,
+                          UserDataProvider userDataProvider) {
+    super(magazineService, magazineDataProvider, imageServiceClient, userDataProvider);
+  }
 
-    @Test
-    public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationNotFoundException,
-            LocationIqRequestFailedException, MagazineNotFoundException {
-        //given
-        User user = userDataProvider.user("test@test.pl", "666666666");
-        Magazine magazine = magazineDataProvider.magazine(user);
+  @Test
+  public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationNotFoundException,
+      LocationIqRequestFailedException, MagazineNotFoundException {
+    //given
+    User user = userDataProvider.user("test@test.pl", "666666666");
+    Magazine magazine = magazineDataProvider.magazine(user);
 
-        //when
-        Magazine magazineDetails = magazineService.getMagazineDetails(magazine.getId());
+    //when
+    Magazine magazineDetails = magazineService.getMagazineDetails(magazine.getId());
 
-        //then
-        Assertions.assertEquals(magazine.getId(), magazineDetails.getId());
-    }
+    //then
+    Assertions.assertEquals(magazine.getId(), magazineDetails.getId());
+  }
 }

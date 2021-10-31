@@ -1,8 +1,11 @@
 package pl.asku.askumagazineservice.dto.reservation;
 
-import lombok.*;
-
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -10,6 +13,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AvailableSpaceDto {
-    private Long magazineId;
-    private BigDecimal availableArea;
+  private Long magazineId;
+  private BigDecimal availableArea;
 }

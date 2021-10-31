@@ -8,7 +8,9 @@ import pl.asku.askumagazineservice.model.magazine.Geolocation;
 @Service
 public interface GeocodingClient {
 
-    Geolocation getGeolocation(String country, String city, String street, String building) throws LocationNotFoundException, LocationIqRequestFailedException;
+  Geolocation getGeolocation(String country, String city, String street, String building)
+      throws LocationNotFoundException, LocationIqRequestFailedException;
 
-    Geolocation getGeolocation(String search) throws LocationIqRequestFailedException, LocationNotFoundException;
+  Geolocation getGeolocation(String search)
+      throws LocationIqRequestFailedException, LocationNotFoundException;
 }

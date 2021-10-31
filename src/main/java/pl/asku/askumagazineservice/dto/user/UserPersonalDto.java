@@ -1,10 +1,13 @@
 package pl.asku.askumagazineservice.dto.user;
 
-import lombok.*;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,9 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 public class UserPersonalDto {
 
-    private UserDto user;
+  private UserDto user;
 
-    private List<MagazineDto> activeSpaces;
+  private List<MagazineDto> activeSpaces;
 
-    private List<ReservationDto> activeReservations;
+  private List<ReservationDto> activeReservations;
 }

@@ -12,16 +12,16 @@ import pl.asku.askumagazineservice.service.ReservationService;
 @AllArgsConstructor
 public class ReviewConverter {
 
-    private final ReservationService reservationService;
+  private final ReservationService reservationService;
 
-    public Review toReview(ReviewDto reviewDto) throws ReservationNotFoundException {
-        Reservation reservation = reservationService.getReservation(reviewDto.getReservationId());
+  public Review toReview(ReviewDto reviewDto) throws ReservationNotFoundException {
+    Reservation reservation = reservationService.getReservation(reviewDto.getReservationId());
 
-        return Review.builder()
-                .id(reviewDto.getId())
-                .reservation(reservation)
-                .rating(reviewDto.getRating())
-                .body(reviewDto.getBody())
-                .build();
-    }
+    return Review.builder()
+        .id(reviewDto.getId())
+        .reservation(reservation)
+        .rating(reviewDto.getRating())
+        .body(reviewDto.getBody())
+        .build();
+  }
 }

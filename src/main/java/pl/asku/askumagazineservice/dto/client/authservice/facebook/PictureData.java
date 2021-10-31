@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PictureData {
-    private String height;
-    private String width;
-    private String url;
+  private String height;
+  private String width;
+  private String url;
 }

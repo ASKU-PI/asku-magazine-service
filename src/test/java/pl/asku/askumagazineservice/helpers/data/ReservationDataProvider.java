@@ -14,24 +14,25 @@ import pl.asku.askumagazineservice.service.ReservationService;
 @AllArgsConstructor
 public class ReservationDataProvider {
 
-    ReservationService reservationService;
+  ReservationService reservationService;
 
-    public ReservationDto reservationDto(Magazine magazine) {
-        return ReservationDto.builder()
-                .areaInMeters(magazine.getMinAreaToRent())
-                .startDate(magazine.getStartDate())
-                .endDate(magazine.getEndDate())
-                .magazineId(magazine.getId())
-                .build();
-    }
+  public ReservationDto reservationDto(Magazine magazine) {
+    return ReservationDto.builder()
+        .areaInMeters(magazine.getMinAreaToRent())
+        .startDate(magazine.getStartDate())
+        .endDate(magazine.getEndDate())
+        .magazineId(magazine.getId())
+        .build();
+  }
 
-    public Reservation reservation(User user, Magazine magazine) throws MagazineNotAvailableException,
-            MagazineNotFoundException {
-        return reservation(user, reservationDto(magazine));
-    }
+  public Reservation reservation(User user, Magazine magazine) throws MagazineNotAvailableException,
+      MagazineNotFoundException {
+    return reservation(user, reservationDto(magazine));
+  }
 
-    public Reservation reservation(User user, ReservationDto reservationDto) throws MagazineNotAvailableException,
-            MagazineNotFoundException {
-        return reservationService.addReservation(reservationDto, user.getId());
-    }
+  public Reservation reservation(User user, ReservationDto reservationDto)
+      throws MagazineNotAvailableException,
+      MagazineNotFoundException {
+    return reservationService.addReservation(reservationDto, user.getId());
+  }
 }

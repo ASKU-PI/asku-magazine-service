@@ -12,18 +12,21 @@ import pl.asku.askumagazineservice.service.ReviewService;
 
 public class ReviewServiceTestBase extends ReservationServiceTestBase {
 
-    protected final ReviewService reviewService;
-    protected final ReservationDataProvider reservationDataProvider;
-    protected final ReviewDataProvider reviewDataProvider;
+  protected final ReviewService reviewService;
+  protected final ReservationDataProvider reservationDataProvider;
+  protected final ReviewDataProvider reviewDataProvider;
 
-    @Autowired
-    public ReviewServiceTestBase(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                                 ReservationService reservationService, ReviewService reviewService,
-                                 UserDataProvider userDataProvider, ReservationDataProvider reservationDataProvider,
-                                 ReviewDataProvider reviewDataProvider) {
-        super(magazineService, magazineDataProvider, reservationService, userDataProvider, reservationDataProvider);
-        this.reviewService = reviewService;
-        this.reservationDataProvider = reservationDataProvider;
-        this.reviewDataProvider = reviewDataProvider;
-    }
+  @Autowired
+  public ReviewServiceTestBase(MagazineService magazineService,
+                               MagazineDataProvider magazineDataProvider,
+                               ReservationService reservationService, ReviewService reviewService,
+                               UserDataProvider userDataProvider,
+                               ReservationDataProvider reservationDataProvider,
+                               ReviewDataProvider reviewDataProvider) {
+    super(magazineService, magazineDataProvider, reservationService, userDataProvider,
+        reservationDataProvider);
+    this.reviewService = reviewService;
+    this.reservationDataProvider = reservationDataProvider;
+    this.reviewDataProvider = reviewDataProvider;
+  }
 }

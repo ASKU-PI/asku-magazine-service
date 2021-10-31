@@ -1,9 +1,12 @@
 package pl.asku.askumagazineservice.dto.reservation;
 
-import lombok.*;
-import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
-
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
 
 @Getter
 @Setter
@@ -11,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DailyStateDto {
-    private Long magazineId;
-    private LocalDate day;
-    private AvailabilityState availabilityState;
+  private Long magazineId;
+  private LocalDate day;
+  private AvailabilityState availabilityState;
 }

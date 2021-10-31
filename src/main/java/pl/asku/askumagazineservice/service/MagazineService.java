@@ -1,5 +1,14 @@
 package pl.asku.askumagazineservice.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.ValidationException;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,89 +31,87 @@ import pl.asku.askumagazineservice.repository.magazine.MagazineRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 import pl.asku.askumagazineservice.util.validator.MagazineValidator;
 
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @Validated
 @AllArgsConstructor
 public class MagazineService {
 
-    private final MagazineRepository magazineRepository;
-    private final ImageServiceClient imageServiceClient;
-    private final GeocodingClient geocodingClient;
-    private final MagazineConverter magazineConverter;
-    private final MagazineValidator magazineValidator;
+  private final MagazineRepository magazineRepository;
+  private final ImageServiceClient imageServiceClient;
+  private final GeocodingClient geocodingClient;
+  private final MagazineConverter magazineConverter;
+  private final MagazineValidator magazineValidator;
 
-    @Transactional
-    public Magazine addMagazine(@Valid MagazineDto magazineDto, @NotNull @NotBlank String username,
-                                MultipartFile[] photos)
-            throws LocationNotFoundException, LocationIqRequestFailedException {
-        magazineValidator.validate(magazineDto);
+  @Transactional
+  public Magazine addMagazine(@Valid MagazineDto magazineDto, @NotNull @NotBlank String username,
+                              MultipartFile[] photos)
+      throws LocationNotFoundException, LocationIqRequestFailedException {
+    magazineValidator.validate(magazineDto);
 
-        Magazine magazine = magazineConverter.toMagazine(magazineDto);
+    Magazine magazine = magazineConverter.toMagazine(magazineDto);
 
-        magazine.setOwnerId(username);
+    magazine.setOwnerId(username);
 
-        Geolocation geolocation = geocodingClient.getGeolocation(
-                magazine.getCountry(),
-                magazine.getCity(),
-                magazine.getStreet(),
-                magazine.getBuilding()
-        );
+    Geolocation geolocation = geocodingClient.getGeolocation(
+        magazine.getCountry(),
+        magazine.getCity(),
+        magazine.getStreet(),
+        magazine.getBuilding()
+    );
 
-        magazine.setLongitude(geolocation.getLongitude());
-        magazine.setLatitude(geolocation.getLatitude());
+    magazine.setLongitude(geolocation.getLongitude());
+    magazine.setLatitude(geolocation.getLatitude());
 
-        magazine = magazineRepository.save(magazine);
+    magazine = magazineRepository.save(magazine);
 
-        if (photos != null && photos.length > 0)
-            imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
-
-        return magazine;
+    if (photos != null && photos.length > 0) {
+      imageServiceClient.uploadMagazinePictures(magazine.getId(), photos);
     }
 
-    public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
-        Optional<Magazine> magazine = magazineRepository.findById(id);
-        if (magazine.isEmpty()) throw new MagazineNotFoundException();
-        return magazine.get();
+    return magazine;
+  }
+
+  public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
+    Optional<Magazine> magazine = magazineRepository.findById(id);
+    if (magazine.isEmpty()) {
+      throw new MagazineNotFoundException();
+    }
+    return magazine.get();
+  }
+
+  public List<Magazine> getActiveByOwner(@NotNull String ownerId) {
+    return magazineRepository.findAllActiveByOwner(ownerId);
+  }
+
+  public SearchResult searchMagazines(
+      @Min(1) Integer page,
+      @NotNull MagazineFilters filters,
+      SortOptions sortOptions) throws UserNotFoundException {
+    if (sortOptions == null) {
+      return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
+    } else {
+      return magazineRepository.search(filters,
+          PageRequest.of(page - 1, 20, sortOptions.getSort()));
+    }
+  }
+
+  public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start,
+                                  @NotNull LocalDate end,
+                                  @NotNull @Min(0) BigDecimal area) {
+    if (start.compareTo(end) >= 0) {
+      throw new ValidationException("End date must be greater than end date");
     }
 
-    public List<Magazine> getActiveByOwner(@NotNull String ownerId) {
-        return magazineRepository.findAllActiveByOwner(ownerId);
-    }
+    int dateDifference = start.until(end).getDays();
+    return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
+  }
 
-    public SearchResult searchMagazines(
-            @Min(1) Integer page,
-            @NotNull MagazineFilters filters,
-            SortOptions sortOptions) throws UserNotFoundException {
-        if (sortOptions == null) {
-            return magazineRepository.search(filters, PageRequest.of(page - 1, 20));
-        } else {
-            return magazineRepository.search(filters, PageRequest.of(page - 1, 20, sortOptions.getSort()));
-        }
+  public BigDecimal maxArea() throws MagazineNotFoundException {
+    Magazine maxAreaMagazine = magazineRepository.findFirstByOrderByAreaInMetersDesc();
+    if (maxAreaMagazine == null) {
+      throw new MagazineNotFoundException();
     }
-
-    public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start, @NotNull LocalDate end,
-                                    @NotNull @Min(0) BigDecimal area) {
-        if (start.compareTo(end) >= 0)
-            throw new ValidationException("End date must be greater than end date");
-
-        int dateDifference = start.until(end).getDays();
-        return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
-    }
-
-    public BigDecimal maxArea() throws MagazineNotFoundException {
-        Magazine maxAreaMagazine = magazineRepository.findFirstByOrderByAreaInMetersDesc();
-        if (maxAreaMagazine == null) throw new MagazineNotFoundException();
-        return maxAreaMagazine.getAreaInMeters();
-    }
+    return maxAreaMagazine.getAreaInMeters();
+  }
 
 }

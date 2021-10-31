@@ -10,9 +10,10 @@ import pl.asku.askumagazineservice.model.Review;
 @AllArgsConstructor
 public class ReviewPolicy {
 
-    public boolean addReview(Authentication authentication, Review review) {
-        return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
-                "ROLE_USER"
-        )) && authentication.getName().equals(review.getReservation().getUserId());
-    }
+  public boolean addReview(Authentication authentication, Review review) {
+    return authentication != null
+        && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
+        "ROLE_USER"
+    )) && authentication.getName().equals(review.getReservation().getUserId());
+  }
 }

@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterResponseDto {
-    public String password;
+  public String password;
 }

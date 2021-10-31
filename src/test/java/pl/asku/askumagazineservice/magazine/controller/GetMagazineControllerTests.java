@@ -1,5 +1,11 @@
 package pl.asku.askumagazineservice.magazine.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Objects;
+import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,43 +23,43 @@ import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.MagazineService;
 
-import javax.validation.ConstraintViolationException;
-import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class GetMagazineControllerTests extends MagazineControllerTestBase {
 
-    @Autowired
-    public GetMagazineControllerTests(MagazineService magazineService, MagazineDataProvider magazineDataProvider,
-                                      MagazineController magazineController,
-                                      AuthenticationProvider authenticationProvider,
-                                      ImageServiceClient imageServiceClient, UserDataProvider userDataProvider) {
-        super(magazineService, magazineDataProvider, magazineController, authenticationProvider, imageServiceClient,
-                userDataProvider);
-    }
+  @Autowired
+  public GetMagazineControllerTests(MagazineService magazineService,
+                                    MagazineDataProvider magazineDataProvider,
+                                    MagazineController magazineController,
+                                    AuthenticationProvider authenticationProvider,
+                                    ImageServiceClient imageServiceClient,
+                                    UserDataProvider userDataProvider) {
+    super(magazineService, magazineDataProvider, magazineController, authenticationProvider,
+        imageServiceClient,
+        userDataProvider);
+  }
 
-    @Test
-    public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationIqRequestFailedException,
-            LocationNotFoundException {
-        //given
-        User user = userDataProvider.user("test@test.pl", "666666666");
-        Magazine magazine = magazineDataProvider.magazine(user);
+  @Test
+  public void getMagazineDetailsShouldReturnCorrectMagazine()
+      throws LocationIqRequestFailedException,
+      LocationNotFoundException {
+    //given
+    User user = userDataProvider.user("test@test.pl", "666666666");
+    Magazine magazine = magazineDataProvider.magazine(user);
 
-        //when
-        ResponseEntity<Object> response = magazineController.getMagazineDetails(magazine.getId());
+    //when
+    ResponseEntity<Object> response = magazineController.getMagazineDetails(magazine.getId());
 
-        //then
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-        assertNotNull(response.getBody());
-        assertEquals(Objects.requireNonNull(response.getBody()).getClass(), MagazineDto.class);
-        MagazineDto responseBody = (MagazineDto) response.getBody();
-        Assertions.assertEquals(magazine.getId(), responseBody.getId());
-    }
+    //then
+    assertEquals(response.getStatusCode(), HttpStatus.OK);
+    assertNotNull(response.getBody());
+    assertEquals(Objects.requireNonNull(response.getBody()).getClass(), MagazineDto.class);
+    MagazineDto responseBody = (MagazineDto) response.getBody();
+    Assertions.assertEquals(magazine.getId(), responseBody.getId());
+  }
 
-    @Test
-    public void failsWhenIdNull() {
-        //when then
-        assertThrows(ConstraintViolationException.class, () -> magazineController.getMagazineDetails(null));
-    }
+  @Test
+  public void failsWhenIdNull() {
+    //when then
+    assertThrows(ConstraintViolationException.class,
+        () -> magazineController.getMagazineDetails(null));
+  }
 }
