@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.util.modelconverter;
 
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.user.UserPersonalDto;
 import pl.asku.askumagazineservice.model.User;
@@ -13,6 +14,7 @@ import pl.asku.askumagazineservice.service.ReservationService;
 public class UserPersonalConverter {
 
   private final MagazineService magazineService;
+  @Lazy
   private final MagazineConverter magazineConverter;
 
   private final ReservationService reservationService;

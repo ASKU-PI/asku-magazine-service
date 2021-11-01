@@ -18,17 +18,16 @@ public class ReviewDataProvider {
   ReviewService reviewService;
   ReviewConverter reviewConverter;
 
-  public ReviewDto reviewDto(Reservation reservation) {
+  public ReviewDto reviewDto() {
     Random random = new Random();
     return ReviewDto.builder()
         .body("test review")
         .rating(random.nextInt(4) + 1)
-        .reservationId(reservation.getId())
         .build();
   }
 
   public Review review(Reservation reservation)
       throws ReservationNotFoundException, ReviewAlreadyExistsException {
-    return reviewService.addReview(reviewConverter.toReview(reviewDto(reservation)));
+    return reviewService.addReview(reviewDto(), reservation);
   }
 }

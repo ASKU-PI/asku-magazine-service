@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.util.modelconverter;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
@@ -9,6 +10,7 @@ import pl.asku.askumagazineservice.model.reservation.Reservation;
 @AllArgsConstructor
 public class ReservationConverter {
 
+  @Lazy
   public MagazineConverter magazineConverter;
   public UserConverter userConverter;
 

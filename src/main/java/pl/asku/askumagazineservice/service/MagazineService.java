@@ -7,11 +7,10 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +40,7 @@ public class MagazineService {
   private final MagazineRepository magazineRepository;
   private final ImageServiceClient imageServiceClient;
   private final GeocodingClient geocodingClient;
+  @Lazy
   private final MagazineConverter magazineConverter;
   private final MagazineValidator magazineValidator;
 
@@ -51,7 +51,7 @@ public class MagazineService {
       MultipartFile[] photos)
       throws LocationNotFoundException, LocationIqRequestFailedException {
 
-    magazineValidator.validate(magazineDto);
+    magazineValidator.validate(magazineDto, photos);
 
     Geolocation geolocation = geocodingClient.getGeolocation(
         magazineDto.getCountry(),
@@ -72,9 +72,22 @@ public class MagazineService {
   }
 
   @Transactional
-  public Magazine updateMagazine(@Valid Magazine magazine, @Valid MagazineDto magazineDto) {
+  public Magazine updateMagazine(
+      @Valid Magazine magazine,
+      @Valid MagazineDto magazineDto,
+      List<String> toDeletePhotosIds,
+      MultipartFile[] toAddPhotos
+  ) {
+    magazineValidator.validate(magazineDto, toAddPhotos);
+
     Magazine updatedMagazine = magazineConverter.updateMagazine(magazine, magazineDto);
-    return magazineRepository.save(updatedMagazine);
+    updatedMagazine = magazineRepository.save(updatedMagazine);
+
+    if (toAddPhotos != null && toAddPhotos.length > 0) {
+      imageServiceClient.uploadMagazinePictures(magazine.getId(), toAddPhotos);
+    }
+
+    return updatedMagazine;
   }
 
   public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
@@ -99,17 +112,6 @@ public class MagazineService {
       return magazineRepository.search(filters,
           PageRequest.of(page - 1, 20, sortOptions.getSort()));
     }
-  }
-
-  public BigDecimal getTotalPrice(@NotNull @Valid Magazine magazine, @NotNull LocalDate start,
-                                  @NotNull LocalDate end,
-                                  @NotNull @Min(0) BigDecimal area) {
-    if (start.compareTo(end) >= 0) {
-      throw new ValidationException("End date must be greater than end date");
-    }
-
-    int dateDifference = start.until(end).getDays();
-    return area.multiply(magazine.getPricePerMeter()).multiply(BigDecimal.valueOf(dateDifference));
   }
 
   public BigDecimal maxArea() throws MagazineNotFoundException {

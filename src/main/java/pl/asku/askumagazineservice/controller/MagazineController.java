@@ -3,6 +3,7 @@ package pl.asku.askumagazineservice.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -11,11 +12,13 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -56,11 +59,10 @@ import pl.asku.askumagazineservice.util.modelconverter.SearchResultConverter;
 @AllArgsConstructor
 public class MagazineController {
 
-  private final int maxPhotosPerUpload = 20;
-
   private final MagazineService magazineService;
   private final MagazinePolicy magazinePolicy;
   private final GeocodingClient geocodingClient;
+  @Lazy
   private final MagazineConverter magazineConverter;
   private final SearchResultConverter searchResultConverter;
 
@@ -78,20 +80,14 @@ public class MagazineController {
       @ModelAttribute @Valid MagazineDto magazineDto,
       @RequestPart(value = "files", required = false) MultipartFile[] photos,
       Authentication authentication) {
-    if (photos != null && photos.length > maxPhotosPerUpload) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-          .body("Max photos number is " + maxPhotosPerUpload);
-    }
 
     if (!magazinePolicy.addMagazine(authentication)) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body("You're not authorized to add space to rent");
+          .body("You're not authorized to add a space to rent");
     }
 
-    String identifier = authentication.getName();
-
     try {
-      User user = userService.getUser(identifier);
+      User user = userService.getUser(authentication.getName());
       Magazine magazine = magazineService.addMagazine(magazineDto, user, photos);
       magazineDto = magazineConverter.toDto(magazine);
     } catch (UserNotFoundException e) {
@@ -103,11 +99,12 @@ public class MagazineController {
     return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
   }
 
-  @PatchMapping("/magazine")
+  @PatchMapping(value = "/magazine", consumes = "multipart/form-data")
   public ResponseEntity<Object> updateMagazine(
-      @RequestBody @Valid MagazineDto magazineDto,
-      Authentication authentication
-  ) {
+      @ModelAttribute @Valid MagazineDto magazineDto,
+      @RequestBody(required = false) List<String> toDeletePhotosIds,
+      @RequestPart(value = "files", required = false) MultipartFile[] toAddPhotos,
+      Authentication authentication) {
     try {
       Magazine magazine = magazineService.getMagazineDetails(magazineDto.getId());
 
@@ -117,14 +114,35 @@ public class MagazineController {
       }
 
       return ResponseEntity.status(HttpStatus.OK).body(
-          magazineConverter.toDto(magazineService.updateMagazine(magazine, magazineDto)));
+          magazineConverter.toDto(magazineService.updateMagazine(
+              magazine, magazineDto, toDeletePhotosIds, toAddPhotos)));
+    } catch (MagazineNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/magazine")
+  public ResponseEntity<Object> deleteMagazine(
+      @RequestParam Long id,
+      Authentication authentication
+  ) {
+    try {
+      Magazine magazine = magazineService.getMagazineDetails(id);
+
+      if (!magazinePolicy.deleteMagazine(authentication, magazine)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to delete this space");
+      }
+
+      //TODO: IMPLEMENT
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not yet implemented");
     } catch (MagazineNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
   }
 
   @GetMapping("/details/{id}")
-  public ResponseEntity<Object> getMagazineDetails(@Valid @PathVariable @NotNull Long id) {
+  public ResponseEntity<Object> getMagazine(@PathVariable Long id) {
     try {
       Magazine magazine = magazineService.getMagazineDetails(id);
       return ResponseEntity.status(HttpStatus.OK).body(magazineConverter.toDto(magazine));
@@ -134,7 +152,7 @@ public class MagazineController {
   }
 
   @GetMapping("/search")
-  public ResponseEntity<Object> searchMagazines(
+  public ResponseEntity<Object> getMagazinesWithPagination(
       @RequestParam(required = false) Optional<Integer> page,
       @RequestParam(required = false) Optional<SortOptions> sortBy,
       @RequestParam(required = false) Optional<BigDecimal> minLongitude,
@@ -244,25 +262,6 @@ public class MagazineController {
           .body(searchResultConverter.toDto(result));
     } catch (ValidationException | UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-  }
-
-  @GetMapping("/total-price/{id}")
-  public ResponseEntity<Object> totalPrice(
-      @PathVariable @NotNull Long id,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NotNull LocalDate start,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end,
-      @RequestParam @Min(0) BigDecimal area
-  ) {
-    try {
-      Magazine magazine = magazineService.getMagazineDetails(id);
-      return ResponseEntity
-          .status(HttpStatus.OK)
-          .body(magazineService.getTotalPrice(magazine, start, end, area));
-    } catch (ValidationException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    } catch (MagazineNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
   }
 

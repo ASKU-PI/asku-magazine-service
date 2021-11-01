@@ -7,10 +7,14 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import pl.asku.askumagazineservice.dto.ReviewDto;
+import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.exception.ReviewNotFoundException;
 import pl.asku.askumagazineservice.model.Review;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.repository.ReviewRepository;
+import pl.asku.askumagazineservice.util.modelconverter.ReviewConverter;
 
 @Service
 @Validated
@@ -18,12 +22,15 @@ import pl.asku.askumagazineservice.repository.ReviewRepository;
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
+  private final ReviewConverter reviewConverter;
 
-  public Review addReview(@Valid Review review) throws ReviewAlreadyExistsException {
+  public Review addReview(@Valid ReviewDto reviewDto, @Valid Reservation reservation)
+      throws ReviewAlreadyExistsException, ReservationNotFoundException {
     try {
-      getReviewByReservationId(review.getReservation().getId());
+      getReviewByReservationId(reservation.getId());
       throw new ReviewAlreadyExistsException();
     } catch (ReviewNotFoundException e) {
+      Review review = reviewConverter.toReview(reviewDto, reservation);
       return reviewRepository.save(review);
     }
   }

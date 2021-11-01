@@ -25,4 +25,8 @@ public class MagazinePolicy {
     return isOwner || isModerator;
   }
 
+  public boolean deleteMagazine(Authentication authentication, Magazine magazine) {
+    return updateMagazine(authentication, magazine);
+  }
+
 }

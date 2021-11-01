@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
+import java.util.Date;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -24,11 +25,7 @@ public class ReviewDto {
   private Long id;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private LocalDate createdDate;
-
-  @NotNull
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  private Long reservationId;
+  private Date createdDate;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private ReservationDto reservationDto;

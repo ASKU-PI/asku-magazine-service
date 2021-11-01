@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import pl.asku.askumagazineservice.dto.ReviewDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
+import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
@@ -41,54 +43,54 @@ public class AddReviewServiceTests extends ReviewServiceTestBase {
   @Test
   public void returnsCorrectReview()
       throws LocationNotFoundException, LocationIqRequestFailedException,
-      MagazineNotAvailableException, MagazineNotFoundException, ReviewAlreadyExistsException {
+      MagazineNotAvailableException, MagazineNotFoundException, ReviewAlreadyExistsException,
+      ReservationNotFoundException {
     //given
     User magazineOwner = userDataProvider.user("owner@test.pl", "666666666");
     Magazine magazine = magazineDataProvider.magazine(magazineOwner);
     User reserving = userDataProvider.user("reserving@test.pl", "777777777");
     Reservation reservation = reservationDataProvider.reservation(reserving, magazine);
 
-    Review review = Review.builder()
+    ReviewDto reviewDto = ReviewDto.builder()
         .body("test review")
         .rating(3)
-        .reservation(reservation)
         .build();
 
     //when
-    Review returnedReview = reviewService.addReview(review);
+    Review returnedReview = reviewService.addReview(reviewDto, reservation);
 
     //then
-    assertEquals(review.getBody(), returnedReview.getBody());
-    assertEquals(review.getRating(), returnedReview.getRating());
-    assertEquals(review.getReservation(), returnedReview.getReservation());
+    assertEquals(reviewDto.getBody(), returnedReview.getBody());
+    assertEquals(reviewDto.getRating(), returnedReview.getRating());
+    assertEquals(reservation, returnedReview.getReservation());
     assertNotNull(returnedReview.getId());
   }
 
   @Test
   public void failsAddingTwice() throws LocationNotFoundException, LocationIqRequestFailedException,
-      MagazineNotAvailableException, MagazineNotFoundException, ReviewAlreadyExistsException {
+      MagazineNotAvailableException, MagazineNotFoundException, ReviewAlreadyExistsException,
+      ReservationNotFoundException {
     //given
     User magazineOwner = userDataProvider.user("owner@test.pl", "666666666");
     Magazine magazine = magazineDataProvider.magazine(magazineOwner);
     User reserving = userDataProvider.user("reserving@test.pl", "777777777");
     Reservation reservation = reservationDataProvider.reservation(reserving, magazine);
 
-    Review review = Review.builder()
+    ReviewDto reviewDto = ReviewDto.builder()
         .body("test review")
         .rating(3)
-        .reservation(reservation)
         .build();
 
-    reviewService.addReview(review);
+    reviewService.addReview(reviewDto, reservation);
 
     //when then
-    assertThrows(ReviewAlreadyExistsException.class, () -> reviewService.addReview(review));
+    assertThrows(ReviewAlreadyExistsException.class,
+        () -> reviewService.addReview(reviewDto, reservation));
   }
 
   @Test
   public void failsForNotPersistedReservation()
-      throws LocationNotFoundException, LocationIqRequestFailedException,
-      ReviewAlreadyExistsException {
+      throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
     User magazineOwner = userDataProvider.user("owner@test.pl", "666666666");
     Magazine magazine = magazineDataProvider.magazine(magazineOwner);
@@ -101,13 +103,13 @@ public class AddReviewServiceTests extends ReviewServiceTestBase {
         .user(reserving)
         .build();
 
-    Review review = Review.builder()
+    ReviewDto reviewDto = ReviewDto.builder()
         .body("test review")
         .rating(3)
-        .reservation(reservation)
         .build();
 
     //when then
-    assertThrows(InvalidDataAccessApiUsageException.class, () -> reviewService.addReview(review));
+    assertThrows(InvalidDataAccessApiUsageException.class,
+        () -> reviewService.addReview(reviewDto, reservation));
   }
 }

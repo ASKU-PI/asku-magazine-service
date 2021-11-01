@@ -6,22 +6,32 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 
 @Service
 @AllArgsConstructor
 public class MagazineValidator {
 
+  //TODO: Move to config
+  private final int maxPhotosPerUpload = 20;
+
   private final Validator validator;
 
-  public boolean validate(MagazineDto magazineDto) {
+  public boolean validate(MagazineDto magazineDto, MultipartFile[] photos) {
     List<String> violations =
         validator.validate(magazineDto).stream().map(ConstraintViolation::getMessage)
             .collect(Collectors.toList());
 
     if (magazineDto.getStartDate().compareTo(magazineDto.getEndDate()) >= 0) {
       violations.add("End date must be greater than start date");
+    }
+
+    if (photos != null && photos.length > maxPhotosPerUpload) {
+      violations.add("Max photos number is " + maxPhotosPerUpload);
     }
 
     if (magazineDto.getMinAreaToRent() == null

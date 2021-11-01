@@ -2,6 +2,7 @@ package pl.asku.askumagazineservice.util.modelconverter;
 
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.magazine.SearchResultDto;
 import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
@@ -10,6 +11,7 @@ import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 @AllArgsConstructor
 public class SearchResultConverter {
 
+  @Lazy
   private final MagazineConverter magazineConverter;
 
   public SearchResultDto toDto(SearchResult searchResult) {

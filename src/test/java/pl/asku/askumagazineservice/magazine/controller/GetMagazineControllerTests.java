@@ -46,7 +46,7 @@ public class GetMagazineControllerTests extends MagazineControllerTestBase {
     Magazine magazine = magazineDataProvider.magazine(user);
 
     //when
-    ResponseEntity<Object> response = magazineController.getMagazineDetails(magazine.getId());
+    ResponseEntity<Object> response = magazineController.getMagazine(magazine.getId());
 
     //then
     assertEquals(response.getStatusCode(), HttpStatus.OK);
@@ -60,6 +60,6 @@ public class GetMagazineControllerTests extends MagazineControllerTestBase {
   public void failsWhenIdNull() {
     //when then
     assertThrows(ConstraintViolationException.class,
-        () -> magazineController.getMagazineDetails(null));
+        () -> magazineController.getMagazine(null));
   }
 }

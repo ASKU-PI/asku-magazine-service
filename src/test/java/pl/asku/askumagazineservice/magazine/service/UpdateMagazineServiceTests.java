@@ -42,7 +42,8 @@ public class UpdateMagazineServiceTests extends MagazineServiceTestBase {
         .build();
 
     //when
-    Magazine updatedMagazine = magazineService.updateMagazine(magazine, updatedMagazineDto);
+    Magazine updatedMagazine = magazineService.updateMagazine(
+        magazine, updatedMagazineDto, null, null);
 
     Magazine reloadedMagazine = magazineService.getMagazineDetails(magazine.getId());
 
