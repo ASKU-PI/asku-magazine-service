@@ -1,10 +1,10 @@
 package pl.asku.askumagazineservice.model.magazine;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -55,14 +55,10 @@ public class Magazine {
   @Temporal(TemporalType.TIMESTAMP)
   private Date updatedDate;
 
-  @JoinColumn(name = "owner_id", insertable = false, updatable = false)
-  @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-  @JsonIgnore
-  private User owner;
-
-  @Column(name = "owner_id")
   @NotNull
-  private String ownerId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "owner_id", referencedColumnName = "id")
+  private User owner;
 
   @NotNull
   @NotBlank
@@ -86,10 +82,8 @@ public class Magazine {
   private String building;
 
   @NotNull
-  private BigDecimal longitude;
-
-  @NotNull
-  private BigDecimal latitude;
+  @Embedded
+  Geolocation location;
 
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

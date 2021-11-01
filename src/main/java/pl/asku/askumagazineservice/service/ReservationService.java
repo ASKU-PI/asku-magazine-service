@@ -20,6 +20,7 @@ import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.AvailabilityState;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
@@ -36,18 +37,19 @@ public class ReservationService {
   private final MagazineService magazineService;
   private final ReservationRepository reservationRepository;
 
-  public Reservation addReservation(@Valid ReservationDto reservationDto,
-                                    @NotNull @NotBlank String username)
+  @Transactional
+  public Reservation addReservation(@NotNull @Valid ReservationDto reservationDto,
+                                    @NotNull @Valid User user)
       throws MagazineNotAvailableException,
       MagazineNotFoundException {
     Magazine magazine = magazineService.getMagazineDetails(reservationDto.getMagazineId());
-    return addReservation(magazine, reservationDto, username);
+    return addReservation(magazine, reservationDto, user);
   }
 
   @Transactional
   public Reservation addReservation(@NotNull @Valid Magazine magazine,
                                     @NotNull @Valid ReservationDto reservationDto,
-                                    @NotNull @NotBlank String username)
+                                    @NotNull @Valid User user)
       throws MagazineNotAvailableException {
     reservationValidator.validate(reservationDto);
 
@@ -61,7 +63,7 @@ public class ReservationService {
       throw new MagazineNotAvailableException();
     }
     Reservation reservation = Reservation.builder()
-        .userId(username)
+        .user(user)
         .startDate(reservationDto.getStartDate())
         .endDate(reservationDto.getEndDate())
         .areaInMeters(reservationDto.getAreaInMeters())

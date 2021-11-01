@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +23,7 @@ import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
@@ -43,24 +45,22 @@ public class MagazineService {
   private final MagazineValidator magazineValidator;
 
   @Transactional
-  public Magazine addMagazine(@Valid MagazineDto magazineDto, @NotNull @NotBlank String username,
-                              MultipartFile[] photos)
+  public Magazine addMagazine(
+      @Valid @NotNull MagazineDto magazineDto,
+      @Valid @NotNull User user,
+      MultipartFile[] photos)
       throws LocationNotFoundException, LocationIqRequestFailedException {
+
     magazineValidator.validate(magazineDto);
 
-    Magazine magazine = magazineConverter.toMagazine(magazineDto);
-
-    magazine.setOwnerId(username);
-
     Geolocation geolocation = geocodingClient.getGeolocation(
-        magazine.getCountry(),
-        magazine.getCity(),
-        magazine.getStreet(),
-        magazine.getBuilding()
+        magazineDto.getCountry(),
+        magazineDto.getCity(),
+        magazineDto.getStreet(),
+        magazineDto.getBuilding()
     );
 
-    magazine.setLongitude(geolocation.getLongitude());
-    magazine.setLatitude(geolocation.getLatitude());
+    Magazine magazine = magazineConverter.toMagazine(magazineDto, user, geolocation);
 
     magazine = magazineRepository.save(magazine);
 

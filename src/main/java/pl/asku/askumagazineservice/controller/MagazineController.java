@@ -35,6 +35,7 @@ import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Heating;
 import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
@@ -45,6 +46,7 @@ import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
+import pl.asku.askumagazineservice.service.UserService;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
 import pl.asku.askumagazineservice.util.modelconverter.SearchResultConverter;
 
@@ -61,6 +63,8 @@ public class MagazineController {
   private final GeocodingClient geocodingClient;
   private final MagazineConverter magazineConverter;
   private final SearchResultConverter searchResultConverter;
+
+  private final UserService userService;
 
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -87,8 +91,11 @@ public class MagazineController {
     String identifier = authentication.getName();
 
     try {
-      Magazine magazine = magazineService.addMagazine(magazineDto, identifier, photos);
+      User user = userService.getUser(identifier);
+      Magazine magazine = magazineService.addMagazine(magazineDto, user, photos);
       magazineDto = magazineConverter.toDto(magazine);
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (ValidationException | LocationNotFoundException | LocationIqRequestFailedException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }

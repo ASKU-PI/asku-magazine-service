@@ -8,6 +8,7 @@ import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.model.User;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
 import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
@@ -27,8 +28,8 @@ public class MagazineDataProvider {
         .city("Kraków")
         .street("Kawiory")
         .building("21")
-        .longitude(BigDecimal.valueOf(5.0f))
-        .latitude(BigDecimal.valueOf(5.0f))
+        .location(Geolocation.builder().longitude(BigDecimal.valueOf(5.0f))
+            .latitude(BigDecimal.valueOf(5.0f)).build())
         .startDate(LocalDate.now().plusDays(2))
         .endDate(LocalDate.now().plusDays(10))
         .areaInMeters(BigDecimal.valueOf(60.0f))
@@ -62,8 +63,8 @@ public class MagazineDataProvider {
         .city("Kraków")
         .street("Kawiory")
         .building("21")
-        .longitude(BigDecimal.valueOf(5.0f))
-        .latitude(BigDecimal.valueOf(5.0f))
+        .location(Geolocation.builder().longitude(BigDecimal.valueOf(5.0f))
+            .latitude(BigDecimal.valueOf(5.0f)).build())
         .startDate(LocalDate.now().plusDays(2))
         .endDate(LocalDate.now().plusDays(10))
         .areaInMeters(BigDecimal.valueOf(60.0f))
@@ -79,6 +80,6 @@ public class MagazineDataProvider {
 
   public Magazine magazine(User user, MagazineDto magazineDto) throws LocationNotFoundException,
       LocationIqRequestFailedException {
-    return magazineService.addMagazine(magazineDto, user.getId(), null);
+    return magazineService.addMagazine(magazineDto, user, null);
   }
 }

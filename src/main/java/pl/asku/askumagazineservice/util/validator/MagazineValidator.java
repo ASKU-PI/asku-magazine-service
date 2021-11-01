@@ -21,7 +21,7 @@ public class MagazineValidator {
             .collect(Collectors.toList());
 
     if (magazineDto.getStartDate().compareTo(magazineDto.getEndDate()) >= 0) {
-      violations.add("End date must be greater than end date");
+      violations.add("End date must be greater than start date");
     }
 
     if (magazineDto.getMinAreaToRent() == null

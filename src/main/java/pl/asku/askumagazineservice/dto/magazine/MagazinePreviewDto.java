@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
+import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 @Getter
@@ -25,7 +27,7 @@ public class MagazinePreviewDto {
   private Long id;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String owner;
+  private UserDto owner;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Date createdDate;
@@ -46,10 +48,7 @@ public class MagazinePreviewDto {
   private String building;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private BigDecimal longitude;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private BigDecimal latitude;
+  private Geolocation location;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Integer numberOfReviews;

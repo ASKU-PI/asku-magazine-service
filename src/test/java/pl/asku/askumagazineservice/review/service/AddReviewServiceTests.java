@@ -98,7 +98,7 @@ public class AddReviewServiceTests extends ReviewServiceTestBase {
         .startDate(magazine.getStartDate())
         .endDate(magazine.getEndDate())
         .magazine(magazine)
-        .userId(reserving.getId())
+        .user(reserving)
         .build();
 
     Review review = Review.builder()

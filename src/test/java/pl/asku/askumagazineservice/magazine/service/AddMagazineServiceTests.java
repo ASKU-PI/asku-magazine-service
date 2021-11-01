@@ -42,7 +42,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
-    Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
+    Magazine magazine = magazineService.addMagazine(magazineDto, user, null);
     Optional<Magazine> magazineFromDb = magazineRepository.findById(magazine.getId());
 
     //then
@@ -58,12 +58,12 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
-    Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
+    Magazine magazine = magazineService.addMagazine(magazineDto, user, null);
 
     //then
     Assertions.assertAll(
         () -> assertNotNull(magazine.getId()),
-        () -> assertEquals(user.getId(), magazine.getOwnerId()),
+        () -> assertEquals(user, magazine.getOwner()),
         () -> assertNotNull(magazine.getCreatedDate()),
         () -> assertEquals(magazineDto.getCountry(), magazine.getCountry()),
         () -> assertEquals(magazineDto.getCity(), magazine.getCity()),
@@ -104,12 +104,12 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
-    Magazine magazine = magazineService.addMagazine(magazineDto, user.getId(), null);
+    Magazine magazine = magazineService.addMagazine(magazineDto, user, null);
 
     //then
     Assertions.assertAll(
         () -> assertNotNull(magazine.getId()),
-        () -> assertEquals(user.getId(), magazine.getOwnerId()),
+        () -> assertEquals(user, magazine.getOwner()),
         () -> assertNotNull(magazine.getCreatedDate()),
         () -> assertEquals(magazineDto.getCountry(), magazine.getCountry()),
         () -> assertEquals(magazineDto.getCity(), magazine.getCity()),
@@ -152,7 +152,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
 
     //when
     assertThrows(RuntimeException.class,
-        () -> magazineService.addMagazine(magazineDto, user.getId(), null));
+        () -> magazineService.addMagazine(magazineDto, user, null));
   }
 
   @Test
@@ -167,7 +167,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
 
     //when
     assertThrows(RuntimeException.class,
-        () -> magazineService.addMagazine(magazineDto, user.getId(), null));
+        () -> magazineService.addMagazine(magazineDto, user, null));
   }
 
   @Test
@@ -182,7 +182,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
 
     //when
     assertThrows(RuntimeException.class,
-        () -> magazineService.addMagazine(magazineDto, user.getId(), null));
+        () -> magazineService.addMagazine(magazineDto, user, null));
   }
 
   @Test
@@ -198,7 +198,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
 
     //when
     assertThrows(RuntimeException.class,
-        () -> magazineService.addMagazine(magazineDto, user.getId(), null));
+        () -> magazineService.addMagazine(magazineDto, user, null));
   }
 
   @Test
@@ -212,6 +212,6 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
 
     //when
     assertThrows(RuntimeException.class,
-        () -> magazineService.addMagazine(magazineDto, user.getId(), null));
+        () -> magazineService.addMagazine(magazineDto, user, null));
   }
 }

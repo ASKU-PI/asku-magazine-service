@@ -9,6 +9,8 @@ import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazinePreviewDto;
+import pl.asku.askumagazineservice.model.User;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.service.ReviewService;
 
@@ -18,6 +20,7 @@ public class MagazineConverter {
 
   private final ImageServiceClient imageServiceClient;
   private final ReviewService reviewService;
+  private final UserConverter userConverter;
 
   public MagazineDto toDto(Magazine magazine) {
     List<PictureData> photos;
@@ -29,7 +32,7 @@ public class MagazineConverter {
 
     return new MagazineDto(
         magazine.getId(),
-        magazine.getOwnerId(),
+        userConverter.toDto(magazine.getOwner()),
         magazine.getCreatedDate(),
         photos,
         magazine.getTitle(),
@@ -37,8 +40,7 @@ public class MagazineConverter {
         magazine.getCity(),
         magazine.getStreet(),
         magazine.getBuilding(),
-        magazine.getLongitude(),
-        magazine.getLatitude(),
+        magazine.getLocation(),
         reviewService.getMagazineReviewsNumber(magazine.getId()),
         reviewService.getMagazineAverageRating(magazine.getId()),
         magazine.getStartDate(),
@@ -76,7 +78,7 @@ public class MagazineConverter {
 
     return new MagazinePreviewDto(
         magazine.getId(),
-        magazine.getOwnerId(),
+        userConverter.toDto(magazine.getOwner()),
         magazine.getCreatedDate(),
         magazinePictureDto.getPhotos(),
         magazine.getTitle(),
@@ -84,8 +86,7 @@ public class MagazineConverter {
         magazine.getCity(),
         magazine.getStreet(),
         magazine.getBuilding(),
-        magazine.getLongitude(),
-        magazine.getLatitude(),
+        magazine.getLocation(),
         reviewService.getMagazineReviewsNumber(magazine.getId()),
         reviewService.getMagazineAverageRating(magazine.getId()),
         magazine.getStartDate(),
@@ -96,14 +97,15 @@ public class MagazineConverter {
     );
   }
 
-  public Magazine toMagazine(MagazineDto magazineDto) {
+  public Magazine toMagazine(MagazineDto magazineDto, User user, Geolocation geolocation) {
     return Magazine.builder()
-        .ownerId(magazineDto.getOwner())
+        .owner(user)
         .title(magazineDto.getTitle())
         .country(magazineDto.getCountry())
         .city(magazineDto.getCity())
         .street(magazineDto.getStreet())
         .building(magazineDto.getBuilding())
+        .location(geolocation)
         .startDate(magazineDto.getStartDate())
         .endDate(magazineDto.getEndDate())
         .areaInMeters(magazineDto.getAreaInMeters())

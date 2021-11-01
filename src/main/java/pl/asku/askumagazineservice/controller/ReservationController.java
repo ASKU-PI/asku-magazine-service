@@ -29,11 +29,14 @@ import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
+import pl.asku.askumagazineservice.exception.UserNotFoundException;
+import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.security.policy.ReservationPolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
+import pl.asku.askumagazineservice.service.UserService;
 import pl.asku.askumagazineservice.util.modelconverter.ReservationConverter;
 
 @RestController
@@ -46,6 +49,7 @@ public class ReservationController {
   private final MagazineService magazineService;
   private final ReservationPolicy reservationPolicy;
   private final ReservationConverter reservationConverter;
+  private final UserService userService;
 
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -65,13 +69,14 @@ public class ReservationController {
     String username = authentication.getName();
 
     try {
-      Reservation reservation = reservationService.addReservation(reservationDto, username);
+      User user = userService.getUser(username);
+      Reservation reservation = reservationService.addReservation(reservationDto, user);
       reservationDto.setId(reservation.getId());
       return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
     } catch (MagazineNotAvailableException e) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-    } catch (MagazineNotFoundException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (MagazineNotFoundException | UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     }
   }
 

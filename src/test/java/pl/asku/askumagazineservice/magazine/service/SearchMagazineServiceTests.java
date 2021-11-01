@@ -144,7 +144,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
         () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
         () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
-        () -> assertEquals(user.getId(), magazine.getOwnerId()),
+        () -> assertEquals(user.getId(), magazine.getOwner().getId()),
         () -> assertEquals(MagazineType.CELL, magazine.getType())
     ));
     assertEquals(searchResult.getPages(), 1);
@@ -265,7 +265,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 .areaInMeters(magazineDto.getAreaInMeters())
                 .magazineId(magazine.getId())
                 .build(),
-            user.getId()
+            user
         );
       } catch (LocationNotFoundException | LocationIqRequestFailedException
           | MagazineNotAvailableException | MagazineNotFoundException e) {
@@ -322,7 +322,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
                 .areaInMeters(magazineDto.getAreaInMeters())
                 .magazineId(magazine.getId())
                 .build(),
-            user.getId()
+            user
         );
       } catch (LocationNotFoundException | LocationIqRequestFailedException
           | MagazineNotAvailableException | MagazineNotFoundException e) {

@@ -1,6 +1,5 @@
 package pl.asku.askumagazineservice.model.reservation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
@@ -48,14 +47,10 @@ public class Reservation {
   @Temporal(TemporalType.TIMESTAMP)
   private Date updatedDate;
 
-  @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-  @JsonIgnore
-  private User user;
-
-  @Column(name = "user_id")
   @NotNull
-  private String userId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  private User user;
 
   @NotNull
   private LocalDate startDate;

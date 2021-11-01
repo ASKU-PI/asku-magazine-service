@@ -56,28 +56,28 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
     if (magazineFilters.getLocationFilter() != null) {
       if (magazineFilters.getLocationFilter().getMaxLatitude() != null) {
         queryBuilder
-            .append(" m.latitude <= ")
+            .append(" m.location.latitude <= ")
             .append(magazineFilters.getLocationFilter().getMaxLatitude().toString())
             .append(" AND");
       }
 
       if (magazineFilters.getLocationFilter().getMinLatitude() != null) {
         queryBuilder
-            .append(" m.latitude >= ")
+            .append(" m.location.latitude >= ")
             .append(magazineFilters.getLocationFilter().getMinLatitude().toString())
             .append(" AND");
       }
 
       if (magazineFilters.getLocationFilter().getMaxLongitude() != null) {
         queryBuilder
-            .append(" m.longitude <= ")
+            .append(" m.location.longitude <= ")
             .append(magazineFilters.getLocationFilter().getMaxLongitude().toString())
             .append(" AND");
       }
 
       if (magazineFilters.getLocationFilter().getMinLongitude() != null) {
         queryBuilder
-            .append(" m.longitude >= ")
+            .append(" m.location.longitude >= ")
             .append(magazineFilters.getLocationFilter().getMinLongitude().toString())
             .append(" AND");
       }

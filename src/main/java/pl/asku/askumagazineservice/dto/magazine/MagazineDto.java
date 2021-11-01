@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
+import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
 import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
@@ -29,7 +31,7 @@ public class MagazineDto {
   private Long id;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String owner;
+  private UserDto owner;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Date createdDate;
@@ -58,10 +60,7 @@ public class MagazineDto {
   private String building;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private BigDecimal longitude;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private BigDecimal latitude;
+  private Geolocation location;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Integer numberOfReviews;

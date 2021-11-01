@@ -53,7 +53,7 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
             .areaInMeters(magazine.getAreaInMeters())
             .magazineId(magazine.getId())
             .build(),
-        reservingUser.getId()
+        reservingUser
     );
 
     reservationService.addReservation(
@@ -63,7 +63,7 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
             .areaInMeters(magazine.getMinAreaToRent())
             .magazineId(magazine.getId())
             .build(),
-        reservingUser.getId()
+        reservingUser
     );
 
     reservationService.addReservation(
@@ -73,7 +73,7 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
             .areaInMeters(magazine.getMinAreaToRent())
             .magazineId(magazine.getId())
             .build(),
-        reservingUser.getId()
+        reservingUser
     );
 
     //when

@@ -55,7 +55,7 @@ public class GetDailyReservationServiceTests extends ReservationServiceTestBase 
                 .areaInMeters(magazine.getMinAreaToRent())
                 .magazineId(magazine.getId())
                 .build(),
-            reservingUser.getId()
+            reservingUser
         );
       } catch (MagazineNotAvailableException | MagazineNotFoundException e) {
         e.printStackTrace();
@@ -69,7 +69,7 @@ public class GetDailyReservationServiceTests extends ReservationServiceTestBase 
             .areaInMeters(magazine.getMinAreaToRent())
             .magazineId(magazine.getId())
             .build(),
-        reservingUser.getId()
+        reservingUser
     );
 
     //when

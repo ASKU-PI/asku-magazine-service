@@ -16,7 +16,7 @@ public class MagazinePolicy {
 
   public boolean updateMagazine(Authentication authentication, Magazine magazine) {
     boolean isOwner = authentication != null
-        && authentication.getName().equals(magazine.getOwnerId());
+        && authentication.getName().equals(magazine.getOwner().getId());
 
     boolean isModerator = authentication != null
         && authentication.getAuthorities().contains(new SimpleGrantedAuthority(

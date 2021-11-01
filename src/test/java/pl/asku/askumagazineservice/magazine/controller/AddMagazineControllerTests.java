@@ -55,7 +55,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
 
     Assertions.assertAll(
         () -> assertNotNull(responseBody.getId()),
-        () -> assertEquals(responseBody.getOwner(), authentication.getName()),
+        () -> assertEquals(responseBody.getOwner().getId(), authentication.getName()),
         () -> assertNotNull(responseBody.getCreatedDate()),
         () -> assertEquals(responseBody.getCountry(), magazineDto.getCountry()),
         () -> assertEquals(responseBody.getCity(), magazineDto.getCity()),

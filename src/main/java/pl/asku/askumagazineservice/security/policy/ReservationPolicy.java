@@ -29,10 +29,10 @@ public class ReservationPolicy {
 
     boolean isMagazineOwner =
         authentication != null
-            && reservation.getMagazine().getOwnerId().equals(authentication.getName());
+            && reservation.getMagazine().getOwner().getId().equals(authentication.getName());
 
     boolean isReservationOwner =
-        authentication != null && reservation.getUserId().equals(authentication.getName());
+        authentication != null && reservation.getUser().getId().equals(authentication.getName());
 
     return atLeastModerator || isMagazineOwner || isReservationOwner;
   }
@@ -46,7 +46,7 @@ public class ReservationPolicy {
         ));
 
     boolean isMagazineOwner =
-        authentication != null && magazineService.getMagazineDetails(spaceId).getOwnerId()
+        authentication != null && magazineService.getMagazineDetails(spaceId).getOwner().getId()
             .equals(authentication.getName());
 
     return atLeastModerator || isMagazineOwner;

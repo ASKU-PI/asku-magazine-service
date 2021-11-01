@@ -14,6 +14,6 @@ public class ReviewPolicy {
     return authentication != null
         && authentication.getAuthorities().contains(new SimpleGrantedAuthority(
         "ROLE_USER"
-    )) && authentication.getName().equals(review.getReservation().getUserId());
+    )) && authentication.getName().equals(review.getReservation().getUser().getId());
   }
 }

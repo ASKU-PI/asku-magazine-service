@@ -33,6 +33,6 @@ public class ReservationDataProvider {
   public Reservation reservation(User user, ReservationDto reservationDto)
       throws MagazineNotAvailableException,
       MagazineNotFoundException {
-    return reservationService.addReservation(reservationDto, user.getId());
+    return reservationService.addReservation(reservationDto, user);
   }
 }

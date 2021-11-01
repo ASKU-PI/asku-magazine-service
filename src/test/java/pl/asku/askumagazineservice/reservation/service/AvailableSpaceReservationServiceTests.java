@@ -72,7 +72,7 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
             .areaInMeters(area)
             .magazineId(magazine.getId())
             .build(),
-        otherUser.getId()
+        otherUser
     );
 
     //when

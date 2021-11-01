@@ -58,7 +58,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     Reservation reservation = reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     );
 
     //then
@@ -92,7 +92,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     Reservation reservation = reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     );
 
     //then
@@ -126,7 +126,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
 
     Reservation reservation = reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     );
 
     //then
@@ -159,7 +159,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -184,7 +184,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -209,7 +209,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -234,7 +234,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -259,7 +259,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(ValidationException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -284,7 +284,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when
     Reservation reservation = reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     );
 
     // then
@@ -316,7 +316,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when then
     assertThrows(MagazineNotAvailableException.class, () -> reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     ));
   }
 
@@ -340,7 +340,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
             .areaInMeters(areaToRent)
             .magazineId(magazine.getId())
             .build(),
-        otherUser.getId()
+        otherUser
     );
 
     //when then
@@ -351,7 +351,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
             .areaInMeters(areaToRent)
             .magazineId(magazine.getId())
             .build(),
-        user.getId()
+        user
     ));
   }
 
@@ -374,7 +374,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
             .areaInMeters(areaToRent)
             .magazineId(magazine.getId())
             .build(),
-        otherUser.getId()
+        otherUser
     );
 
     ReservationDto reservationDto = ReservationDto.builder()
@@ -387,7 +387,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
     //when
     Reservation reservation = reservationService.addReservation(
         reservationDto,
-        user.getId()
+        user
     );
 
     //then
