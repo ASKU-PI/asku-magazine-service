@@ -16,8 +16,8 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
   );
 
   @Query(
-      "SELECT r from Reservation r WHERE r.magazine.id = :id AND (r.startDate <= :startDate AND r"
-          + ".endDate >= :startDate) OR (r.startDate >= :startDate AND r.startDate <= :endDate)")
+      "SELECT r from Reservation r WHERE r.magazine.id = :id AND ((r.startDate <= :startDate AND r"
+          + ".endDate >= :startDate) OR (r.startDate >= :startDate AND r.startDate <= :endDate))")
   List<Reservation> findActiveReservations(Long id, LocalDate startDate, LocalDate endDate);
 
   @Query("SELECT r from Reservation r WHERE r.user.id = :userId AND r.endDate >= CURRENT_DATE")

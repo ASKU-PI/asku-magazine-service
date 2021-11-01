@@ -76,6 +76,18 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
         reservingUser
     );
 
+    Magazine otherMagazine = magazineDataProvider.magazine(user, magazineDto);
+
+    reservationService.addReservation(
+        ReservationDto.builder()
+            .startDate(otherMagazine.getStartDate().plusDays(2))
+            .endDate(otherMagazine.getStartDate().plusDays(2))
+            .areaInMeters(otherMagazine.getAreaInMeters())
+            .magazineId(otherMagazine.getId())
+            .build(),
+        reservingUser
+    );
+
     //when
     List<DailyStateDto> states =
         reservationService.getDailyStates(magazine.getId(), magazine.getStartDate().minusDays(1),
