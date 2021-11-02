@@ -28,12 +28,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 import pl.asku.askumagazineservice.model.User;
 
 @Entity
 @Table(name = "magazine")
+@FilterDef(name = "deletedMagazineFilter", parameters = @ParamDef(name = "isDeleted", type = "boolean"))
+@Filter(name = "deletedMagazineFilter", condition = "deleted = :isDeleted")
 @Getter
 @Setter
 @Builder
@@ -54,6 +59,8 @@ public class Magazine {
   @UpdateTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   private Date updatedDate;
+
+  private boolean deleted = Boolean.FALSE;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)

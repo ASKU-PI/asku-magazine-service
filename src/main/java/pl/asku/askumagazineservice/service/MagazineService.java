@@ -4,11 +4,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.hibernate.Filter;
+import org.hibernate.Session;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,8 @@ public class MagazineService {
   @Lazy
   private final MagazineConverter magazineConverter;
   private final MagazineValidator magazineValidator;
+
+  private final EntityManager entityManager;
 
   @Transactional
   public Magazine addMagazine(
@@ -90,12 +95,28 @@ public class MagazineService {
     return updatedMagazine;
   }
 
-  public Magazine getMagazineDetails(@NotNull Long id) throws MagazineNotFoundException {
+  @Transactional
+  public Magazine deleteMagazine(@Valid Magazine magazine) throws MagazineNotFoundException {
+    magazineRepository.deleteById(magazine.getId());
+    return getMagazine(magazine.getId(), true);
+  }
+
+  public Magazine getMagazine(@NotNull Long id) throws MagazineNotFoundException {
     Optional<Magazine> magazine = magazineRepository.findById(id);
     if (magazine.isEmpty()) {
       throw new MagazineNotFoundException();
     }
     return magazine.get();
+  }
+
+  public Magazine getMagazine(@NotNull Long id, boolean isDeleted)
+      throws MagazineNotFoundException {
+    Session session = entityManager.unwrap(Session.class);
+    Filter filter = session.enableFilter("deletedMagazineFilter");
+    filter.setParameter("isDeleted", isDeleted);
+    Magazine magazine = getMagazine(id);
+    session.disableFilter("deletedMagazineFilter");
+    return magazine;
   }
 
   public List<Magazine> getActiveByOwner(@NotNull String ownerId) {

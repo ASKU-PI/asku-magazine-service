@@ -41,7 +41,7 @@ public class ReservationService {
                                     @NotNull @Valid User user)
       throws MagazineNotAvailableException,
       MagazineNotFoundException {
-    Magazine magazine = magazineService.getMagazineDetails(reservationDto.getMagazineId());
+    Magazine magazine = magazineService.getMagazine(reservationDto.getMagazineId());
     return addReservation(magazine, reservationDto, user);
   }
 
@@ -90,7 +90,7 @@ public class ReservationService {
         reservationRepository.findActiveReservations(id,
             fromDate, toDate);
     System.out.println(reservations);
-    Magazine magazine = magazineService.getMagazineDetails(id);
+    Magazine magazine = magazineService.getMagazine(id);
     List<DailyStateDto> result = new ArrayList<>();
     for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
       LocalDate currentDate = date;
@@ -154,7 +154,7 @@ public class ReservationService {
 
   public TotalPrice getTotalPrice(@Valid ReservationDto reservation)
       throws MagazineNotFoundException {
-    Magazine magazine = magazineService.getMagazineDetails(reservation.getMagazineId());
+    Magazine magazine = magazineService.getMagazine(reservation.getMagazineId());
     return new TotalPrice(
         magazine.getPricePerMeter(),
         reservation.getAreaInMeters(),

@@ -46,7 +46,7 @@ public class ReservationPolicy {
         ));
 
     boolean isMagazineOwner =
-        authentication != null && magazineService.getMagazineDetails(spaceId).getOwner().getId()
+        authentication != null && magazineService.getMagazine(spaceId).getOwner().getId()
             .equals(authentication.getName());
 
     return atLeastModerator || isMagazineOwner;

@@ -45,7 +45,7 @@ public class UpdateMagazineServiceTests extends MagazineServiceTestBase {
     Magazine updatedMagazine = magazineService.updateMagazine(
         magazine, updatedMagazineDto, null, null);
 
-    Magazine reloadedMagazine = magazineService.getMagazineDetails(magazine.getId());
+    Magazine reloadedMagazine = magazineService.getMagazine(magazine.getId());
 
     //then
     assertEquals(updatedMagazine.getTitle(), "Updated title");

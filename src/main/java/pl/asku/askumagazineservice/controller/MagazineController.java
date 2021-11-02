@@ -8,10 +8,7 @@ import java.util.Optional;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -106,7 +103,7 @@ public class MagazineController {
       @RequestPart(value = "files", required = false) MultipartFile[] toAddPhotos,
       Authentication authentication) {
     try {
-      Magazine magazine = magazineService.getMagazineDetails(magazineDto.getId());
+      Magazine magazine = magazineService.getMagazine(magazineDto.getId());
 
       if (!magazinePolicy.updateMagazine(authentication, magazine)) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -127,15 +124,12 @@ public class MagazineController {
       Authentication authentication
   ) {
     try {
-      Magazine magazine = magazineService.getMagazineDetails(id);
-
+      Magazine magazine = magazineService.getMagazine(id);
       if (!magazinePolicy.deleteMagazine(authentication, magazine)) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body("You are not authorized to delete this space");
       }
-
-      //TODO: IMPLEMENT
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not yet implemented");
+      return ResponseEntity.status(HttpStatus.OK).body(magazineService.deleteMagazine(magazine));
     } catch (MagazineNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
@@ -144,7 +138,7 @@ public class MagazineController {
   @GetMapping("/details/{id}")
   public ResponseEntity<Object> getMagazine(@PathVariable Long id) {
     try {
-      Magazine magazine = magazineService.getMagazineDetails(id);
+      Magazine magazine = magazineService.getMagazine(id);
       return ResponseEntity.status(HttpStatus.OK).body(magazineConverter.toDto(magazine));
     } catch (MagazineNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

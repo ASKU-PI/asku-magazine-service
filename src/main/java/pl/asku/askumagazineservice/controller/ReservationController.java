@@ -146,7 +146,7 @@ public class ReservationController {
       @RequestParam @Min(0) BigDecimal minArea
   ) {
     try {
-      Magazine magazine = magazineService.getMagazineDetails(id);
+      Magazine magazine = magazineService.getMagazine(id);
       return ResponseEntity
           .status(HttpStatus.OK)
           .body(reservationService.checkIfMagazineAvailable(magazine, start, end, minArea));
@@ -165,7 +165,7 @@ public class ReservationController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @NonNull LocalDate end
   ) {
     try {
-      Magazine magazine = magazineService.getMagazineDetails(id);
+      Magazine magazine = magazineService.getMagazine(id);
       BigDecimal availableArea = reservationService.getAvailableArea(magazine, start, end);
       return ResponseEntity.status(HttpStatus.OK)
           .body(new AvailableSpaceDto(magazine.getId(), availableArea));

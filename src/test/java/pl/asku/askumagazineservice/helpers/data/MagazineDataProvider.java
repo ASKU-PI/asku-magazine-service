@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
+import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
@@ -81,5 +82,12 @@ public class MagazineDataProvider {
   public Magazine magazine(User user, MagazineDto magazineDto) throws LocationNotFoundException,
       LocationIqRequestFailedException {
     return magazineService.addMagazine(magazineDto, user, null);
+  }
+
+  public Magazine deletedMagazine(User user)
+      throws LocationNotFoundException, LocationIqRequestFailedException,
+      MagazineNotFoundException {
+    Magazine magazine = magazine(user);
+    return magazineService.deleteMagazine(magazine);
   }
 }

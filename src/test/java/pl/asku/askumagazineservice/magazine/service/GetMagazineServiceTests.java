@@ -1,5 +1,8 @@
 package pl.asku.askumagazineservice.magazine.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +27,38 @@ public class GetMagazineServiceTests extends MagazineServiceTestBase {
   }
 
   @Test
-  public void getMagazineDetailsShouldReturnCorrectMagazine() throws LocationNotFoundException,
+  public void returnsCorrectMagazine() throws LocationNotFoundException,
       LocationIqRequestFailedException, MagazineNotFoundException {
     //given
     User user = userDataProvider.user("test@test.pl", "666666666");
     Magazine magazine = magazineDataProvider.magazine(user);
 
     //when
-    Magazine magazineDetails = magazineService.getMagazineDetails(magazine.getId());
+    Magazine magazineDetails = magazineService.getMagazine(magazine.getId());
 
     //then
-    Assertions.assertEquals(magazine.getId(), magazineDetails.getId());
+    assertEquals(magazine.getId(), magazineDetails.getId());
   }
+
+  @Test
+  public void failsWhenNotExists() {
+    //given
+    Long id = 1L;
+
+    //when then
+    assertThrows(MagazineNotFoundException.class, () -> magazineService.getMagazine(id));
+  }
+
+//  @Test
+//  public void failsWhenDeleted()
+//      throws LocationNotFoundException, LocationIqRequestFailedException,
+//      MagazineNotFoundException {
+//    //given
+//    User owner = userDataProvider.user("owner@test.pl", "666666666");
+//    Magazine magazine = magazineDataProvider.deletedMagazine(owner);
+//
+//    //when then
+//    assertThrows(MagazineNotFoundException.class,
+//        () -> magazineService.getMagazine(magazine.getId()));
+//  }
 }
