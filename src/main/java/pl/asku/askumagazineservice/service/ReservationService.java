@@ -135,7 +135,8 @@ public class ReservationService {
     if (magazine.getAreaInMeters().compareTo(area) < 0
         || magazine.getMinAreaToRent().compareTo(area) > 0
         || magazine.getStartDate().compareTo(start) > 0
-        || magazine.getEndDate().compareTo(end) < 0) {
+        || magazine.getEndDate().compareTo(end) < 0
+        || magazine.isDeleted()) {
       return false;
     }
     BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);

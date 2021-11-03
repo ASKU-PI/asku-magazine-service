@@ -49,16 +49,18 @@ public class GetMagazineServiceTests extends MagazineServiceTestBase {
     assertThrows(MagazineNotFoundException.class, () -> magazineService.getMagazine(id));
   }
 
-//  @Test
-//  public void failsWhenDeleted()
-//      throws LocationNotFoundException, LocationIqRequestFailedException,
-//      MagazineNotFoundException {
-//    //given
-//    User owner = userDataProvider.user("owner@test.pl", "666666666");
-//    Magazine magazine = magazineDataProvider.deletedMagazine(owner);
-//
-//    //when then
-//    assertThrows(MagazineNotFoundException.class,
-//        () -> magazineService.getMagazine(magazine.getId()));
-//  }
+  @Test
+  public void succeedsWhenDeleted()
+      throws LocationNotFoundException, LocationIqRequestFailedException,
+      MagazineNotFoundException {
+    //given
+    User owner = userDataProvider.user("owner@test.pl", "666666666");
+    Magazine magazine = magazineDataProvider.deletedMagazine(owner);
+
+    //when
+    Magazine magazineDetails = magazineService.getMagazine(magazine.getId());
+
+    //then
+    assertEquals(magazine.getId(), magazineDetails.getId());
+  }
 }

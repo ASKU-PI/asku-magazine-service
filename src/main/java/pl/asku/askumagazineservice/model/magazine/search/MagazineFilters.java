@@ -49,4 +49,5 @@ public class MagazineFilters {
   private String historicallyReservedBy;
   private BigDecimal minTemperature;
   private BigDecimal maxTemperature;
+  private Boolean withDeleted;
 }

@@ -90,4 +90,11 @@ public class MagazineDataProvider {
     Magazine magazine = magazine(user);
     return magazineService.deleteMagazine(magazine);
   }
+
+  public Magazine deletedMagazine(User user, MagazineDto magazineDto)
+      throws LocationNotFoundException, LocationIqRequestFailedException,
+      MagazineNotFoundException {
+    Magazine magazine = magazine(user, magazineDto);
+    return magazineService.deleteMagazine(magazine);
+  }
 }

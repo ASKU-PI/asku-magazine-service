@@ -242,7 +242,8 @@ public class MagazineController {
         currentlyReservedBy.orElse(null),
         historicallyReservedBy.orElse(null),
         minTemperature.orElse(null),
-        maxTemperature.orElse(null)
+        maxTemperature.orElse(null),
+        false
     );
 
     try {

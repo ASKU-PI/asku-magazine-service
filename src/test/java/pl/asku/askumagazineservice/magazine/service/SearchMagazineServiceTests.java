@@ -51,7 +51,9 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
   }
 
   @Test
-  public void searchMagazinesShouldReturnMagazines() throws UserNotFoundException {
+  public void searchMagazinesShouldReturnMagazines()
+      throws UserNotFoundException, LocationNotFoundException, LocationIqRequestFailedException,
+      MagazineNotFoundException {
     //given
     MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
@@ -64,6 +66,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
         e.printStackTrace();
       }
     });
+
+    magazineDataProvider.deletedMagazine(user, magazineDto);
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)

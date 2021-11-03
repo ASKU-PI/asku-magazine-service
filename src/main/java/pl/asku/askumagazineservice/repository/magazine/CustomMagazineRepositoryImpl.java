@@ -83,6 +83,10 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
       }
     }
 
+    if (magazineFilters.getWithDeleted() == null || !magazineFilters.getWithDeleted()) {
+      queryBuilder.append(" m.deleted = false AND");
+    }
+
     if (magazineFilters.getStartDateGreaterOrEqual() != null) {
       queryBuilder
           .append(" m.startDate <= TO_DATE('")
