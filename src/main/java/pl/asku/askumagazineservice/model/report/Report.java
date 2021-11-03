@@ -1,18 +1,18 @@
-package pl.asku.askumagazineservice.model;
+package pl.asku.askumagazineservice.model.report;
 
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -22,16 +22,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.User;
+import pl.asku.askumagazineservice.model.magazine.Magazine;
 
 @Entity
-@Table(name = "review")
+@Table(name = "report")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Review {
+public class Report {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,16 +48,20 @@ public class Review {
   private Date updatedDate;
 
   @NotNull
-  @OneToOne
-  @JoinColumn(name = "reservation_id", referencedColumnName = "id")
-  private Reservation reservation;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "reporter_id", referencedColumnName = "id")
+  private User reporter;
 
   @NotNull
-  @Min(1)
-  @Max(5)
-  private Integer rating;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "magazine_id", referencedColumnName = "id")
+  private Magazine magazine;
 
+  @NotNull
   @Column(columnDefinition = "TEXT")
   @Size(max = 500)
   private String body;
+
+  @Column(columnDefinition = "boolean default false")
+  private Boolean closed;
 }

@@ -2,12 +2,9 @@ package pl.asku.askumagazineservice.util.modelconverter;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.asku.askumagazineservice.dto.ReviewDto;
-import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
-import pl.asku.askumagazineservice.model.Review;
+import pl.asku.askumagazineservice.dto.review.ReviewDto;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
-import pl.asku.askumagazineservice.service.ReservationService;
-import pl.asku.askumagazineservice.util.LocalDateConverter;
 
 @Service
 @AllArgsConstructor

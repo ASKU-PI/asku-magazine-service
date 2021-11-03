@@ -42,7 +42,7 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
-import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
+import pl.asku.askumagazineservice.model.magazine.search.MagazineSearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.security.policy.MagazinePolicy;
 import pl.asku.askumagazineservice.service.MagazineService;
@@ -247,7 +247,7 @@ public class MagazineController {
     );
 
     try {
-      SearchResult result = magazineService.searchMagazines(
+      MagazineSearchResult result = magazineService.searchMagazines(
           page.isPresent() && page.get() > 0 ? page.get() : 1,
           filters,
           sortBy.orElse(null)

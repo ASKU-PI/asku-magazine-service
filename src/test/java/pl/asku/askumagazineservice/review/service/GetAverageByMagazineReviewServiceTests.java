@@ -17,7 +17,7 @@ import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
 import pl.asku.askumagazineservice.helpers.data.ReservationDataProvider;
 import pl.asku.askumagazineservice.helpers.data.ReviewDataProvider;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
-import pl.asku.askumagazineservice.model.Review;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.reservation.Reservation;

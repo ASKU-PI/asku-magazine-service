@@ -1,12 +1,10 @@
 package pl.asku.askumagazineservice.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,7 +27,7 @@ import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
-import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
+import pl.asku.askumagazineservice.model.magazine.search.MagazineSearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.repository.magazine.MagazineRepository;
 import pl.asku.askumagazineservice.util.modelconverter.MagazineConverter;
@@ -123,7 +121,7 @@ public class MagazineService {
     return magazineRepository.findAllActiveByOwner(ownerId);
   }
 
-  public SearchResult searchMagazines(
+  public MagazineSearchResult searchMagazines(
       @Min(1) Integer page,
       @NotNull MagazineFilters filters,
       SortOptions sortOptions) throws UserNotFoundException {

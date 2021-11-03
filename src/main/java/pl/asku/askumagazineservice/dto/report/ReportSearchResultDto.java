@@ -1,4 +1,4 @@
-package pl.asku.askumagazineservice.dto.magazine;
+package pl.asku.askumagazineservice.dto.report;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -6,16 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.asku.askumagazineservice.model.magazine.Geolocation;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchResultDto {
-  private List<MagazinePreviewDto> spaces;
-  private Geolocation mapCenter;
+public class ReportSearchResultDto {
+  private List<ReportDto> reports;
   private Integer pages;
-  private Integer records;
+  private Long records;
 }

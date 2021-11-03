@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
-import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
+import pl.asku.askumagazineservice.model.magazine.search.MagazineSearchResult;
 
 public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
 
@@ -21,7 +21,7 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
   private EntityManager em;
 
   @Override
-  public SearchResult search(MagazineFilters magazineFilters, PageRequest pageRequest)
+  public MagazineSearchResult search(MagazineFilters magazineFilters, PageRequest pageRequest)
       throws UserNotFoundException {
     TypedQuery<QueryResult> query = createQuery(magazineFilters, pageRequest.getSort());
     int recordsCount = query.getResultList().size();
@@ -32,7 +32,7 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
     List<Magazine> magazines =
         query.getResultList().stream().map(queryResult -> queryResult.magazine)
             .collect(Collectors.toList());
-    return SearchResult.builder()
+    return MagazineSearchResult.builder()
         .mapCenter(magazineFilters.getLocationFilter() != null
             ? magazineFilters.getLocationFilter().getMapCenter()
             : null)

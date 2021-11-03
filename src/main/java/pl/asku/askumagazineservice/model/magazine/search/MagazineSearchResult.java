@@ -10,7 +10,7 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 @AllArgsConstructor
 @Builder
 @Getter
-public class SearchResult {
+public class MagazineSearchResult {
   private List<Magazine> spaces;
   private Geolocation mapCenter;
   private Integer pages;

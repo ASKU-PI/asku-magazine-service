@@ -5,14 +5,17 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import pl.asku.askumagazineservice.dto.ReviewDto;
+import pl.asku.askumagazineservice.dto.review.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.exception.ReviewNotFoundException;
-import pl.asku.askumagazineservice.model.Review;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.review.ReviewSearchResult;
 import pl.asku.askumagazineservice.repository.ReviewRepository;
 import pl.asku.askumagazineservice.util.modelconverter.ReviewConverter;
 
@@ -50,6 +53,17 @@ public class ReviewService {
       throw new ReviewNotFoundException();
     }
     return review.get();
+  }
+
+  public ReviewSearchResult getMagazineReviews(@NotNull Long magazineId, @NotNull Integer page) {
+    Page<Review> result = reviewRepository
+        .findAllByReservation_Magazine_Id(magazineId, PageRequest.of(page - 1, 10));
+
+    return ReviewSearchResult.builder()
+        .reviews(result.getContent())
+        .records(result.getTotalElements())
+        .pages(result.getTotalPages())
+        .build();
   }
 
   public Integer getMagazineReviewsNumber(@NotNull Long magazineId) {

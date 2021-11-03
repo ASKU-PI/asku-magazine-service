@@ -1,10 +1,7 @@
-package pl.asku.askumagazineservice.dto;
+package pl.asku.askumagazineservice.dto.report;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
 import java.util.Date;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,15 +9,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.user.UserDto;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewDto {
-
+public class ReportDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long id;
 
@@ -28,13 +25,15 @@ public class ReviewDto {
   private Date createdDate;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private ReservationDto reservationDto;
+  private UserDto reporter;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private MagazineDto magazine;
 
   @NotNull
-  @Min(1)
-  @Max(5)
-  private Integer rating;
-
   @Size(max = 500)
   private String body;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Boolean closed;
 }

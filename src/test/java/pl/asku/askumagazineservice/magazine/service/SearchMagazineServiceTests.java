@@ -24,7 +24,7 @@ import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
 import pl.asku.askumagazineservice.model.magazine.search.MagazineFilters;
-import pl.asku.askumagazineservice.model.magazine.search.SearchResult;
+import pl.asku.askumagazineservice.model.magazine.search.MagazineSearchResult;
 import pl.asku.askumagazineservice.model.magazine.search.SortOptions;
 import pl.asku.askumagazineservice.service.MagazineService;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -79,7 +79,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     int page = 1;
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         SortOptions.PRICE_ASC
@@ -136,7 +136,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     int page = 1;
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         null
@@ -189,7 +189,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     magazineDataProvider.magazine(user, notMatchingMagazine);
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         null
@@ -230,7 +230,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     int page = 1;
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         null
@@ -287,7 +287,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     int page = 1;
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         null
@@ -341,7 +341,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     int page = 1;
 
     //when
-    SearchResult searchResult = magazineService.searchMagazines(
+    MagazineSearchResult searchResult = magazineService.searchMagazines(
         page,
         filters,
         null

@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.controller;
 
+import java.util.Optional;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -15,16 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import pl.asku.askumagazineservice.dto.ReviewDto;
+import pl.asku.askumagazineservice.dto.review.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.exception.ReviewNotFoundException;
-import pl.asku.askumagazineservice.model.Review;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.review.ReviewSearchResult;
 import pl.asku.askumagazineservice.security.policy.ReviewPolicy;
 import pl.asku.askumagazineservice.service.ReservationService;
 import pl.asku.askumagazineservice.service.ReviewService;
 import pl.asku.askumagazineservice.util.modelconverter.ReviewConverter;
+import pl.asku.askumagazineservice.util.modelconverter.SearchResultConverter;
 
 @RestController
 @Validated
@@ -35,6 +38,7 @@ public class ReviewController {
   private final ReviewService reviewService;
   private final ReviewConverter reviewConverter;
   private final ReviewPolicy reviewPolicy;
+  private final SearchResultConverter searchResultConverter;
 
   private final ReservationService reservationService;
 
@@ -74,5 +78,24 @@ public class ReviewController {
     } catch (ReviewNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+  }
+
+  @GetMapping("/reservation-review")
+  public ResponseEntity<Object> getReservationReview(@RequestParam Long reservationId) {
+    try {
+      Review review = reviewService.getReviewByReservationId(reservationId);
+      return ResponseEntity.status(HttpStatus.OK).body(reviewConverter.toDto(review));
+    } catch (ReviewNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/magazine-reviews")
+  public ResponseEntity<Object> getMagazineReviews(
+      @RequestParam Long magazineId,
+      @RequestParam(required = false) Optional<Integer> page
+  ) {
+    ReviewSearchResult reviewSearchResult = reviewService.getMagazineReviews(magazineId, page.orElse(1));
+    return ResponseEntity.status(HttpStatus.OK).body(searchResultConverter.toDto(reviewSearchResult));
   }
 }
