@@ -19,7 +19,8 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
       + ".createdDate DESC")
   List<ChatMessage> findAllBySender_IdAndReceiver_Id(String senderId, String receiverId);
 
-  @Query("SELECT DISTINCT u FROM ChatMessage m JOIN User u ON u.id = m.sender.id WHERE m.receiver"
-      + ".id = :userId")
+  @Query("SELECT DISTINCT u FROM User u WHERE u.id IN (SELECT u.id FROM ChatMessage m JOIN User u ON m"
+      + ".sender.id = u.id WHERE m.receiver.id = :userId) OR u.id IN (SELECT u.id FROM "
+      + "ChatMessage m JOIN User u ON m.receiver.id = u.id WHERE m.sender.id = :userId)")
   List<User> getChats(String userId);
 }

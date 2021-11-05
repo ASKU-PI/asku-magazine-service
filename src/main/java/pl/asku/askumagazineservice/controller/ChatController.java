@@ -93,7 +93,7 @@ public class ChatController {
 
     try {
       return ResponseEntity
-          .ok(chatMessageService.findChatMessages(authentication.getName(), userId));
+          .ok(chatMessageService.getChatMessages(authentication.getName(), userId));
     } catch (UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     }

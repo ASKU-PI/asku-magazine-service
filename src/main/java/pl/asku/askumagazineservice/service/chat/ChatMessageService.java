@@ -43,7 +43,7 @@ public class ChatMessageService {
             Collectors.toList());
   }
 
-  public List<ChatMessage> findChatMessages(String senderId, String recipientId)
+  public List<ChatMessage> getChatMessages(String senderId, String recipientId)
       throws UserNotFoundException {
 
     var messages = repository.findAllBySender_IdAndReceiver_Id(senderId, recipientId);
@@ -53,7 +53,7 @@ public class ChatMessageService {
     return messages;
   }
 
-  public ChatMessage findById(Long id) throws ChatMessageNotFoundException {
+  public ChatMessage getChatMessage(Long id) throws ChatMessageNotFoundException {
     return repository
         .findById(id)
         .map(chatMessage -> {
