@@ -1,6 +1,5 @@
 package pl.asku.askumagazineservice.service;
 
-import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

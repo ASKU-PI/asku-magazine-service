@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.dto.review.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
-import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.service.ReviewService;
 import pl.asku.askumagazineservice.util.modelconverter.ReviewConverter;
 

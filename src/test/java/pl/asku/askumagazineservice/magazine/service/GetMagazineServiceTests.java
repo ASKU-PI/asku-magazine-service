@@ -3,7 +3,6 @@ package pl.asku.askumagazineservice.magazine.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;

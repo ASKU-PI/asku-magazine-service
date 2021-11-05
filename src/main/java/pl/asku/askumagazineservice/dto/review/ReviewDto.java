@@ -1,7 +1,6 @@
 package pl.asku.askumagazineservice.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
 import java.util.Date;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

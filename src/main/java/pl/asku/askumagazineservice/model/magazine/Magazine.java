@@ -37,7 +37,8 @@ import pl.asku.askumagazineservice.model.User;
 
 @Entity
 @Table(name = "magazine")
-@FilterDef(name = "deletedMagazineFilter", parameters = @ParamDef(name = "isDeleted", type = "boolean"))
+@FilterDef(name = "deletedMagazineFilter", parameters = @ParamDef(name = "isDeleted", type =
+    "boolean"))
 @Filter(name = "deletedMagazineFilter", condition = "deleted = :isDeleted")
 @Getter
 @Setter
@@ -47,51 +48,40 @@ import pl.asku.askumagazineservice.model.User;
 @NoArgsConstructor
 public class Magazine {
 
+  @NotNull
+  @Embedded
+  Geolocation location;
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(unique = true, updatable = false)
   private Long id;
-
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   private Date createdDate;
-
   @UpdateTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   private Date updatedDate;
-
   private boolean deleted = Boolean.FALSE;
-
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", referencedColumnName = "id")
   private User owner;
-
   @NotNull
   @NotBlank
   @Size(min = 3, max = 100)
   private String title;
-
   @NotNull
   @NotBlank
   private String country;
-
   @NotNull
   @NotBlank
   private String city;
-
   @NotNull
   @NotBlank
   private String street;
-
   @NotNull
   @NotBlank
   private String building;
-
-  @NotNull
-  @Embedded
-  Geolocation location;
-
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate startDate;

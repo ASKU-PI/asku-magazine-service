@@ -20,8 +20,8 @@ import pl.asku.askumagazineservice.dto.review.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.exception.ReviewNotFoundException;
-import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.review.ReviewSearchResult;
 import pl.asku.askumagazineservice.security.policy.ReviewPolicy;
 import pl.asku.askumagazineservice.service.ReservationService;
@@ -95,7 +95,9 @@ public class ReviewController {
       @RequestParam Long magazineId,
       @RequestParam(required = false) Optional<Integer> page
   ) {
-    ReviewSearchResult reviewSearchResult = reviewService.getMagazineReviews(magazineId, page.orElse(1));
-    return ResponseEntity.status(HttpStatus.OK).body(searchResultConverter.toDto(reviewSearchResult));
+    ReviewSearchResult reviewSearchResult =
+        reviewService.getMagazineReviews(magazineId, page.orElse(1));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(searchResultConverter.toDto(reviewSearchResult));
   }
 }

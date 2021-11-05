@@ -12,11 +12,11 @@ import pl.asku.askumagazineservice.model.magazine.Geolocation;
 public class LocationFilter {
   private final BigDecimal defaultRadiusInKilometers = BigDecimal.valueOf(5.0f);
   private final BigDecimal kilometerToDegreeRatio = BigDecimal.valueOf(111.0f);
+  private final Geolocation mapCenter;
   private BigDecimal minLongitude;
   private BigDecimal maxLongitude;
   private BigDecimal minLatitude;
   private BigDecimal maxLatitude;
-  private final Geolocation mapCenter;
 
   public LocationFilter(
       BigDecimal minLongitude,
