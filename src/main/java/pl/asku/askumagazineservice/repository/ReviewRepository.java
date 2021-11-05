@@ -18,5 +18,5 @@ public interface ReviewRepository extends PagingAndSortingRepository<Review, Lon
           + ".reservation.id JOIN Magazine m ON m.id = rn.magazine.id WHERE m.id = :magazineId")
   BigDecimal averageByReservation_Magazine_Id(Long magazineId);
 
-  Page<Review> findAllByReservation_Magazine_Id(Long magazineId, PageRequest pageRequest);
+  Page<Review> findAllByReservation_Magazine_Id(Long magazineId, Pageable pageRequest);
 }

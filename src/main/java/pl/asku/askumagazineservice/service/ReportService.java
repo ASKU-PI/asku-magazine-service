@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.service;
 
+import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class ReportService {
       @Valid User reporter,
       @Valid Magazine magazine) {
     Report report = reportConverter.toReport(reportDto, reporter, magazine);
+    report.setClosed(false);
     return reportRepository.save(report);
   }
 
