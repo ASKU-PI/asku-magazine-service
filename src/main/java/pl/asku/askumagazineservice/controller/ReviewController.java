@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,6 +68,28 @@ public class ReviewController {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (ReviewAlreadyExistsException e) {
       return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+  }
+
+  @PatchMapping("/review")
+  public ResponseEntity<Object> updateReview(
+      @RequestParam Long reviewId,
+      @RequestBody @Valid ReviewDto reviewDto,
+      Authentication authentication
+  ) {
+    try {
+      Review review = reviewService.getReview(reviewId);
+
+      if (!reviewPolicy.updateReview(authentication, review)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to update this review");
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body(
+          reviewConverter.toDto(reviewService.updateReview(
+              review, reviewDto)));
+    } catch (ReviewNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
   }
 

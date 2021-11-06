@@ -38,6 +38,14 @@ public class ReviewService {
     }
   }
 
+  public Review updateReview(
+      @Valid @NotNull Review review,
+      @Valid @NotNull ReviewDto reviewDto
+  ) {
+    Review updatedReview = reviewConverter.updateReview(review, reviewDto);
+    return reviewRepository.save(updatedReview);
+  }
+
   public Review getReview(@NotNull Long id) throws ReviewNotFoundException {
     Optional<Review> review = reviewRepository.findById(id);
     if (review.isEmpty()) {

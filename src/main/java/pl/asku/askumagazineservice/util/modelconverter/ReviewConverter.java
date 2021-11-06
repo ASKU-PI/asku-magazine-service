@@ -30,4 +30,11 @@ public class ReviewConverter {
         .reservationDto(reservationConverter.toDto(review.getReservation()))
         .build();
   }
+
+  public Review updateReview(Review review, ReviewDto reviewDto) {
+    review.setBody(reviewDto.getBody());
+    review.setRating(reviewDto.getRating());
+
+    return review;
+  }
 }

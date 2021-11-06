@@ -98,12 +98,13 @@ public class MagazineController {
 
   @PatchMapping(value = "/magazine", consumes = "multipart/form-data")
   public ResponseEntity<Object> updateMagazine(
+      @RequestParam Long magazineId,
       @ModelAttribute @Valid MagazineDto magazineDto,
-      @RequestBody(required = false) List<String> toDeletePhotosIds,
+      @RequestParam(required = false) List<String> toDeletePhotosIds,
       @RequestPart(value = "files", required = false) MultipartFile[] toAddPhotos,
       Authentication authentication) {
     try {
-      Magazine magazine = magazineService.getMagazine(magazineDto.getId());
+      Magazine magazine = magazineService.getMagazine(magazineId);
 
       if (!magazinePolicy.updateMagazine(authentication, magazine)) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
