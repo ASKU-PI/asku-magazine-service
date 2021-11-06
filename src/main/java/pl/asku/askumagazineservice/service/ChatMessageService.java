@@ -1,7 +1,9 @@
-package pl.asku.askumagazineservice.service.chat;
+package pl.asku.askumagazineservice.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +24,9 @@ public class ChatMessageService {
   private ChatMessageRepository repository;
   private ChatMessageConverter chatMessageConverter;
 
-  public ChatMessage createMessage(ChatMessageRequestDto chatMessageRequestDto, User sender)
+  public ChatMessage createMessage(
+      @Valid @NotNull ChatMessageRequestDto chatMessageRequestDto,
+      @Valid @NotNull User sender)
       throws UserNotFoundException {
     ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatMessageRequestDto, sender);
     return repository.save(chatMessage);

@@ -8,15 +8,16 @@ import pl.asku.askumagazineservice.dto.chat.ChatMessageRequestDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.User;
-import pl.asku.askumagazineservice.model.chat.ChatMessage;
-import pl.asku.askumagazineservice.service.chat.ChatMessageService;
+import pl.asku.askumagazineservice.service.ChatMessageService;
+import pl.asku.askumagazineservice.util.modelconverter.UserConverter;
 
 public class CountNewChatMessageServiceTests extends ChatMessageServiceTestBase {
   @Autowired
   public CountNewChatMessageServiceTests(
       UserDataProvider userDataProvider,
-      ChatMessageService chatMessageService) {
-    super(userDataProvider, chatMessageService);
+      ChatMessageService chatMessageService,
+      UserConverter userConverter) {
+    super(userDataProvider, chatMessageService, userConverter);
   }
 
   @Test
@@ -34,11 +35,18 @@ public class CountNewChatMessageServiceTests extends ChatMessageServiceTestBase 
       chatMessageService.createMessage(chatMessageRequestDto, sender);
     }
 
+    User sender2 = userDataProvider.user("sender2@test.pl", "555555555");
+    for (int i = 0; i < 4; i++) {
+      chatMessageService.createMessage(chatMessageRequestDto, sender2);
+    }
+
     //when
     Long messagesCount = chatMessageService.countNewMessages(receiver.getId());
+    Long messagesCountFromOneUser = chatMessageService.countNewMessages(sender.getId(), receiver.getId());
 
     //then
-    assertEquals(messagesCount, 3);
+    assertEquals(messagesCount, 7);
+    assertEquals(messagesCountFromOneUser, 3);
   }
 
   @Test

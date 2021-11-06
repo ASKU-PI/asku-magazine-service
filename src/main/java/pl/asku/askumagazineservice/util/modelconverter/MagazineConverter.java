@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.util.modelconverter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -98,6 +99,10 @@ public class MagazineConverter {
   }
 
   public Magazine toMagazine(MagazineDto magazineDto, User user, Geolocation geolocation) {
+    BigDecimal minAreaToRent =
+        (magazineDto.getWhole() != null && magazineDto.getWhole()) ? magazineDto.getAreaInMeters()
+            : magazineDto.getMinAreaToRent();
+
     return Magazine.builder()
         .owner(user)
         .title(magazineDto.getTitle())
@@ -126,7 +131,7 @@ public class MagazineConverter {
         .electricity(magazineDto.getElectricity())
         .parking(magazineDto.getParking())
         .vehicleManoeuvreArea(magazineDto.getVehicleManoeuvreArea())
-        .minAreaToRent(magazineDto.getMinAreaToRent())
+        .minAreaToRent(minAreaToRent)
         .ownerTransport(magazineDto.getOwnerTransport())
         .description(magazineDto.getDescription())
         .elevator(magazineDto.getElevator())
@@ -136,6 +141,9 @@ public class MagazineConverter {
   }
 
   public Magazine updateMagazine(Magazine magazine, MagazineDto magazineDto) {
+    BigDecimal minAreaToRent =
+        magazine.getWhole() ? magazine.getAreaInMeters() : magazineDto.getMinAreaToRent();
+
     magazine.setTitle(magazineDto.getTitle());
     magazine.setHeating(magazineDto.getHeating());
     magazine.setLight(magazineDto.getLight());
@@ -151,7 +159,7 @@ public class MagazineConverter {
     magazine.setElectricity(magazineDto.getElectricity());
     magazine.setParking(magazineDto.getParking());
     magazine.setVehicleManoeuvreArea(magazineDto.getVehicleManoeuvreArea());
-    magazine.setMinAreaToRent(magazineDto.getMinAreaToRent());
+    magazine.setMinAreaToRent(minAreaToRent);
     magazine.setOwnerTransport(magazineDto.getOwnerTransport());
     magazine.setDescription(magazineDto.getDescription());
     magazine.setElevator(magazineDto.getElevator());

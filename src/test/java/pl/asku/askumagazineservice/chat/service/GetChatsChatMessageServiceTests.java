@@ -10,15 +10,17 @@ import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.UserDataProvider;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.chat.Chat;
-import pl.asku.askumagazineservice.service.chat.ChatMessageService;
+import pl.asku.askumagazineservice.service.ChatMessageService;
+import pl.asku.askumagazineservice.util.modelconverter.UserConverter;
 
 public class GetChatsChatMessageServiceTests extends ChatMessageServiceTestBase {
 
   @Autowired
   public GetChatsChatMessageServiceTests(
       UserDataProvider userDataProvider,
-      ChatMessageService chatMessageService) {
-    super(userDataProvider, chatMessageService);
+      ChatMessageService chatMessageService,
+      UserConverter userConverter) {
+    super(userDataProvider, chatMessageService, userConverter);
   }
 
   @Test
@@ -58,5 +60,14 @@ public class GetChatsChatMessageServiceTests extends ChatMessageServiceTestBase 
 
     //then
     assertEquals(chats.size(), 3);
+
+    assertEquals((int) chats.stream().filter(
+        chat -> chat.getUser() == receiver1 && chat.getUnreadMessages() == 0).count(), 1);
+
+    assertEquals((int) chats.stream().filter(
+        chat -> chat.getUser() == receiver2 && chat.getUnreadMessages() == 0).count(), 1);
+
+    assertEquals((int) chats.stream().filter(
+        chat -> chat.getUser() == sender && chat.getUnreadMessages() == 1).count(), 1);
   }
 }

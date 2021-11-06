@@ -57,7 +57,7 @@ public class ReviewService {
 
   public ReviewSearchResult getMagazineReviews(@NotNull Long magazineId, @NotNull Integer page) {
     Page<Review> result = reviewRepository
-        .findAllByReservation_Magazine_Id(magazineId, PageRequest.of(page - 1, 10));
+        .findAllByReservation_Magazine_Id(magazineId, PageRequest.of(page - 1, 4));
 
     return ReviewSearchResult.builder()
         .reviews(result.getContent())

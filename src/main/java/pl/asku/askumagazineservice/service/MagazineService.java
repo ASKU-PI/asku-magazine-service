@@ -76,8 +76,8 @@ public class MagazineService {
 
   @Transactional
   public Magazine updateMagazine(
-      @Valid Magazine magazine,
-      @Valid MagazineDto magazineDto,
+      @Valid @NotNull Magazine magazine,
+      @Valid @NotNull MagazineDto magazineDto,
       List<String> toDeletePhotosIds,
       MultipartFile[] toAddPhotos
   ) {

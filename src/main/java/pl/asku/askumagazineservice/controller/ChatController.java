@@ -2,16 +2,20 @@ package pl.asku.askumagazineservice.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import pl.asku.askumagazineservice.dto.chat.ChatDto;
 import pl.asku.askumagazineservice.dto.chat.ChatMessageRequestDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
@@ -20,11 +24,12 @@ import pl.asku.askumagazineservice.model.chat.ChatMessage;
 import pl.asku.askumagazineservice.model.chat.ChatNotification;
 import pl.asku.askumagazineservice.security.policy.ChatPolicy;
 import pl.asku.askumagazineservice.service.UserService;
-import pl.asku.askumagazineservice.service.chat.ChatMessageService;
+import pl.asku.askumagazineservice.service.ChatMessageService;
 import pl.asku.askumagazineservice.util.modelconverter.ChatConverter;
 import pl.asku.askumagazineservice.util.modelconverter.ChatMessageConverter;
 
 @Controller
+@Validated
 @AllArgsConstructor
 public class ChatController {
 
@@ -34,6 +39,13 @@ public class ChatController {
   private ChatPolicy chatPolicy;
   private ChatMessageConverter chatMessageConverter;
   private ChatConverter chatConverter;
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+    return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(),
+        HttpStatus.BAD_REQUEST);
+  }
 
   @PostMapping("/message")
   public ResponseEntity<Object> addMessage(
