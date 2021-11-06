@@ -22,4 +22,7 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
 
   @Query("SELECT r from Reservation r WHERE r.user.id = :userId AND r.endDate >= CURRENT_DATE")
   List<Reservation> findActiveReservationsByUser(String userId);
+
+  @Query("SELECT r FROM Reservation r WHERE r.user.id = :userId AND r.endDate < CURRENT_DATE")
+  List<Reservation> findPastReservationsByUser(String userId);
 }

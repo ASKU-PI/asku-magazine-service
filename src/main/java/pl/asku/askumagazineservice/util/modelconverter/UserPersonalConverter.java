@@ -37,6 +37,12 @@ public class UserPersonalConverter {
                 .map(reservationConverter::toDto)
                 .collect(Collectors.toList())
         )
+        .pastReservations(
+            reservationService.getUserPast(user.getId())
+                .stream()
+                .map(reservationConverter::toDto)
+                .collect(Collectors.toList())
+        )
         .build();
   }
 }

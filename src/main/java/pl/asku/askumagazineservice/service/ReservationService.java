@@ -125,6 +125,10 @@ public class ReservationService {
     return reservationRepository.findActiveReservationsByUser(userId);
   }
 
+  public List<Reservation> getUserPast(String userId) {
+    return reservationRepository.findPastReservationsByUser(userId);
+  }
+
   public boolean checkIfMagazineAvailable(@NotNull @Valid Magazine magazine,
                                           @NotNull LocalDate start, @NotNull LocalDate end,
                                           @NotNull @Min(0) BigDecimal area) {
