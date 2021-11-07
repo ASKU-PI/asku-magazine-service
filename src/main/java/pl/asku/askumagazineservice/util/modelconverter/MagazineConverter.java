@@ -35,6 +35,7 @@ public class MagazineConverter {
         magazine.getId(),
         userConverter.toDto(magazine.getOwner()),
         magazine.getCreatedDate(),
+        magazine.isDeleted(),
         photos,
         magazine.getTitle(),
         magazine.getCountry(),

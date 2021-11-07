@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -88,6 +89,27 @@ public class ReviewController {
       return ResponseEntity.status(HttpStatus.OK).body(
           reviewConverter.toDto(reviewService.updateReview(
               review, reviewDto)));
+    } catch (ReviewNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/review")
+  public ResponseEntity<Object> deleteReview(
+      @RequestParam Long reviewId,
+      Authentication authentication
+  ) {
+    try {
+      Review review = reviewService.getReview(reviewId);
+
+      if (!reviewPolicy.deleteReview(authentication, review)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to delete this review");
+      }
+
+      reviewService.deleteReview(review);
+
+      return ResponseEntity.status(HttpStatus.OK).body("Review deleted");
     } catch (ReviewNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }

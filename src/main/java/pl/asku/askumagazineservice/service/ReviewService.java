@@ -46,6 +46,12 @@ public class ReviewService {
     return reviewRepository.save(updatedReview);
   }
 
+  public void deleteReview(
+      @Valid @NotNull Review review
+  ) {
+    reviewRepository.delete(review);
+  }
+
   public Review getReview(@NotNull Long id) throws ReviewNotFoundException {
     Optional<Review> review = reviewRepository.findById(id);
     if (review.isEmpty()) {

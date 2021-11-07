@@ -28,4 +28,8 @@ public class ReviewPolicy {
 
     return isOwner || isModerator;
   }
+
+  public boolean deleteReview(Authentication authentication, Review review) {
+    return updateReview(authentication, review);
+  }
 }

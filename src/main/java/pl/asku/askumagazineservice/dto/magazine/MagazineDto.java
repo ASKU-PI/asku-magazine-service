@@ -37,6 +37,9 @@ public class MagazineDto {
   private Date createdDate;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private boolean deleted = Boolean.FALSE;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private List<PictureData> photos;
 
   @NotNull
