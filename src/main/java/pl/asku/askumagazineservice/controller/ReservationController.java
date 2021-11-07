@@ -137,6 +137,20 @@ public class ReservationController {
     }
   }
 
+  @GetMapping("/daily-availability/{id}")
+  public ResponseEntity<Object> getDailyAvailability(
+      @PathVariable Long id,
+      @RequestParam BigDecimal area,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+  ) {
+    try {
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(reservationService.getDailyAvailability(id, area, fromDate, toDate));
+    } catch (MagazineNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
 
   @GetMapping("/availability/{id}")
   public ResponseEntity<Object> magazineAvailable(
