@@ -134,7 +134,8 @@ public class ReservationService {
     for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
       LocalDate currentDate = date;
       if (magazine.getStartDate().compareTo(date) > 0
-          || magazine.getEndDate().compareTo(date) < 0) {
+          || magazine.getEndDate().compareTo(date) < 0
+          || magazine.getAreaInMeters().compareTo(area) < 0) {
         result.add(new DailyAvailabilityDto(id, date, false));
         continue;
       }
