@@ -31,6 +31,8 @@ public class UserConverter {
         .phoneNumber(user.getPhoneNumber())
         .avatar(avatar)
         .email(user.getEmail())
+        .birthDate(user.getBirthDate())
+        .address(user.getAddress())
         .build();
   }
 
@@ -41,6 +43,8 @@ public class UserConverter {
         .lastName(userDto.getLastName())
         .phoneNumber(userDto.getPhoneNumber())
         .email(userDto.getEmail())
+        .birthDate(userDto.getBirthDate())
+        .address(userDto.getAddress())
         .build();
   }
 }

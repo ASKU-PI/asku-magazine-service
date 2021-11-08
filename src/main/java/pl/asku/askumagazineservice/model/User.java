@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.model;
 
+import java.time.LocalDate;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "user")
@@ -63,4 +65,13 @@ public class User {
   @Pattern(regexp = "[0-9\\-+\\s()]+")
   @Size(min = 3, max = 15)
   private String phoneNumber;
+
+  @NotNull
+  @NotBlank
+  @Size(max = 100)
+  private String address;
+
+  @NotNull
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+  private LocalDate birthDate;
 }

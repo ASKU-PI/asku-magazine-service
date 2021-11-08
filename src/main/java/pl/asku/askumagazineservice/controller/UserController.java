@@ -77,6 +77,19 @@ public class UserController {
     }
   }
 
+  @GetMapping("/user")
+  public ResponseEntity<Object> getCurrentUser(Authentication authentication) {
+    if (authentication == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authenticated!");
+    }
+    try {
+      User user = userService.getUser(authentication.getName());
+      return ResponseEntity.status(HttpStatus.OK).body(userConverter.toDto(user));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
   @GetMapping("/user-personal/{id}")
   public ResponseEntity<Object> getUserPersonal(@PathVariable @NotNull String id,
                                                 Authentication authentication) {

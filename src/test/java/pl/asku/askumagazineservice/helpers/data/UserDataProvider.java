@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.helpers.data;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.asku.askumagazineservice.dto.user.UserDto;
@@ -18,6 +19,8 @@ public class UserDataProvider {
         .lastName("Test")
         .phoneNumber(phoneNumber)
         .email(email)
+        .address("Test street test city test country")
+        .birthDate(LocalDate.of(1999, 1, 1))
         .build();
   }
 
@@ -28,6 +31,8 @@ public class UserDataProvider {
         .lastName("Test")
         .phoneNumber(phoneNumber)
         .email(email)
+        .address("Test street test city test country")
+        .birthDate(LocalDate.of(1999, 1, 1))
         .build();
 
     return userRepository.save(user);
