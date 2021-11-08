@@ -10,12 +10,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
@@ -44,8 +47,11 @@ public class UserController {
   }
 
   @PostMapping("/user")
-  public ResponseEntity<Object> createUser(@RequestBody @Valid UserDto userDto) {
-    User user = userService.addUser(userDto);
+  public ResponseEntity<Object> createUser(
+      @ModelAttribute @Valid UserDto userDto,
+      @RequestPart(value = "files", required = false) MultipartFile avatar
+  ) {
+    User user = userService.addUser(userDto, avatar);
     return ResponseEntity.status(HttpStatus.CREATED).body(userConverter.toDto(user));
   }
 

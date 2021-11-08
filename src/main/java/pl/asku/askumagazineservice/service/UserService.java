@@ -6,7 +6,9 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.AuthServiceClient;
+import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookUserDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
@@ -23,12 +25,18 @@ public class UserService {
   private final UserRepository userRepository;
   private final UserConverter userConverter;
   private final AuthServiceClient authServiceClient;
+  private final ImageServiceClient imageServiceClient;
 
-  public User addUser(@Valid @NotNull UserDto userDto) {
+  public User addUser(@Valid @NotNull UserDto userDto, MultipartFile avatar) {
     authServiceClient.register(userDto.getEmail(), userDto.getPassword());
     userDto.setId(userDto.getEmail());
-    User user = userConverter.toUser(userDto);
-    return userRepository.save(user);
+    User user = userRepository.save(userConverter.toUser(userDto));
+
+    if (avatar != null) {
+      imageServiceClient.uploadUserPicture(user.getId(), avatar);
+    }
+
+    return user;
   }
 
   public User addUser(@Valid @NotNull FacebookRegisterDto facebookRegisterDto) {
