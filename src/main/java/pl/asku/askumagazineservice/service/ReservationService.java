@@ -189,8 +189,8 @@ public class ReservationService {
 
   public BigDecimal getAvailableArea(@NotNull @Valid Magazine magazine, @NotNull LocalDate start,
                                      @NotNull LocalDate end) {
-    if (start.compareTo(end) >= 0) {
-      throw new ValidationException("End date must be greater than end date");
+    if (start.compareTo(end) > 0) {
+      throw new ValidationException("End date must be greater or equal to start date");
     }
 
     BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);
