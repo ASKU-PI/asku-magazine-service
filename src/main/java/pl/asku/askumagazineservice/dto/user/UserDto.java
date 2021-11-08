@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 
 @Getter
 @Setter
@@ -38,6 +40,9 @@ public class UserDto {
   @NotNull
   @NotBlank
   private String email;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private PictureData avatar;
 
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @NotNull

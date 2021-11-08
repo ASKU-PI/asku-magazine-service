@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
+import pl.asku.askumagazineservice.dto.client.imageservice.UserPictureDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
@@ -67,6 +68,9 @@ public class MagazineServiceTestBase {
     Mockito.when(imageServiceClient.getMagazinePictures(Mockito.anyLong()))
         .thenAnswer(invocationOnMock -> new MagazinePictureDto(invocationOnMock.getArgument(0),
             new ArrayList<>()));
+
+    Mockito.when(imageServiceClient.getUserPicture(Mockito.anyString()))
+        .thenAnswer(invocationOnMock -> new UserPictureDto(null));
   }
 
 }
