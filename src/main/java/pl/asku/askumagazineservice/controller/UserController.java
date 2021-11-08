@@ -11,10 +11,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +62,53 @@ public class UserController {
       @RequestBody @Valid FacebookRegisterDto facebookRegisterDto) {
     User user = userService.addUser(facebookRegisterDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(userConverter.toDto(user));
+  }
+
+  @PatchMapping("/user/{id}")
+  public ResponseEntity<Object> updateUser(
+      @PathVariable String id,
+      @ModelAttribute @Valid UserDto userDto,
+      @RequestPart(value = "files", required = false) MultipartFile avatar,
+      Authentication authentication
+  ) {
+    try {
+      User user = userService.getUser(id);
+
+      if (!userPolicy.updateUser(authentication, user)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to update this user");
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body(
+          userConverter.toDto(userService.updateUser(
+              user, userDto, avatar
+          )));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @PatchMapping("/user")
+  public ResponseEntity<Object> updateUser(
+      @ModelAttribute @Valid UserDto userDto,
+      @RequestPart(value = "files", required = false) MultipartFile avatar,
+      Authentication authentication
+  ) {
+    if (authentication == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body("You are not authenticated");
+    }
+
+    try {
+      User user = userService.getUser(authentication.getName());
+
+      return ResponseEntity.status(HttpStatus.OK).body(
+          userConverter.toDto(userService.updateUser(
+              user, userDto, avatar
+          )));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
   }
 
   @GetMapping("/user/{id}")

@@ -1,7 +1,5 @@
 package pl.asku.askumagazineservice.util.modelconverter;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
@@ -46,5 +44,15 @@ public class UserConverter {
         .birthDate(userDto.getBirthDate())
         .address(userDto.getAddress())
         .build();
+  }
+
+  public User updateUser(User user, UserDto userDto) {
+    user.setAddress(userDto.getAddress());
+    user.setBirthDate(user.getBirthDate());
+    user.setFirstName(user.getFirstName());
+    user.setLastName(user.getLastName());
+    user.setPhoneNumber(user.getPhoneNumber());
+
+    return user;
   }
 }

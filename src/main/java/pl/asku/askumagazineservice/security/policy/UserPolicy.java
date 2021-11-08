@@ -25,4 +25,8 @@ public class UserPolicy {
 
     return isOwner || isModerator;
   }
+
+  public boolean updateUser(Authentication authentication, User user) {
+    return getUserPersonal(authentication, user);
+  }
 }

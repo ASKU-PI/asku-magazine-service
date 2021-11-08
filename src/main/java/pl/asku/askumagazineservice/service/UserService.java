@@ -50,6 +50,19 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  public User updateUser(
+      @Valid @NotNull User user,
+      @Valid @NotNull UserDto userDto,
+      MultipartFile avatar) {
+    User updatedUser = userConverter.updateUser(user, userDto);
+
+    if (avatar != null) {
+      imageServiceClient.uploadUserPicture(user.getId(), avatar);
+    }
+
+    return userRepository.save(updatedUser);
+  }
+
   public User getUser(@NotNull String id) throws UserNotFoundException {
     Optional<User> user = userRepository.findById(id);
     if (user.isEmpty()) {
