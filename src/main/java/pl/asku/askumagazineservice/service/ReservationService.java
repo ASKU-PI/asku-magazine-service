@@ -173,7 +173,7 @@ public class ReservationService {
                                           @NotNull LocalDate start, @NotNull LocalDate end,
                                           @NotNull @Min(0) BigDecimal area) {
     if (start.compareTo(end) > 0) {
-      throw new ValidationException("End date must be greater or equal end date");
+      throw new ValidationException("End date must be greater or equal to start date");
     }
 
     if (magazine.getAreaInMeters().compareTo(area) < 0
@@ -191,6 +191,10 @@ public class ReservationService {
                                      @NotNull LocalDate end) {
     if (start.compareTo(end) > 0) {
       throw new ValidationException("End date must be greater or equal to start date");
+    }
+
+    if (!checkIfMagazineAvailable(magazine, start, end, magazine.getMinAreaToRent())) {
+      return BigDecimal.ZERO;
     }
 
     BigDecimal takenArea = getTakenArea(magazine.getId(), start, end);

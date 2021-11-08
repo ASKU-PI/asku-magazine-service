@@ -4,6 +4,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
@@ -51,10 +52,12 @@ public class TotalPriceReservationServiceTests extends ReservationServiceTestBas
     BigDecimal expectedServiceFee = expectedPrice.multiply(totalPrice.getServiceFeeMultiplier());
     BigDecimal expectedTax = expectedPrice.multiply(totalPrice.getTaxMultiplier());
 
-    assertEquals(totalPrice.getPrice(), expectedPrice);
-    assertEquals(totalPrice.getServiceFee(), expectedServiceFee);
-    assertEquals(totalPrice.getTax(), expectedTax);
+    assertEquals(totalPrice.getPrice(), expectedPrice.setScale(2, RoundingMode.HALF_EVEN));
+    assertEquals(totalPrice.getServiceFee(),
+        expectedServiceFee.setScale(2, RoundingMode.HALF_EVEN));
+    assertEquals(totalPrice.getTax(), expectedTax.setScale(2, RoundingMode.HALF_EVEN));
     assertEquals(totalPrice.getTotalPrice(),
-        expectedPrice.add(expectedServiceFee).add(expectedTax));
+        expectedPrice.add(expectedServiceFee).add(expectedTax)
+            .setScale(2, RoundingMode.HALF_EVEN));
   }
 }
