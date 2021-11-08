@@ -1,10 +1,14 @@
 package pl.asku.askumagazineservice.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -64,11 +68,6 @@ public class ImageServiceClient {
   }
 
   public UserPictureDto uploadUserPicture(String userId, MultipartFile file) {
-    var path = "/profile";
-
-    UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
-        .queryParam("id", userId);
-
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
     body.add("picture", file.getResource());
@@ -78,11 +77,16 @@ public class ImageServiceClient {
 
     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
+    var path = "/profile";
+
+    UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
+        .queryParam("id", userId);
+
     UserPictureDto userPictureDto =
         restTemplate.postForObject(pathBuilder.toUriString(), requestEntity,
             UserPictureDto.class);
     if (userPictureDto == null) {
-      userPictureDto = new UserPictureDto(userId, null);
+      userPictureDto = new UserPictureDto(null);
     }
     return userPictureDto;
   }
@@ -96,7 +100,7 @@ public class ImageServiceClient {
     UserPictureDto userPictureDto = restTemplate.getForObject(pathBuilder.toUriString(),
         UserPictureDto.class);
     if (userPictureDto == null) {
-      userPictureDto = new UserPictureDto(userId, null);
+      userPictureDto = new UserPictureDto(null);
     }
     return userPictureDto;
   }
