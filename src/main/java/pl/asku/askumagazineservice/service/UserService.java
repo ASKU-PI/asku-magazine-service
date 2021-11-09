@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookUserDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserUpdateDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.repository.UserRepository;
@@ -52,7 +53,7 @@ public class UserService {
 
   public User updateUser(
       @Valid @NotNull User user,
-      @Valid @NotNull UserDto userDto,
+      @Valid @NotNull UserUpdateDto userDto,
       MultipartFile avatar) {
     User updatedUser = userConverter.updateUser(user, userDto);
 

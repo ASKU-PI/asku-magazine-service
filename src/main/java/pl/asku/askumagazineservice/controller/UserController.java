@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserUpdateDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.security.policy.UserPolicy;
@@ -67,7 +68,7 @@ public class UserController {
   @PatchMapping("/user/{id}")
   public ResponseEntity<Object> updateUser(
       @PathVariable String id,
-      @ModelAttribute @Valid UserDto userDto,
+      @ModelAttribute @Valid UserUpdateDto userDto,
       @RequestPart(value = "files", required = false) MultipartFile avatar,
       Authentication authentication
   ) {
@@ -90,7 +91,7 @@ public class UserController {
 
   @PatchMapping("/user")
   public ResponseEntity<Object> updateUser(
-      @ModelAttribute @Valid UserDto userDto,
+      @ModelAttribute @Valid UserUpdateDto userDto,
       @RequestPart(value = "files", required = false) MultipartFile avatar,
       Authentication authentication
   ) {

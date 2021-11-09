@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserUpdateDto;
 import pl.asku.askumagazineservice.model.User;
 
 @Service
@@ -46,12 +47,22 @@ public class UserConverter {
         .build();
   }
 
-  public User updateUser(User user, UserDto userDto) {
-    user.setAddress(userDto.getAddress());
-    user.setBirthDate(user.getBirthDate());
-    user.setFirstName(user.getFirstName());
-    user.setLastName(user.getLastName());
-    user.setPhoneNumber(user.getPhoneNumber());
+  public User updateUser(User user, UserUpdateDto userDto) {
+    if (userDto.getAddress() != null) {
+      user.setAddress(userDto.getAddress());
+    }
+    if (userDto.getBirthDate() != null) {
+      user.setBirthDate(userDto.getBirthDate());
+    }
+    if (userDto.getFirstName() != null) {
+      user.setFirstName(userDto.getFirstName());
+    }
+    if (userDto.getLastName() != null) {
+      user.setLastName(userDto.getLastName());
+    }
+    if (userDto.getPhoneNumber() != null) {
+      user.setPhoneNumber(userDto.getPhoneNumber());
+    }
 
     return user;
   }
