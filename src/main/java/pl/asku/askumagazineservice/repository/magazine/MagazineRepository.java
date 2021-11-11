@@ -12,7 +12,7 @@ public interface MagazineRepository
     extends PagingAndSortingRepository<Magazine, Long>, JpaSpecificationExecutor<Magazine>,
     CustomMagazineRepository {
 
-  List<Magazine> findAllByOwner(String username, PageRequest pageRequest);
+  List<Magazine> findAllByOwner_IdAndDeleted(String ownerId, Boolean deleted);
 
   @Query("SELECT m FROM Magazine m WHERE m.owner.id = :username AND m.endDate >= CURRENT_DATE")
   List<Magazine> findAllActiveByOwner(String username);

@@ -37,9 +37,6 @@ import pl.asku.askumagazineservice.model.User;
 
 @Entity
 @Table(name = "magazine")
-@FilterDef(name = "deletedMagazineFilter", parameters = @ParamDef(name = "isDeleted", type =
-    "boolean"))
-@Filter(name = "deletedMagazineFilter", condition = "deleted = :isDeleted")
 @Getter
 @Setter
 @Builder
@@ -62,6 +59,7 @@ public class Magazine {
   @Temporal(TemporalType.TIMESTAMP)
   private Date updatedDate;
   private boolean deleted = Boolean.FALSE;
+  private boolean available = Boolean.TRUE;
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", referencedColumnName = "id")

@@ -80,6 +80,14 @@ public class ReviewService {
         .build();
   }
 
+  public Integer getUserReviewsNumber(@NotNull String userId) {
+    return reviewRepository.countByReservation_User_Id(userId);
+  }
+
+  public BigDecimal getUserAverageRating(@NotNull String userId) {
+    return reviewRepository.averageByReservation_User_Id(userId);
+  }
+
   public Integer getMagazineReviewsNumber(@NotNull Long magazineId) {
     return reviewRepository.countByReservation_Magazine_Id(magazineId);
   }

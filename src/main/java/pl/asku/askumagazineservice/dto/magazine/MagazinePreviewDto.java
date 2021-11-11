@@ -32,6 +32,8 @@ public class MagazinePreviewDto {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Date createdDate;
 
+  private Boolean available;
+
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private List<PictureData> photos;
 

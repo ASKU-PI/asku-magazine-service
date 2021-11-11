@@ -12,6 +12,7 @@ import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookUserDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserRegisterDto;
 import pl.asku.askumagazineservice.dto.user.UserUpdateDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
@@ -28,9 +29,8 @@ public class UserService {
   private final AuthServiceClient authServiceClient;
   private final ImageServiceClient imageServiceClient;
 
-  public User addUser(@Valid @NotNull UserDto userDto, MultipartFile avatar) {
+  public User addUser(@Valid @NotNull UserRegisterDto userDto, MultipartFile avatar) {
     authServiceClient.register(userDto.getEmail(), userDto.getPassword());
-    userDto.setId(userDto.getEmail());
     User user = userRepository.save(userConverter.toUser(userDto));
 
     if (avatar != null) {

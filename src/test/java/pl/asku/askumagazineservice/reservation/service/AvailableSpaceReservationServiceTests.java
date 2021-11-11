@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
@@ -36,7 +37,7 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
   public void returnsWholeSpaceWhenNoOtherReservations() throws LocationNotFoundException,
       LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
     LocalDate startDate = magazine.getStartDate().plusDays(1);
@@ -57,7 +58,7 @@ public class AvailableSpaceReservationServiceTests extends ReservationServiceTes
   public void returnsZeroWhenWholeSpaceReserved() throws LocationNotFoundException,
       LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     User otherUser = userDataProvider.user("test2@test.pl", "7777778777");
     BigDecimal area = magazineDto.getAreaInMeters();

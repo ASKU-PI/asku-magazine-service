@@ -3,13 +3,10 @@ package pl.asku.askumagazineservice.service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import org.hibernate.Filter;
-import org.hibernate.Session;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,7 +15,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineUpdateDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
@@ -45,11 +43,9 @@ public class MagazineService {
   private final MagazineConverter magazineConverter;
   private final MagazineValidator magazineValidator;
 
-  private final EntityManager entityManager;
-
   @Transactional
   public Magazine addMagazine(
-      @Valid @NotNull MagazineDto magazineDto,
+      @Valid @NotNull MagazineCreateDto magazineDto,
       @Valid @NotNull User user,
       MultipartFile[] photos)
       throws LocationNotFoundException, LocationIqRequestFailedException {
@@ -77,7 +73,7 @@ public class MagazineService {
   @Transactional
   public Magazine updateMagazine(
       @Valid @NotNull Magazine magazine,
-      @Valid @NotNull MagazineDto magazineDto,
+      @Valid @NotNull MagazineUpdateDto magazineDto,
       List<String> toDeletePhotosIds,
       MultipartFile[] toAddPhotos
   ) {
@@ -93,10 +89,18 @@ public class MagazineService {
     return updatedMagazine;
   }
 
+  public Magazine setAvailable(
+      @Valid @NotNull Magazine magazine,
+      @NotNull Boolean available
+  ) {
+    magazine.setAvailable(available);
+    return magazineRepository.save(magazine);
+  }
+
   @Transactional
   public Magazine deleteMagazine(@Valid Magazine magazine) throws MagazineNotFoundException {
     magazineRepository.deleteById(magazine.getId());
-    return getMagazine(magazine.getId(), true);
+    return getMagazine(magazine.getId());
   }
 
   public Magazine getMagazine(@NotNull Long id) throws MagazineNotFoundException {
@@ -107,18 +111,12 @@ public class MagazineService {
     return magazine.get();
   }
 
-  public Magazine getMagazine(@NotNull Long id, boolean isDeleted)
-      throws MagazineNotFoundException {
-    Session session = entityManager.unwrap(Session.class);
-    Filter filter = session.enableFilter("deletedMagazineFilter");
-    filter.setParameter("isDeleted", isDeleted);
-    Magazine magazine = getMagazine(id);
-    session.disableFilter("deletedMagazineFilter");
-    return magazine;
-  }
-
   public List<Magazine> getActiveByOwner(@NotNull String ownerId) {
     return magazineRepository.findAllActiveByOwner(ownerId);
+  }
+
+  public List<Magazine> getAllNotDeletedByOwner(@NotNull String ownerId) {
+    return magazineRepository.findAllByOwner_IdAndDeleted(ownerId, false);
   }
 
   public MagazineSearchResult searchMagazines(

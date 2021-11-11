@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import javax.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
@@ -41,7 +42,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -75,7 +76,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getAreaInMeters();
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -109,7 +110,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent();
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -142,7 +143,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsForMagazineTooSmall()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getAreaInMeters().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -167,7 +168,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsWhenStartDateSmallerThanMagazineStartDate() throws LocationNotFoundException,
       LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -192,7 +193,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsWhenEndDateGreaterThanMagazineStartDate() throws LocationNotFoundException,
       LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -217,7 +218,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsWhenStartDateSmallerThanMagazioneStartDateEndDateGreaterThanMagazineStartDate()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -242,7 +243,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsWhenStartDateGreaterThanMagazineEndDate() throws LocationNotFoundException,
       LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -267,7 +268,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void succeedsWhenStartDateEqualsEndDate() throws LocationNotFoundException,
       LocationIqRequestFailedException, MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -299,7 +300,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
   public void failsWhenAreaSmallerThanMinArea()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent().subtract(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -325,7 +326,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     User otherUser = userDataProvider.user("test2@test.pl", "777777");
     BigDecimal areaToRent = magazineDto.getAreaInMeters();
@@ -360,7 +361,7 @@ class AddReservationServiceTests extends ReservationServiceTestBase {
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     User otherUser = userDataProvider.user("test2@test.pl", "777777");
     BigDecimal areaToRent = magazineDto.getMinAreaToRent();

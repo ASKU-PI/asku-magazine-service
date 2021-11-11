@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pl.asku.askumagazineservice.controller.ReservationController;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -41,7 +42,7 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
   public void returnsTrueWhenAvailable()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0f));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -68,7 +69,7 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
   public void returnsFalseWhenUnavailable()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal area = magazineDto.getAreaInMeters().add(BigDecimal.valueOf(2.0f));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);
@@ -95,7 +96,7 @@ public class CheckAvailableMagazineControllerTests extends ReservationController
   public void failsWhenStartDateGreaterThanMagazineEndDate()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     BigDecimal area = magazineDto.getMinAreaToRent().add(BigDecimal.valueOf(2.0d));
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);

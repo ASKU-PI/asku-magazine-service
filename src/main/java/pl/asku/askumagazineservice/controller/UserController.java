@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.dto.client.authservice.facebook.FacebookRegisterDto;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.dto.user.UserRegisterDto;
 import pl.asku.askumagazineservice.dto.user.UserUpdateDto;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
@@ -51,7 +52,7 @@ public class UserController {
 
   @PostMapping("/user")
   public ResponseEntity<Object> createUser(
-      @ModelAttribute @Valid UserDto userDto,
+      @ModelAttribute @Valid UserRegisterDto userDto,
       @RequestPart(value = "files", required = false) MultipartFile avatar
   ) {
     User user = userService.addUser(userDto, avatar);

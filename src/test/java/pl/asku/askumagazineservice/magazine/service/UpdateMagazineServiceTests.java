@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineUpdateDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
@@ -32,12 +34,12 @@ public class UpdateMagazineServiceTests extends MagazineServiceTestBase {
       MagazineNotFoundException {
     //given
     User owner = userDataProvider.user("owner@test.pl", "666666666");
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .title("Old title")
         .build();
     Magazine magazine = magazineDataProvider.magazine(owner, magazineDto);
 
-    MagazineDto updatedMagazineDto = magazineDto.toBuilder()
+    MagazineUpdateDto updatedMagazineDto = magazineDataProvider.magazineUpdateDto().toBuilder()
         .title("Updated title")
         .build();
 

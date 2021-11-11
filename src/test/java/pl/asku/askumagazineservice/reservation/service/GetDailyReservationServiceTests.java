@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
@@ -41,7 +42,7 @@ public class GetDailyReservationServiceTests extends ReservationServiceTestBase 
     //given
     int toBeReturnedReservationsNumber = 2;
 
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
     User reservingUser = userDataProvider.user("test2@test.pl", "777777777");
     Magazine magazine = magazineDataProvider.magazine(user, magazineDto);

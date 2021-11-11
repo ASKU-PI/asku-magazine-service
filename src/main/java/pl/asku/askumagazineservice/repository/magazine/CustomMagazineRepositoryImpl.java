@@ -50,7 +50,7 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
         new StringBuilder(
             "SELECT NEW pl.asku.askumagazineservice.repository.magazine.QueryResult(m, SUM(r"
                 + ".areaInMeters)) FROM Magazine m LEFT JOIN Reservation r ON r.magazine = m.id "
-                + "WHERE 1 = 1 "
+                + "WHERE m.available = true "
                 + "AND");
 
     if (magazineFilters.getLocationFilter() != null) {

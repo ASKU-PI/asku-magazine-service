@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.dto.client.imageservice.MagazinePictureDto;
 import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazinePreviewDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineUpdateDto;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
@@ -36,6 +38,7 @@ public class MagazineConverter {
         userConverter.toDto(magazine.getOwner()),
         magazine.getCreatedDate(),
         magazine.isDeleted(),
+        magazine.isAvailable(),
         photos,
         magazine.getTitle(),
         magazine.getCountry(),
@@ -82,6 +85,7 @@ public class MagazineConverter {
         magazine.getId(),
         userConverter.toDto(magazine.getOwner()),
         magazine.getCreatedDate(),
+        magazine.isAvailable(),
         magazinePictureDto.getPhotos(),
         magazine.getTitle(),
         magazine.getCountry(),
@@ -99,13 +103,15 @@ public class MagazineConverter {
     );
   }
 
-  public Magazine toMagazine(MagazineDto magazineDto, User user, Geolocation geolocation) {
+  public Magazine toMagazine(MagazineCreateDto magazineDto, User user, Geolocation geolocation) {
     BigDecimal minAreaToRent =
         (magazineDto.getWhole() != null && magazineDto.getWhole()) ? magazineDto.getAreaInMeters()
             : magazineDto.getMinAreaToRent();
 
     return Magazine.builder()
         .owner(user)
+        .deleted(false)
+        .available(true)
         .title(magazineDto.getTitle())
         .country(magazineDto.getCountry())
         .city(magazineDto.getCity())
@@ -141,10 +147,11 @@ public class MagazineConverter {
         .build();
   }
 
-  public Magazine updateMagazine(Magazine magazine, MagazineDto magazineDto) {
+  public Magazine updateMagazine(Magazine magazine, MagazineUpdateDto magazineDto) {
     BigDecimal minAreaToRent =
         magazine.getWhole() ? magazine.getAreaInMeters() : magazineDto.getMinAreaToRent();
 
+    magazine.setAvailable(magazineDto.getAvailable());
     magazine.setTitle(magazineDto.getTitle());
     magazine.setHeating(magazineDto.getHeating());
     magazine.setLight(magazineDto.getLight());

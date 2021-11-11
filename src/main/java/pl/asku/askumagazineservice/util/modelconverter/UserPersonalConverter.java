@@ -26,7 +26,7 @@ public class UserPersonalConverter {
     return UserPersonalDto.builder()
         .user(userConverter.toDto(user))
         .activeSpaces(
-            magazineService.getActiveByOwner(user.getId())
+            magazineService.getAllNotDeletedByOwner(user.getId())
                 .stream()
                 .map(magazineConverter::toDto)
                 .collect(Collectors.toList())

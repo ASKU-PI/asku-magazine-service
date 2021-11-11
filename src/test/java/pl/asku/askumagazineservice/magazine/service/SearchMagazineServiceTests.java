@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
-import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -55,7 +55,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
       throws UserNotFoundException, LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     int magazinesToAdd = 6;
@@ -95,8 +95,8 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
   public void searchMagazinesShouldReturnMeetingRequirements()
       throws LocationNotFoundException, LocationIqRequestFailedException, UserNotFoundException {
     //given
-    MagazineDto magazineDto =
-        magazineDataProvider.magazineDto().toBuilder().type(MagazineType.CELL).build();
+    MagazineCreateDto magazineDto =
+        magazineDataProvider.magazineCreateDto().toBuilder().type(MagazineType.CELL).build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     LocalDate searchStartDate = magazineDto.getStartDate().plusDays(1);
@@ -161,13 +161,13 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
     //given
     User user = userDataProvider.user("test@test.pl", "666666666");
 
-    MagazineDto matchingMagazine = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto matchingMagazine = magazineDataProvider.magazineCreateDto().toBuilder()
         .antiTheftDoors(true)
         .electricity(false)
         .monitoring(true)
         .build();
 
-    MagazineDto notMatchingMagazine = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto notMatchingMagazine = magazineDataProvider.magazineCreateDto().toBuilder()
         .antiTheftDoors(false)
         .electricity(true)
         .monitoring(false)
@@ -208,7 +208,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
   @Test
   public void searchMagazinesShouldLimitResultsPerPage() throws UserNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     int magazinesToAdd = 100;
@@ -245,7 +245,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
   @Test
   public void shouldFilterNotAvailableMagazines() throws UserNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     int availableMagazines = 5;
@@ -302,7 +302,7 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
   @Test
   public void shouldFilterCurrentlyReservedBy() throws UserNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     int availableMagazines = 5;

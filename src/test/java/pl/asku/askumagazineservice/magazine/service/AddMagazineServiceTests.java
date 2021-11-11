@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -38,7 +39,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void shouldAddToDatabase()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
@@ -54,7 +55,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void shouldReturnCorrectMagazine()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
@@ -100,7 +101,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void succeedsForOnlyMandatoryFields()
       throws LocationNotFoundException, LocationIqRequestFailedException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
     User user = userDataProvider.user("test@test.pl", "666666666");
 
     //when
@@ -145,7 +146,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   @Test
   public void failsForEmptyMandatoryFields() {
     //given
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .city("")
         .build();
     User user = userDataProvider.user("test@test.pl", "666666666");
@@ -159,7 +160,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void failsForStartDateEqualsEndDate() {
     LocalDate date = LocalDate.now().plusDays(1);
 
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .startDate(date)
         .endDate(date)
         .build();
@@ -174,7 +175,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void failsForStartDateGreaterThanEndDate() {
     LocalDate date = LocalDate.now().plusDays(1);
 
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .startDate(date.plusDays(1))
         .endDate(date)
         .build();
@@ -190,7 +191,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
     BigDecimal area = BigDecimal.valueOf(100.0f);
     BigDecimal minAreaToRent = BigDecimal.valueOf(150.0f);
 
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .areaInMeters(area)
         .minAreaToRent(minAreaToRent)
         .build();
@@ -205,7 +206,7 @@ public class AddMagazineServiceTests extends MagazineServiceTestBase {
   public void failsForMinAreaToRentNotPositive() {
     BigDecimal minAreaToRent = BigDecimal.valueOf(0.0f);
 
-    MagazineDto magazineDto = magazineDataProvider.mandatoryOnlyMagazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .minAreaToRent(minAreaToRent)
         .build();
     User user = userDataProvider.user("test@test.pl", "666666666");

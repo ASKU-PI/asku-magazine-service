@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
 import pl.asku.askumagazineservice.controller.MagazineController;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.helpers.data.AuthenticationProvider;
 import pl.asku.askumagazineservice.helpers.data.MagazineDataProvider;
@@ -41,7 +42,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     //given
     User user = userDataProvider.user("test@test.pl", "666666666");
     Authentication authentication = authenticationProvider.userAuthentication(user);
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
 
     //when
     ResponseEntity<Object> response =
@@ -93,7 +94,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     //given
     User user = userDataProvider.user("test@test.pl", "666666666");
     Authentication authentication = authenticationProvider.userAuthentication(user);
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .city("")
         .build();
 
@@ -106,7 +107,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
   @Test
   public void failsWhenNotAuthenticated() {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder().build();
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder().build();
 
     //when
     ResponseEntity<Object> response = magazineController.addMagazine(magazineDto, null, null);
@@ -123,7 +124,7 @@ public class AddMagazineControllerTests extends MagazineControllerTestBase {
     User user = userDataProvider.user("test@test.pl", "666666666");
     Authentication authentication = authenticationProvider.userAuthentication(user);
 
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .minAreaToRent(minAreaToRent)
         .build();
 

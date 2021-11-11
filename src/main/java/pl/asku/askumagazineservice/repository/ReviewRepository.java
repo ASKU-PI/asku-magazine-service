@@ -13,10 +13,17 @@ public interface ReviewRepository extends PagingAndSortingRepository<Review, Lon
 
   Integer countByReservation_Magazine_Id(Long magazineId);
 
+  Integer countByReservation_User_Id(String userId);
+
   @Query(
       "SELECT ROUND(AVG(rw.rating), 1) FROM Review rw JOIN Reservation rn ON rn.id = rw"
           + ".reservation.id JOIN Magazine m ON m.id = rn.magazine.id WHERE m.id = :magazineId")
   BigDecimal averageByReservation_Magazine_Id(Long magazineId);
+
+  @Query(
+      "SELECT ROUND(AVG(rw.rating), 1) FROM Review rw JOIN Reservation rn ON rn.id = rw"
+          + ".reservation.id JOIN User u ON u.id = rn.user.id WHERE u.id = :userId")
+  BigDecimal averageByReservation_User_Id(String userId);
 
   Page<Review> findAllByReservation_Magazine_Id(Long magazineId, Pageable pageRequest);
 }

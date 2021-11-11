@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -30,7 +30,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
-import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
+import pl.asku.askumagazineservice.dto.magazine.MagazineUpdateDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
@@ -74,7 +75,7 @@ public class MagazineController {
 
   @PostMapping(value = "/add", consumes = "multipart/form-data")
   public ResponseEntity<Object> addMagazine(
-      @ModelAttribute @Valid MagazineDto magazineDto,
+      @ModelAttribute @Valid MagazineCreateDto magazineCreateDto,
       @RequestPart(value = "files", required = false) MultipartFile[] photos,
       Authentication authentication) {
 
@@ -85,21 +86,19 @@ public class MagazineController {
 
     try {
       User user = userService.getUser(authentication.getName());
-      Magazine magazine = magazineService.addMagazine(magazineDto, user, photos);
-      magazineDto = magazineConverter.toDto(magazine);
+      Magazine magazine = magazineService.addMagazine(magazineCreateDto, user, photos);
+      return ResponseEntity.status(HttpStatus.CREATED).body(magazineConverter.toDto(magazine));
     } catch (UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (ValidationException | LocationNotFoundException | LocationIqRequestFailedException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(magazineDto);
   }
 
   @PatchMapping(value = "/magazine", consumes = "multipart/form-data")
   public ResponseEntity<Object> updateMagazine(
       @RequestParam Long magazineId,
-      @ModelAttribute @Valid MagazineDto magazineDto,
+      @ModelAttribute @Valid MagazineUpdateDto magazineDto,
       @RequestParam(required = false) List<String> toDeletePhotosIds,
       @RequestPart(value = "files", required = false) MultipartFile[] toAddPhotos,
       Authentication authentication) {
@@ -114,6 +113,28 @@ public class MagazineController {
       return ResponseEntity.status(HttpStatus.OK).body(
           magazineConverter.toDto(magazineService.updateMagazine(
               magazine, magazineDto, toDeletePhotosIds, toAddPhotos)));
+    } catch (MagazineNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @PatchMapping("/magazine-availability")
+  public ResponseEntity<Object> setAvailability(
+      @RequestParam Boolean available,
+      @RequestParam Long magazineId,
+      Authentication authentication
+  ) {
+    try {
+      Magazine magazine = magazineService.getMagazine(magazineId);
+
+      if (!magazinePolicy.updateMagazine(authentication, magazine)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to update this space");
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body(
+          magazineConverter.toDto(magazineService.setAvailable(magazine, available))
+      );
     } catch (MagazineNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
@@ -259,6 +280,17 @@ public class MagazineController {
     } catch (ValidationException | UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+  }
+
+  @GetMapping("/magazine-active/")
+  public ResponseEntity<Object> getAvailableByOwner(
+      @RequestParam String ownerId
+  ) {
+    return ResponseEntity.status(HttpStatus.OK).body(
+        magazineService.getActiveByOwner(ownerId)
+            .stream().map(magazineConverter::toDto)
+            .collect(Collectors.toList())
+    );
   }
 
   @GetMapping("/max-area")

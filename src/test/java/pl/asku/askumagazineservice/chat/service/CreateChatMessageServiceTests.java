@@ -90,21 +90,4 @@ public class CreateChatMessageServiceTests extends ChatMessageServiceTestBase {
     assertThrows(UserNotFoundException.class,
         () -> chatMessageService.createMessage(chatMessageRequestDto, sender));
   }
-
-  @Test
-  public void failsWhenNonExistentSender() {
-    //given
-    User sender = userConverter.toUser(
-        userDataProvider.userDto("sender@test.pl", "666666666"));
-    User receiver = userDataProvider.user("receiver@test.pl", "777777777");
-
-    ChatMessageRequestDto chatMessageRequestDto = ChatMessageRequestDto.builder()
-        .body("test body")
-        .receiverId(receiver.getId())
-        .build();
-
-    //when then
-    assertThrows(ConstraintViolationException.class,
-        () -> chatMessageService.createMessage(chatMessageRequestDto, sender));
-  }
 }

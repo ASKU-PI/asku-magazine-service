@@ -1,10 +1,6 @@
 package pl.asku.askumagazineservice.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -15,18 +11,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String id;
-
+public class UserRegisterDto {
   @NotNull
   @NotBlank
   @Size(max = 50)
@@ -37,6 +28,7 @@ public class UserDto {
   @Size(max = 50)
   private String lastName;
 
+  @NotNull
   @Pattern(regexp = "[0-9\\-+\\s()]+")
   @Size(min = 3, max = 15)
   private String phoneNumber;
@@ -54,23 +46,7 @@ public class UserDto {
   @NotBlank
   private String email;
 
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private PictureData avatar;
-
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @NotNull
   @NotBlank
   private String password;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private Long ownedSpacesCount;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private Long reservationsCount;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private Long reviewsCount;
-
-  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private BigDecimal averageRating;
 }

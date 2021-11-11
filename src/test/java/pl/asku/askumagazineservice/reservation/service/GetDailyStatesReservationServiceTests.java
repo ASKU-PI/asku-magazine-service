@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
@@ -39,7 +40,7 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
       throws LocationNotFoundException, LocationIqRequestFailedException,
       MagazineNotAvailableException, MagazineNotFoundException {
     //given
-    MagazineDto magazineDto = magazineDataProvider.magazineDto().toBuilder()
+    MagazineCreateDto magazineDto = magazineDataProvider.magazineCreateDto().toBuilder()
         .startDate(LocalDate.now())
         .endDate(LocalDate.now().plusDays(2)).build();
     User user = userDataProvider.user("test@test.pl", "666666666");

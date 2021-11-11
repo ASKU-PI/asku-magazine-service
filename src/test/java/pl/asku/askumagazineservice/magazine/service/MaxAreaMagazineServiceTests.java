@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
+import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -44,8 +45,8 @@ public class MaxAreaMagazineServiceTests extends MagazineServiceTestBase {
     BigDecimal maxArea = Collections.max(areas);
 
     for (BigDecimal area : areas) {
-      MagazineDto magazineDto =
-          magazineDataProvider.magazineDto().toBuilder().areaInMeters(area).build();
+      MagazineCreateDto magazineDto =
+          magazineDataProvider.magazineCreateDto().toBuilder().areaInMeters(area).build();
       User user = userDataProvider.user("test@test.pl", "666666666");
       magazineDataProvider.magazine(user, magazineDto);
     }
