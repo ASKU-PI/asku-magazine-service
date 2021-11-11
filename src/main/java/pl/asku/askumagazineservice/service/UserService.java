@@ -43,7 +43,7 @@ public class UserService {
   public User addUser(@Valid @NotNull FacebookRegisterDto facebookRegisterDto) {
     FacebookUserDto facebookUserDto = authServiceClient.register(facebookRegisterDto);
     User user = User.builder()
-        .id(facebookUserDto.getId())
+        .id("fb@@" + facebookUserDto.getId())
         .firstName(facebookUserDto.getFirstName())
         .lastName(facebookUserDto.getLastName())
         .email(facebookUserDto.getEmail())

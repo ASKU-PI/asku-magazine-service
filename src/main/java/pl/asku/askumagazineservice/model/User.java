@@ -56,8 +56,6 @@ public class User {
   @Size(max = 50)
   private String lastName;
 
-  @NotNull
-  @NotBlank
   @Email
   @Column(unique = true)
   private String email;
@@ -66,12 +64,9 @@ public class User {
   @Size(min = 3, max = 15)
   private String phoneNumber;
 
-  @NotNull
-  @NotBlank
   @Size(max = 100)
   private String address;
 
-  @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate birthDate;
 }

@@ -41,26 +41,16 @@ public class UserDto {
   @Size(min = 3, max = 15)
   private String phoneNumber;
 
-  @NotNull
-  @NotBlank
   @Size(max = 100)
   private String address;
 
-  @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate birthDate;
 
-  @NotNull
-  @NotBlank
   private String email;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private PictureData avatar;
-
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-  @NotNull
-  @NotBlank
-  private String password;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long ownedSpacesCount;
