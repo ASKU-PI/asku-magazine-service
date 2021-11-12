@@ -142,15 +142,12 @@ public class ReservationService {
                   reservation -> reservation.getStartDate().compareTo(currentDate) <= 0
                       && reservation.getEndDate().compareTo(currentDate) >= 0)
               .collect(Collectors.toList());
-      if (dailyReservations.isEmpty() && magazine.getMinAreaToRent().compareTo(area) >= 0) {
-        result.add(new DailyStateDto(id, date, AvailabilityState.AVAILABLE));
-        continue;
-      }
       BigDecimal takenArea = dailyReservations
           .stream()
           .map(Reservation::getAreaInMeters)
           .reduce(BigDecimal.ZERO, BigDecimal::add);
-      if (takenArea.compareTo(magazine.getAreaInMeters()) == 0) {
+      if (takenArea.compareTo(magazine.getAreaInMeters()) == 0
+          || magazine.getMinAreaToRent().compareTo(area) > 0) {
         result.add(new DailyStateDto(id, date, AvailabilityState.FULL));
         continue;
       }
