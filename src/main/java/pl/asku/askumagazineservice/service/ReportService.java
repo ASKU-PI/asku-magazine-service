@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.service;
 
+import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -65,6 +66,14 @@ public class ReportService {
   public Report closeReport(@Valid Report report) {
     report.setClosed(true);
     return reportRepository.save(report);
+  }
+
+  public List<Report> getOpenMagazineReports(@NotNull Long magazineId) {
+    return reportRepository.findAllByClosedAndMagazine_Id(false, magazineId);
+  }
+
+  public void closeMagazineReports(@NotNull Long magazineId) {
+    getOpenMagazineReports(magazineId).forEach(this::closeReport);
   }
 
   public Report reopenReport(@Valid Report report) {

@@ -43,6 +43,7 @@ public class MagazineService {
   @Lazy
   private final MagazineConverter magazineConverter;
   private final MagazineValidator magazineValidator;
+  private final ReportService reportService;
 
   @Transactional
   public Magazine addMagazine(
@@ -101,6 +102,7 @@ public class MagazineService {
   @Transactional
   public Magazine deleteMagazine(@Valid Magazine magazine) throws MagazineNotFoundException {
     magazineRepository.deleteById(magazine.getId());
+    reportService.closeMagazineReports(magazine.getId());
     return getMagazine(magazine.getId());
   }
 
