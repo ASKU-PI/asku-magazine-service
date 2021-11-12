@@ -120,6 +120,17 @@ public class MagazineService {
     return magazineRepository.findAllByOwner_IdAndDeleted(ownerId, false);
   }
 
+  public MagazineSearchResult getAllNotDeletedByOwnerPageable(
+      @Min(1) Integer page,
+      @NotNull String ownerId) throws UserNotFoundException {
+    MagazineFilters filters = MagazineFilters.builder()
+        .ownerIdentifier(ownerId)
+        .withDeleted(false)
+        .build();
+
+    return magazineRepository.search(filters, PageRequest.of(page - 1, 3));
+  }
+
   public MagazineSearchResult searchMagazines(
       @Min(1) Integer page,
       @NotNull MagazineFilters filters,

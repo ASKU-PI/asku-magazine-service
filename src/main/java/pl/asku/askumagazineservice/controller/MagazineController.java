@@ -281,6 +281,20 @@ public class MagazineController {
     }
   }
 
+  @GetMapping("/user-magazines")
+  public ResponseEntity<Object> getAllNotDeletedByOwner(
+      @RequestParam(required = false) Optional<Integer> page,
+      @RequestParam String ownerId
+  ) {
+    try {
+      return ResponseEntity.status(HttpStatus.OK).body(
+          searchResultConverter.toDto(magazineService.getAllNotDeletedByOwnerPageable(
+              page.isPresent() && page.get() > 0 ? page.get() : 1, ownerId)));
+    } catch (ValidationException | UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
+
   @GetMapping("/magazine-active/")
   public ResponseEntity<Object> getAvailableByOwner(
       @RequestParam String ownerId
