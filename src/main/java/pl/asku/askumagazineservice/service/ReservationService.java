@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import pl.asku.askumagazineservice.dto.reservation.DailyAvailabilityDto;
 import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
@@ -122,7 +121,7 @@ public class ReservationService {
     return result;
   }
 
-  public List<DailyAvailabilityDto> getDailyAvailability(
+  public List<DailyStateDto> getDailyAvailability(
       Long id, BigDecimal area, LocalDate fromDate, LocalDate toDate)
       throws MagazineNotFoundException {
     List<Reservation> reservations =
@@ -130,13 +129,12 @@ public class ReservationService {
             fromDate, toDate);
     System.out.println(reservations);
     Magazine magazine = magazineService.getMagazine(id);
-    List<DailyAvailabilityDto> result = new ArrayList<>();
+    List<DailyStateDto> result = new ArrayList<>();
     for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
       LocalDate currentDate = date;
       if (magazine.getStartDate().compareTo(date) > 0
-          || magazine.getEndDate().compareTo(date) < 0
-          || magazine.getAreaInMeters().compareTo(area) < 0) {
-        result.add(new DailyAvailabilityDto(id, date, false));
+          || magazine.getEndDate().compareTo(date) < 0) {
+        result.add(new DailyStateDto(id, date, AvailabilityState.UNAVAILABLE));
         continue;
       }
       List<Reservation> dailyReservations =
@@ -145,18 +143,22 @@ public class ReservationService {
                       && reservation.getEndDate().compareTo(currentDate) >= 0)
               .collect(Collectors.toList());
       if (dailyReservations.isEmpty()) {
-        result.add(new DailyAvailabilityDto(id, date, true));
+        result.add(new DailyStateDto(id, date, AvailabilityState.EMPTY));
         continue;
       }
       BigDecimal takenArea = dailyReservations
           .stream()
           .map(Reservation::getAreaInMeters)
           .reduce(BigDecimal.ZERO, BigDecimal::add);
-      if (magazine.getAreaInMeters().subtract(takenArea).compareTo(area) < 0) {
-        result.add(new DailyAvailabilityDto(id, date, false));
+      if (takenArea.compareTo(magazine.getAreaInMeters()) == 0) {
+        result.add(new DailyStateDto(id, date, AvailabilityState.FULL));
         continue;
       }
-      result.add(new DailyAvailabilityDto(id, date, true));
+      if (magazine.getAreaInMeters().subtract(takenArea).compareTo(area) < 0) {
+        result.add(new DailyStateDto(id, date, AvailabilityState.SOME));
+        continue;
+      }
+      result.add(new DailyStateDto(id, date, AvailabilityState.AVAILABLE));
     }
     return result;
   }
