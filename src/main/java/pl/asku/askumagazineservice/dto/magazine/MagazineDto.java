@@ -18,7 +18,6 @@ import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
 import pl.asku.askumagazineservice.dto.user.UserDto;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 @Getter
@@ -93,7 +92,7 @@ public class MagazineDto {
 
   private Heating heating;
 
-  private Light light;
+  private Boolean light;
 
   private Boolean whole;
 

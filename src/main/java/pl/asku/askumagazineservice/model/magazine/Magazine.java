@@ -100,8 +100,7 @@ public class Magazine {
   @Enumerated(EnumType.STRING)
   private Heating heating;
 
-  @Enumerated(EnumType.STRING)
-  private Light light;
+  private Boolean light;
 
   private Boolean whole;
 

@@ -13,7 +13,6 @@ import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.service.MagazineService;
@@ -40,7 +39,7 @@ public class MagazineDataProvider {
         .minAreaToRent(BigDecimal.valueOf(10.0f))
         .type(MagazineType.GARAGE)
         .heating(Heating.ELECTRIC)
-        .light(Light.NATURAL)
+        .light(true)
         .whole(false)
         .monitoring(false)
         .antiTheftDoors(true)
@@ -73,7 +72,7 @@ public class MagazineDataProvider {
         .minAreaToRent(BigDecimal.valueOf(10.0f))
         .type(MagazineType.GARAGE)
         .heating(Heating.ELECTRIC)
-        .light(Light.NATURAL)
+        .light(true)
         .whole(false)
         .monitoring(false)
         .antiTheftDoors(true)
@@ -102,7 +101,7 @@ public class MagazineDataProvider {
         .minAreaToRent(BigDecimal.valueOf(10.0f))
         .type(MagazineType.GARAGE)
         .heating(Heating.ELECTRIC)
-        .light(Light.NATURAL)
+        .light(true)
         .whole(false)
         .monitoring(false)
         .antiTheftDoors(true)

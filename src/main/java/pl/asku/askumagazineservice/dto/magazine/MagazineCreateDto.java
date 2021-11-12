@@ -1,10 +1,7 @@
 package pl.asku.askumagazineservice.dto.magazine;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -14,10 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import pl.asku.askumagazineservice.dto.client.imageservice.PictureData;
-import pl.asku.askumagazineservice.model.magazine.Geolocation;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 @Getter
@@ -66,7 +60,7 @@ public class MagazineCreateDto {
 
   private Heating heating;
 
-  private Light light;
+  private Boolean light;
 
   private Boolean whole;
 

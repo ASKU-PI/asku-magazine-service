@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 @Getter
@@ -27,7 +26,7 @@ public class MagazineFilters {
   private String ownerIdentifier;
   private MagazineType type;
   private Heating heating;
-  private Light light;
+  private Boolean light;
   private Boolean isWhole;
   private Boolean hasMonitoring;
   private Boolean hasAntiTheftDoors;

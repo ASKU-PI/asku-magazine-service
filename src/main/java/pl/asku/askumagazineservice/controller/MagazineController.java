@@ -38,7 +38,6 @@ import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
 import pl.asku.askumagazineservice.exception.UserNotFoundException;
 import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.Magazine;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 import pl.asku.askumagazineservice.model.magazine.search.LocationFilter;
@@ -193,7 +192,7 @@ public class MagazineController {
       @RequestParam(required = false) Optional<String> historicallyReservedBy,
       @RequestParam(required = false) Optional<MagazineType> type,
       @RequestParam(required = false) Optional<Heating> heating,
-      @RequestParam(required = false) Optional<Light> light,
+      @RequestParam(required = false) Optional<Boolean> light,
       @RequestParam(required = false) Optional<Boolean> wholeLocation,
       @RequestParam(required = false) Optional<Boolean> elevator,
       @RequestParam(required = false) Optional<Boolean> monitoring,

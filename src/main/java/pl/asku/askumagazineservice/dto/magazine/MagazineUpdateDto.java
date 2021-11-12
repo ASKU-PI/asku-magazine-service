@@ -3,7 +3,6 @@ package pl.asku.askumagazineservice.dto.magazine;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import pl.asku.askumagazineservice.model.magazine.Heating;
-import pl.asku.askumagazineservice.model.magazine.Light;
 import pl.asku.askumagazineservice.model.magazine.MagazineType;
 
 @Getter
@@ -39,7 +37,7 @@ public class MagazineUpdateDto {
 
   private Heating heating;
 
-  private Light light;
+  private Boolean light;
 
   private Boolean whole;
 
