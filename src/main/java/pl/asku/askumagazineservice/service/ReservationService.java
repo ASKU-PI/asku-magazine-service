@@ -142,8 +142,8 @@ public class ReservationService {
                   reservation -> reservation.getStartDate().compareTo(currentDate) <= 0
                       && reservation.getEndDate().compareTo(currentDate) >= 0)
               .collect(Collectors.toList());
-      if (dailyReservations.isEmpty()) {
-        result.add(new DailyStateDto(id, date, AvailabilityState.EMPTY));
+      if (dailyReservations.isEmpty() && magazine.getMinAreaToRent().compareTo(area) >= 0) {
+        result.add(new DailyStateDto(id, date, AvailabilityState.AVAILABLE));
         continue;
       }
       BigDecimal takenArea = dailyReservations
