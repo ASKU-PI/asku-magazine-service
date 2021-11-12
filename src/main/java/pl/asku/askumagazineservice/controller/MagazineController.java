@@ -293,6 +293,13 @@ public class MagazineController {
     );
   }
 
+  @GetMapping("/boundary-values")
+  public ResponseEntity<Object> getBoundaryValues() {
+    return ResponseEntity.status(HttpStatus.OK).body(
+        magazineService.getBoundaryValues()
+    );
+  }
+
   @GetMapping("/max-area")
   public ResponseEntity<Object> maxArea() {
     try {

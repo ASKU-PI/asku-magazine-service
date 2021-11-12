@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import pl.asku.askumagazineservice.client.GeocodingClient;
 import pl.asku.askumagazineservice.client.ImageServiceClient;
+import pl.asku.askumagazineservice.dto.magazine.MagazineBoundaryValuesDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineUpdateDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
@@ -129,6 +130,10 @@ public class MagazineService {
       return magazineRepository.search(filters,
           PageRequest.of(page - 1, 20, sortOptions.getSort()));
     }
+  }
+
+  public MagazineBoundaryValuesDto getBoundaryValues() {
+    return magazineRepository.getBoundaryValues();
   }
 
   public BigDecimal maxArea() throws MagazineNotFoundException {
