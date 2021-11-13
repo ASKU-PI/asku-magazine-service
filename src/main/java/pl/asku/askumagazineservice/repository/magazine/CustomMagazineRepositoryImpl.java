@@ -89,16 +89,16 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
 
     if (magazineFilters.getStartDateGreaterOrEqual() != null) {
       queryBuilder
-          .append(" m.startDate <= TO_DATE('")
+          .append(" DATE(m.startDate) <= '")
           .append(magazineFilters.getStartDateGreaterOrEqual())
-          .append("','yyyy-MM-dd') AND");
+          .append("' AND");
     }
 
     if (magazineFilters.getEndDateLessOrEqual() != null) {
       queryBuilder
-          .append(" m.endDate >= TO_DATE('")
+          .append(" DATE(m.endDate) >= '")
           .append(magazineFilters.getEndDateLessOrEqual())
-          .append("','yyyy-MM-dd') AND");
+          .append("' AND");
     }
 
     if (magazineFilters.getMaxFreeArea() != null && magazineFilters.getIsWhole() != null
@@ -301,9 +301,9 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
       queryBuilder
           .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
           .append(magazineFilters.getCurrentlyReservedBy())
-          .append("' AND r.endDate >= TO_DATE('")
+          .append("' AND DATE(r.endDate) >= '")
           .append(today)
-          .append("','yyyy-MM-dd')) AND");
+          .append("') AND");
     }
 
     if (magazineFilters.getHistoricallyReservedBy() != null) {
@@ -313,9 +313,9 @@ public class CustomMagazineRepositoryImpl implements CustomMagazineRepository {
       queryBuilder
           .append(" m.id in (SELECT r.magazine FROM Reservation r WHERE r.user = '")
           .append(magazineFilters.getHistoricallyReservedBy())
-          .append("' AND r.endDate < TO_DATE('")
+          .append("' AND DATE(r.endDate) < '")
           .append(today)
-          .append("','yyyy-MM-dd')) AND");
+          .append("') AND");
     }
 
     queryBuilder.setLength(queryBuilder.length() - 4);

@@ -177,9 +177,9 @@ public class MagazineController {
       @RequestParam(required = false) Optional<String> location,
       @RequestParam(required = false) Optional<BigDecimal> radiusInKilometers,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          Optional<LocalDate> start,
+          Optional<LocalDate> startDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          Optional<LocalDate> end,
+          Optional<LocalDate> endDate,
       @RequestParam(required = false) Optional<BigDecimal> minArea,
       @RequestParam(required = false) Optional<BigDecimal> maxArea,
       @RequestParam(required = false) Optional<BigDecimal> minTemperature,
@@ -233,8 +233,8 @@ public class MagazineController {
 
     MagazineFilters filters = new MagazineFilters(
         locationFilter,
-        start.orElse(null),
-        end.orElse(null),
+        startDate.orElse(null),
+        endDate.orElse(null),
         minArea.orElse(null),
         maxArea.orElse(null),
         maxPricePerMeter.orElse(null),

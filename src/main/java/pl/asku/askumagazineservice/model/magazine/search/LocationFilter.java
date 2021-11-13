@@ -10,7 +10,7 @@ import pl.asku.askumagazineservice.model.magazine.Geolocation;
 
 @Getter
 public class LocationFilter {
-  private final BigDecimal defaultRadiusInKilometers = BigDecimal.valueOf(5.0f);
+  private final BigDecimal defaultRadiusInKilometers = BigDecimal.valueOf(15.0f);
   private final BigDecimal kilometerToDegreeRatio = BigDecimal.valueOf(111.0f);
   private final Geolocation mapCenter;
   private BigDecimal minLongitude;

@@ -71,8 +71,6 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)
-        .startDateGreaterOrEqual(magazineDto.getStartDate().plusDays(1))
-        .endDateLessOrEqual(magazineDto.getEndDate().minusDays(1))
         .minFreeArea(BigDecimal.valueOf(15.0f))
         .build();
 
@@ -126,8 +124,6 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)
-        .startDateGreaterOrEqual(searchStartDate)
-        .endDateLessOrEqual(searchEndDate)
         .minFreeArea(searchArea)
         .ownerIdentifier(user.getId())
         .type(MagazineType.CELL)
@@ -144,15 +140,13 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     //then
     searchResult.getSpaces().forEach(magazine -> Assertions.assertAll(
-        () -> assertTrue(searchStartDate.compareTo(magazine.getStartDate()) >= 0),
-        () -> assertTrue(searchEndDate.compareTo(magazine.getEndDate()) <= 0),
         () -> assertTrue(searchArea.compareTo(magazine.getAreaInMeters()) <= 0),
         () -> assertTrue(searchArea.compareTo(magazine.getMinAreaToRent()) >= 0),
         () -> assertEquals(user.getId(), magazine.getOwner().getId()),
         () -> assertEquals(MagazineType.CELL, magazine.getType())
     ));
     assertEquals(searchResult.getPages(), 1);
-    assertEquals(searchResult.getRecords(), 5);
+    assertEquals(searchResult.getRecords(), 7);
   }
 
   @Test
@@ -177,8 +171,6 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)
-        .startDateGreaterOrEqual(matchingMagazine.getStartDate().plusDays(1))
-        .endDateLessOrEqual(matchingMagazine.getEndDate().minusDays(1))
         .minFreeArea(BigDecimal.valueOf(15.0f))
         .hasAntiTheftDoors(true)
         .hasMonitoring(true)
@@ -222,8 +214,6 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)
-        .startDateGreaterOrEqual(magazineDto.getStartDate().plusDays(1))
-        .endDateLessOrEqual(magazineDto.getEndDate().minusDays(1))
         .minFreeArea(BigDecimal.valueOf(15.0f))
         .build();
 
@@ -279,8 +269,6 @@ class SearchMagazineServiceTests extends MagazineServiceTestBase {
 
     MagazineFilters filters = MagazineFilters.builder()
         .locationFilter(commonLocationFilter)
-        .startDateGreaterOrEqual(magazineDto.getStartDate().plusDays(1))
-        .endDateLessOrEqual(magazineDto.getEndDate().minusDays(1))
         .availableOnly(true)
         .build();
 
