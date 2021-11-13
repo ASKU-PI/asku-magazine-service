@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.asku.askumagazineservice.dto.user.UserDto;
+import pl.asku.askumagazineservice.model.chat.MessageType;
 
 @Getter
 @Setter
@@ -19,4 +20,5 @@ public class ChatMessageDto {
   private Date createdDate;
   private UserDto sender;
   private UserDto receiver;
+  private MessageType messageType;
 }

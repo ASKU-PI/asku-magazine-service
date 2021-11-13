@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,10 +23,13 @@ import pl.asku.askumagazineservice.dto.review.ReviewDto;
 import pl.asku.askumagazineservice.exception.ReservationNotFoundException;
 import pl.asku.askumagazineservice.exception.ReviewAlreadyExistsException;
 import pl.asku.askumagazineservice.exception.ReviewNotFoundException;
+import pl.asku.askumagazineservice.model.chat.ChatMessage;
+import pl.asku.askumagazineservice.model.chat.ChatNotification;
 import pl.asku.askumagazineservice.model.reservation.Reservation;
 import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.model.review.ReviewSearchResult;
 import pl.asku.askumagazineservice.security.policy.ReviewPolicy;
+import pl.asku.askumagazineservice.service.ChatMessageService;
 import pl.asku.askumagazineservice.service.ReservationService;
 import pl.asku.askumagazineservice.service.ReviewService;
 import pl.asku.askumagazineservice.util.modelconverter.ReviewConverter;
@@ -43,6 +47,9 @@ public class ReviewController {
   private final SearchResultConverter searchResultConverter;
 
   private final ReservationService reservationService;
+
+  private final SimpMessagingTemplate messagingTemplate;
+  private final ChatMessageService chatMessageService;
 
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -63,8 +70,20 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You cannot add the review.");
       }
 
+      Review review = reviewService.addReview(reviewDto, reservation);
+
+      ChatMessage chatMessage = chatMessageService.createMessage(review);
+
+      messagingTemplate.convertAndSendToUser(
+          chatMessage.getReceiver().getId(), "/queue/messages",
+          new ChatNotification(
+              chatMessage.getId(),
+              chatMessage.getSender().getId(),
+              chatMessage.getSender().getFirstName() + " "
+                  + chatMessage.getSender().getLastName()));
+
       return ResponseEntity.status(HttpStatus.CREATED)
-          .body(reviewService.addReview(reviewDto, reservation));
+          .body(review);
     } catch (ReservationNotFoundException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (ReviewAlreadyExistsException e) {

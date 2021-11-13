@@ -55,4 +55,7 @@ public class ChatMessage {
 
   @NotNull
   private MessageStatus status;
+
+  @NotNull
+  private MessageType type;
 }

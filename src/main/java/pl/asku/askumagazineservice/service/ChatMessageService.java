@@ -14,6 +14,8 @@ import pl.asku.askumagazineservice.model.User;
 import pl.asku.askumagazineservice.model.chat.Chat;
 import pl.asku.askumagazineservice.model.chat.ChatMessage;
 import pl.asku.askumagazineservice.model.chat.MessageStatus;
+import pl.asku.askumagazineservice.model.reservation.Reservation;
+import pl.asku.askumagazineservice.model.review.Review;
 import pl.asku.askumagazineservice.repository.ChatMessageRepository;
 import pl.asku.askumagazineservice.util.modelconverter.ChatMessageConverter;
 
@@ -29,6 +31,20 @@ public class ChatMessageService {
       @Valid @NotNull User sender)
       throws UserNotFoundException {
     ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatMessageRequestDto, sender);
+    return repository.save(chatMessage);
+  }
+
+  public ChatMessage createMessage(
+      @Valid @NotNull Reservation reservation
+  ) {
+    ChatMessage chatMessage = chatMessageConverter.toChatMessage(reservation);
+    return repository.save(chatMessage);
+  }
+
+  public ChatMessage createMessage(
+      @Valid @NotNull Review review
+      ) {
+    ChatMessage chatMessage = chatMessageConverter.toChatMessage(review);
     return repository.save(chatMessage);
   }
 
