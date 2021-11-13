@@ -30,7 +30,7 @@ public class UserRegisterDto {
 
   @NotNull
   @Pattern(regexp = "[0-9\\-+\\s()]+")
-  @Size(min = 3, max = 15)
+  @Size(min = 3, max = 30)
   private String phoneNumber;
 
   @NotNull

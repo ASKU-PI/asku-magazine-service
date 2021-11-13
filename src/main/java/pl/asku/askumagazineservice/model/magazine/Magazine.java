@@ -135,6 +135,8 @@ public class Magazine {
 
   private Boolean ownerTransport;
 
+  @Column(columnDefinition = "TEXT")
+  @Size(max = 1000)
   private String description;
 
   private BigDecimal minTemperature;

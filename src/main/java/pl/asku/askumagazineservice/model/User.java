@@ -61,7 +61,7 @@ public class User {
   private String email;
 
   @Pattern(regexp = "[0-9\\-+\\s()]+")
-  @Size(min = 3, max = 15)
+  @Size(min = 3, max = 30)
   private String phoneNumber;
 
   @Size(max = 100)

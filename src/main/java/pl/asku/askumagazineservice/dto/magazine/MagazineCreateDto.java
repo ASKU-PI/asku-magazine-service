@@ -98,7 +98,7 @@ public class MagazineCreateDto {
 
   private Boolean ownerTransport;
 
-  @Size(min = 3, max = 500)
+  @Size(min = 3, max = 1000)
   private String description;
 
   private BigDecimal minTemperature;
