@@ -1,5 +1,6 @@
 package pl.asku.askumagazineservice.controller;
 
+import com.stripe.exception.StripeException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
@@ -21,11 +22,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import pl.asku.askumagazineservice.dto.chat.ChatMessageRequestDto;
+import pl.asku.askumagazineservice.client.StripeClient;
 import pl.asku.askumagazineservice.dto.reservation.AvailableSpaceDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
@@ -57,6 +59,7 @@ public class ReservationController {
   private final UserService userService;
   private final SimpMessagingTemplate messagingTemplate;
   private final ChatMessageService chatMessageService;
+  private final StripeClient stripeClient;
 
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -95,6 +98,49 @@ public class ReservationController {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     } catch (MagazineNotFoundException | UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+    }
+  }
+
+  @PostMapping("/paid-reservation")
+  public ResponseEntity<Object> addReservation(
+      @RequestBody @Valid ReservationDto reservationDto,
+      @RequestHeader(value = "payment") String token,
+      Authentication authentication
+  ) {
+    System.out.println(token);
+
+    if (!reservationPolicy.addReservation(authentication)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
+    }
+
+    String username = authentication.getName();
+
+    try {
+      User user = userService.getUser(username);
+      Reservation reservation = reservationService.addReservation(reservationDto, user);
+      reservationDto.setId(reservation.getId());
+
+      this.stripeClient.chargeNewCard(token,
+          reservationService.getTotalPrice(reservationDto).getTotalPrice());
+
+      ChatMessage chatMessage = chatMessageService.createMessage(reservation);
+
+      messagingTemplate.convertAndSendToUser(
+          chatMessage.getReceiver().getId(), "/queue/messages",
+          new ChatNotification(
+              chatMessage.getId(),
+              chatMessage.getSender().getId(),
+              chatMessage.getSender().getFirstName() + " "
+                  + chatMessage.getSender().getLastName()));
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
+    } catch (MagazineNotAvailableException e) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    } catch (MagazineNotFoundException | UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+    } catch (StripeException e) {
+      System.out.println(e.getMessage());
+      return ResponseEntity.status(HttpStatus.GONE).body(e.getMessage());
     }
   }
 

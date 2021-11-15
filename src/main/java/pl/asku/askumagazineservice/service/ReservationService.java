@@ -1,6 +1,7 @@
 package pl.asku.askumagazineservice.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
+import pl.asku.askumagazineservice.dto.reservation.DailyStatePercentageDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
@@ -84,19 +86,19 @@ public class ReservationService {
         .findByMagazine_IdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(id, day, day);
   }
 
-  public List<DailyStateDto> getDailyStates(Long id, LocalDate fromDate, LocalDate toDate)
+  public List<DailyStatePercentageDto> getDailyStates(Long id, LocalDate fromDate, LocalDate toDate)
       throws MagazineNotFoundException {
     List<Reservation> reservations =
         reservationRepository.findActiveReservations(id,
             fromDate, toDate);
     System.out.println(reservations);
     Magazine magazine = magazineService.getMagazine(id);
-    List<DailyStateDto> result = new ArrayList<>();
+    List<DailyStatePercentageDto> result = new ArrayList<>();
     for (LocalDate date = fromDate; date.compareTo(toDate) <= 0; date = date.plusDays(1)) {
       LocalDate currentDate = date;
       if (magazine.getStartDate().compareTo(date) > 0
           || magazine.getEndDate().compareTo(date) < 0) {
-        result.add(new DailyStateDto(id, date, AvailabilityState.UNAVAILABLE));
+        result.add(new DailyStatePercentageDto(id, date, AvailabilityState.UNAVAILABLE, null));
         continue;
       }
       List<Reservation> dailyReservations =
@@ -105,7 +107,7 @@ public class ReservationService {
                       && reservation.getEndDate().compareTo(currentDate) >= 0)
               .collect(Collectors.toList());
       if (dailyReservations.isEmpty()) {
-        result.add(new DailyStateDto(id, date, AvailabilityState.EMPTY));
+        result.add(new DailyStatePercentageDto(id, date, AvailabilityState.EMPTY, 0));
         continue;
       }
       BigDecimal takenArea = dailyReservations
@@ -113,10 +115,11 @@ public class ReservationService {
           .map(Reservation::getAreaInMeters)
           .reduce(BigDecimal.ZERO, BigDecimal::add);
       if (takenArea.compareTo(magazine.getAreaInMeters()) == 0) {
-        result.add(new DailyStateDto(id, date, AvailabilityState.FULL));
+        result.add(new DailyStatePercentageDto(id, date, AvailabilityState.FULL, 100));
         continue;
       }
-      result.add(new DailyStateDto(id, date, AvailabilityState.SOME));
+      result.add(new DailyStatePercentageDto(id, date, AvailabilityState.SOME,
+          takenArea.divide(magazine.getAreaInMeters(), RoundingMode.HALF_EVEN).intValue()));
     }
     return result;
   }

@@ -141,6 +141,29 @@ public class UserController {
     }
   }
 
+  @GetMapping("/user-profile/{id}")
+  public ResponseEntity<Object> getUserProfile(@PathVariable @NotNull String id) {
+    try {
+      User user = userService.getUser(id);
+      return ResponseEntity.status(HttpStatus.OK).body(userConverter.toDto(user));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/user-profile")
+  public ResponseEntity<Object> getUserProfile(Authentication authentication) {
+    if (authentication == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You're not authenticated!");
+    }
+    try {
+      User user = userService.getUser(authentication.getName());
+      return ResponseEntity.status(HttpStatus.OK).body(userConverter.toDto(user));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
   @GetMapping("/user-personal/{id}")
   public ResponseEntity<Object> getUserPersonal(@PathVariable @NotNull String id,
                                                 Authentication authentication) {

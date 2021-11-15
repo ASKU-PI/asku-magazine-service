@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.asku.askumagazineservice.dto.magazine.MagazineCreateDto;
 import pl.asku.askumagazineservice.dto.magazine.MagazineDto;
 import pl.asku.askumagazineservice.dto.reservation.DailyStateDto;
+import pl.asku.askumagazineservice.dto.reservation.DailyStatePercentageDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.LocationIqRequestFailedException;
 import pl.asku.askumagazineservice.exception.LocationNotFoundException;
@@ -90,7 +91,7 @@ public class GetDailyStatesReservationServiceTests extends ReservationServiceTes
     );
 
     //when
-    List<DailyStateDto> states =
+    List<DailyStatePercentageDto> states =
         reservationService.getDailyStates(magazine.getId(), magazine.getStartDate().minusDays(1),
             magazine.getEndDate().plusDays(2));
 

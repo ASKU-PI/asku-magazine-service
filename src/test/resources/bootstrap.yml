@@ -8,5 +8,8 @@ spring:
 location-iq:
   api-key: extremelySecretExtrrremelySecret
 
+stripe:
+  api-key: extremelySecretExtrrremelySecret
+
 jwt:
   secret: verySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKeyverySecretKey
