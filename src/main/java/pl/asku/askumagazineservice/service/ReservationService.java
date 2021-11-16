@@ -119,7 +119,8 @@ public class ReservationService {
         continue;
       }
       result.add(new DailyStatePercentageDto(id, date, AvailabilityState.SOME,
-          takenArea.divide(magazine.getAreaInMeters(), RoundingMode.HALF_EVEN).intValue()));
+          takenArea.divide(magazine.getAreaInMeters(), RoundingMode.HALF_EVEN)
+              .multiply(BigDecimal.valueOf(100)).intValue()));
     }
     return result;
   }
