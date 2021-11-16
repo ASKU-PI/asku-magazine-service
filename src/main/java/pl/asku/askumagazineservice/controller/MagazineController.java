@@ -88,8 +88,10 @@ public class MagazineController {
       Magazine magazine = magazineService.addMagazine(magazineCreateDto, user, photos);
       return ResponseEntity.status(HttpStatus.CREATED).body(magazineConverter.toDto(magazine));
     } catch (UserNotFoundException e) {
+      System.out.println(e.getMessage());
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (ValidationException | LocationNotFoundException | LocationIqRequestFailedException e) {
+      System.out.println(e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
