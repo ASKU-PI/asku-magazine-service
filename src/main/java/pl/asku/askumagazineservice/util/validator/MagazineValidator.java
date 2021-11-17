@@ -40,8 +40,8 @@ public class MagazineValidator {
     }
 
     if (magazineDto.getMinAreaToRent() != null && magazineDto.getWhole() != null
-        && magazineDto.getWhole()) {
-      violations.add("Min area mustn't be provided when isWhole flag is true");
+        && magazineDto.getWhole() && magazineDto.getAreaInMeters().compareTo(magazineDto.getMinAreaToRent()) != 0) {
+      violations.add("Min area must be equal to total area");
     }
 
     if (magazineDto.getMinAreaToRent() != null
@@ -71,8 +71,8 @@ public class MagazineValidator {
     }
 
     if (magazineDto.getMinAreaToRent() != null && magazineDto.getWhole() != null
-        && magazineDto.getWhole()) {
-      violations.add("Min area mustn't be provided when isWhole flag is true");
+        && magazineDto.getWhole() && magazineDto.getAreaInMeters().compareTo(magazineDto.getMinAreaToRent()) != 0) {
+      violations.add("Min area must be equal to total area");
     }
 
     if (magazineDto.getMinAreaToRent() != null
