@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -191,6 +192,47 @@ public class UserController {
       User user = userService.getUser(authentication.getName());
 
       return ResponseEntity.status(HttpStatus.OK).body(userPersonalConverter.toPersonalDto(user));
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/user-avatar/{id}")
+  public ResponseEntity<Object> deleteUserAvatar(@PathVariable @NotNull String id, Authentication authentication) {
+    try {
+      User user = userService.getUser(id);
+
+      if (!userPolicy.updateUser(authentication, user)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to update this user");
+      }
+
+      userService.deleteUserAvatar(user);
+
+      return ResponseEntity.status(HttpStatus.OK).body("Avatar deleted");
+    } catch (UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/user-avatar")
+  public ResponseEntity<Object> deleteUserAvatar(Authentication authentication) {
+    if (authentication == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body("You are not authenticated");
+    }
+
+    try {
+      User user = userService.getUser(authentication.getName());
+
+      if (!userPolicy.updateUser(authentication, user)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("You are not authorized to update this user");
+      }
+
+      userService.deleteUserAvatar(user);
+
+      return ResponseEntity.status(HttpStatus.OK).body("Avatar deleted");
     } catch (UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }

@@ -84,6 +84,10 @@ public class MagazineService {
     Magazine updatedMagazine = magazineConverter.updateMagazine(magazine, magazineDto);
     updatedMagazine = magazineRepository.save(updatedMagazine);
 
+    if (toDeletePhotosIds != null && toDeletePhotosIds.size() > 0) {
+      imageServiceClient.deleteMagazinePictures(toDeletePhotosIds);
+    }
+
     if (toAddPhotos != null && toAddPhotos.length > 0) {
       imageServiceClient.uploadMagazinePictures(magazine.getId(), toAddPhotos);
     }

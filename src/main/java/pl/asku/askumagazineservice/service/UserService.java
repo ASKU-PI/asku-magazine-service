@@ -71,4 +71,8 @@ public class UserService {
     }
     return user.get();
   }
+
+  public void deleteUserAvatar(@Valid @NotNull User user) {
+    imageServiceClient.deleteUserPicture(user.getId());
+  }
 }

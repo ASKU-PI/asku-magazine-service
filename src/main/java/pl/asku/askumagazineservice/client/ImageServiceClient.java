@@ -67,6 +67,19 @@ public class ImageServiceClient {
     return magazinePictureDto;
   }
 
+  public void deleteMagazinePictures(List<String> ids) {
+    ids.forEach(this::deleteMagazinePicture);
+  }
+
+  private void deleteMagazinePicture(String id) {
+    var path = "/magazine";
+
+    UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
+        .queryParam("id", id);
+
+    restTemplate.delete(pathBuilder.toUriString(), String.class);
+  }
+
   public UserPictureDto uploadUserPicture(String userId, MultipartFile file) {
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
@@ -103,5 +116,14 @@ public class ImageServiceClient {
       userPictureDto = new UserPictureDto(null);
     }
     return userPictureDto;
+  }
+
+  public void deleteUserPicture(String id) {
+    var path = "/profile";
+
+    UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
+        .queryParam("id", id);
+
+    restTemplate.delete(pathBuilder.toUriString(), String.class);
   }
 }
