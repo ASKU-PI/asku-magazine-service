@@ -103,6 +103,8 @@ public class MagazineController {
       @RequestParam(required = false) List<String> toDeletePhotosIds,
       @RequestPart(value = "files", required = false) MultipartFile[] toAddPhotos,
       Authentication authentication) {
+    System.out.println(toDeletePhotosIds.size());
+
     try {
       Magazine magazine = magazineService.getMagazine(magazineId);
 

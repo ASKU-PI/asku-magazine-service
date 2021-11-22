@@ -67,15 +67,16 @@ public class ImageServiceClient {
     return magazinePictureDto;
   }
 
-  public void deleteMagazinePictures(List<String> ids) {
-    ids.forEach(this::deleteMagazinePicture);
+  public void deleteMagazinePictures(Long magazineId, List<String> ids) {
+    ids.forEach(id -> deleteMagazinePicture(magazineId, id));
   }
 
-  private void deleteMagazinePicture(String id) {
+  private void deleteMagazinePicture(Long magazineId, String id) {
     var path = "/magazine";
 
     UriComponentsBuilder pathBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl + path)
-        .queryParam("id", id);
+        .queryParam("photoId", id)
+        .queryParam("id", magazineId);
 
     restTemplate.delete(pathBuilder.toUriString(), String.class);
   }
