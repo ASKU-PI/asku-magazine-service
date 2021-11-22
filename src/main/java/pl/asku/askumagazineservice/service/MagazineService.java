@@ -122,6 +122,10 @@ public class MagazineService {
     return magazineRepository.findAllActiveByOwner(ownerId);
   }
 
+  public List<Magazine> getAllNotActiveByOwner(@NotNull String ownerId) {
+    return magazineRepository.findAllNotActiveByOwner(ownerId);
+  }
+
   public List<Magazine> getAllNotDeletedByOwner(@NotNull String ownerId) {
     return magazineRepository.findAllByOwner_IdAndDeleted(ownerId, false);
   }

@@ -14,8 +14,13 @@ public interface MagazineRepository
 
   List<Magazine> findAllByOwner_IdAndDeleted(String ownerId, Boolean deleted);
 
-  @Query("SELECT m FROM Magazine m WHERE m.owner.id = :username AND m.endDate >= CURRENT_DATE")
+  @Query("SELECT m FROM Magazine m WHERE m.owner.id = :username AND m.endDate >= CURRENT_DATE AND"
+      + " m.deleted <> true")
   List<Magazine> findAllActiveByOwner(String username);
+
+  @Query("SELECT m FROM Magazine m WHERE m.owner.id = :username AND (m.endDate < CURRENT_DATE OR "
+      + "m.deleted = true)")
+  List<Magazine> findAllNotActiveByOwner(String username);
 
   List<Magazine> findAll();
 

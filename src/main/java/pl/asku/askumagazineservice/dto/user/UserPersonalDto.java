@@ -20,6 +20,8 @@ public class UserPersonalDto {
 
   private List<MagazineDto> activeSpaces;
 
+  private List<MagazineDto> deactivatedSpaces;
+
   private List<ReservationDto> activeReservations;
 
   private List<ReservationDto> pastReservations;

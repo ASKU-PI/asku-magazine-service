@@ -26,7 +26,7 @@ public class UserPersonalConverter {
     return UserPersonalDto.builder()
         .user(userConverter.toDto(user))
         .activeSpaces(
-            magazineService.getAllNotDeletedByOwner(user.getId())
+            magazineService.getActiveByOwner(user.getId())
                 .stream()
                 .map(magazineConverter::toDto)
                 .collect(Collectors.toList())
@@ -41,6 +41,12 @@ public class UserPersonalConverter {
             reservationService.getUserPast(user.getId())
                 .stream()
                 .map(reservationConverter::toDto)
+                .collect(Collectors.toList())
+        )
+        .deactivatedSpaces(
+            magazineService.getAllNotActiveByOwner(user.getId())
+                .stream()
+                .map(magazineConverter::toDto)
                 .collect(Collectors.toList())
         )
         .build();

@@ -38,7 +38,7 @@ public class StripeClient {
     System.out.println(apiKey);
     Stripe.apiKey = apiKey;
     Map<String, Object> chargeParams = new HashMap<>();
-    chargeParams.put("amount", amount.intValue());
+    chargeParams.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
     chargeParams.put("currency", "USD");
     chargeParams.put("source", token);
 
@@ -48,7 +48,7 @@ public class StripeClient {
   public Charge chargeCustomerCard(String customerId, BigDecimal amount) throws StripeException {
     String sourceCard = getCustomer(customerId).getDefaultSource();
     Map<String, Object> chargeParams = new HashMap<>();
-    chargeParams.put("amount", amount);
+    chargeParams.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
     chargeParams.put("currency", "USD");
     chargeParams.put("customer", customerId);
     chargeParams.put("source", sourceCard);
