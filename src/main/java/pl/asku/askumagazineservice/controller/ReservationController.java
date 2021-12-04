@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import com.stripe.model.PaymentIntent;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.asku.askumagazineservice.client.StripeClient;
 import pl.asku.askumagazineservice.dto.reservation.AvailableSpaceDto;
+import pl.asku.askumagazineservice.dto.reservation.PaymentResponseDto;
 import pl.asku.askumagazineservice.dto.reservation.ReservationDto;
 import pl.asku.askumagazineservice.exception.MagazineNotAvailableException;
 import pl.asku.askumagazineservice.exception.MagazineNotFoundException;
@@ -102,44 +105,38 @@ public class ReservationController {
   }
 
   @PostMapping("/paid-reservation")
-  public ResponseEntity<Object> addReservation(
+  public ResponseEntity<Object> createPaymentIntent(
       @RequestBody @Valid ReservationDto reservationDto,
-      @RequestHeader(value = "payment") String token,
       Authentication authentication
   ) {
-    System.out.println(token);
+
+    String username = authentication.getName();
 
     if (!reservationPolicy.addReservation(authentication)) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reservationDto);
     }
 
-    String username = authentication.getName();
-
     try {
-      User user = userService.getUser(username);
-      Reservation reservation = reservationService.addReservation(reservationDto, user);
-      reservationDto.setId(reservation.getId());
+      if (magazineService.getMagazine(reservationDto.getMagazineId()) == null) {
+        throw new MagazineNotFoundException();
+      }
 
-      this.stripeClient.chargeNewCard(token,
-          reservationService.getTotalPrice(reservationDto).getTotalPrice());
+      if (userService.getUser(username) == null) {
+        throw new UserNotFoundException();
+      }
 
-      ChatMessage chatMessage = chatMessageService.createMessage(reservation);
+      PaymentIntent paymentIntent = this.stripeClient
+              .charge(reservationService
+                      .getTotalPrice(reservationDto)
+                      .getTotalPrice()
+              );
 
-      messagingTemplate.convertAndSendToUser(
-          chatMessage.getReceiver().getId(), "/queue/messages",
-          new ChatNotification(
-              chatMessage.getId(),
-              chatMessage.getSender().getId(),
-              chatMessage.getSender().getFirstName() + " "
-                  + chatMessage.getSender().getLastName()));
+      PaymentResponseDto response = new PaymentResponseDto(paymentIntent.getClientSecret());
 
-      return ResponseEntity.status(HttpStatus.CREATED).body(reservationDto);
-    } catch (MagazineNotAvailableException e) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+      return ResponseEntity.status(HttpStatus.OK).body(response);
     } catch (MagazineNotFoundException | UserNotFoundException e) {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     } catch (StripeException e) {
-      System.out.println(e.getMessage());
       return ResponseEntity.status(HttpStatus.GONE).body(e.getMessage());
     }
   }
